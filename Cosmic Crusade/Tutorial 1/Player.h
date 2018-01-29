@@ -32,26 +32,28 @@ public:
 	void setDead() { playerState = dead; }
 	void setAlive() { playerState = alive; }
 
+	float progress = 0;
+	float transformMax = 15;
+
 	float getAccuracy()
 	{
-		if (totalShots == 0)
+		if (totalShots <= 0)
 			return 0;
 
-		return hits / totalShots * 100;
+		return trunc((hits / totalShots) * 100);
 	}
-
-	float progress = 0;
-	float transformMax = 3;
 
 	GameObject blackBar;
 	GameObject yellowBar;
 
 	GameObject shield;
 
+	unsigned int score = 0;
+
 private: 
 
 	state playerState = alive;
-	XBox::XBoxInput controller;
+	XBox::XBoxInput controller;	
 	XBox::Stick lStick;
 	XBox::Stick rStick;
 	int playerNum;
@@ -63,11 +65,10 @@ private:
 	unsigned int hits = 0;
 	unsigned int totalShots = 0;
 
+
 	Material baseMat;
 	Material transformMat;
 
 	//Vector containing all the projectiles the player has fired. Stored in player for collision purposes. 
 	std::vector<Projectile*> projectiles;
-
-	int score = 0;
 };

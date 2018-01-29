@@ -170,4 +170,16 @@ void GameObject::loadTexture(TextureType type, const std::string & texFile)
 	mat.loadTexture(type, texFile);
 }
 
+void GameObject::lookAt(glm::vec3 & position, glm::vec3 & target, glm::vec3 up)
+{
+	glm::vec3 direction = glm::normalize(target - position);
+	glm::vec3 right = glm::normalize(glm::cross(up, direction));
+
+	up = glm::cross(direction, right);
+
+	rotate = glm::mat4(right.x, up.x, direction.x, position.x,
+		right.y, up.y, direction.y, position.y,
+		right.z, up.z, direction.z, position.z,
+		0, 0, 0, 1);
+}
 

@@ -22,7 +22,7 @@ public:
 	Timer* updateTimer = nullptr;
 	float localTime = 0.0f;
 	float delay;
-
+	int target = 0;
 private:
 
 

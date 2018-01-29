@@ -26,7 +26,7 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 	if ((isTransformed && otherPlayer->isTransformed) && progress >= 0.0f)
 	{
 		progress -= updateTimer->getElapsedTimeS();
-		blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3((transformMax - progress) / transformMax * 0.3f, 0.3f, 0.3f));
+		blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3((transformMax - progress) / transformMax, .3f, .3f));
 		blackBar.move(0.0f, 0.0f);
 	}
 
@@ -64,11 +64,11 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 					progress++;
 					otherPlayer->progress++;
 
-					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), 0.3f, 0.3f));
-					//std::cout << 1.0f - (progress / transformMax) << std::endl;
+					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
+					std::cout << 1.0f - (progress / transformMax) << std::endl;
 					blackBar.move(0, 0);
 
-					otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(0.3f - (0.3f * (progress / transformMax)), 0.3f, 0.3f));
+					otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
 					otherPlayer->blackBar.move(0, 0);
 
 					//Erase projectile, Erase enemy
@@ -82,7 +82,7 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 				{
 					//Erase projectile, Erase enemy
 					deleteProjectile(i);
-
+				
 					enemies->erase(enemies->begin() + j);
 					break;
 				}
@@ -145,7 +145,6 @@ void Player::xin(Player* otherPlayer)
 	//Shoot after they delay, and reset delay
 	if (tilted && (localTime > delay))
 	{
-		totalShots++;
 		localTime = 0;
 		
 		shoot();
@@ -214,6 +213,9 @@ void Player::shoot()
 
 	//Assign velovity
 	temp->velocity = glm::vec2(0.5 * normalVel.x, 0.5 * normalVel.y);
+
+	totalShots++;
+	std::cout << totalShots << std::endl;
 
 	projectiles.push_back(temp);
 }

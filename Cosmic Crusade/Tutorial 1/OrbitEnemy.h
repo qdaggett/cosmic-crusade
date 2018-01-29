@@ -10,7 +10,7 @@ public:
 	void update(std::vector<Player*>, std::vector<Projectile*>*);
 	void shoot(std::vector<Player*>, std::vector<Projectile*>*);
 
-	float distanceToPlayer = 15.0f;
+	float distanceToPlayer = 8.f;
 	bool orbit = false;
 	bool boundary;
 };

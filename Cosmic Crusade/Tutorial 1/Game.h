@@ -3,12 +3,14 @@
 #include "BasicEnemy.h"
 #include "CircleEnemy.h"
 #include "OrbitEnemy.h"
-#include "Font.h"
 #include "Light.h"
 #include "ShaderProgram.h"
 #include "Background.h"
 #include <WinUser.h>
 #include <vector>
+#include "Font.h"
+#include "Foreground.h"
+#include "SoundEngine.h"
 
 #define FRAMES_PER_SECOND 60
 
@@ -31,6 +33,14 @@ public:
 	void emptyGame();
 	void initializeLevel();
 
+	// FMOD data members
+	SoundEngine se;
+	FMOD::Sound *failsound;
+	FMOD::Channel *channel = 0;
+	FMOD_VECTOR soundPos = { 0.0f, 0.0f, 0.0f };
+	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
+	FMOD_RESULT result;
+
 	//Data Members
 	Timer* updateTimer = nullptr;
 	Player player;
@@ -48,6 +58,7 @@ public:
 	Material red; 
 	Material blue; 
 	Material yellow;
+	Material green;
 	Material purple;
 	Material bluePlayer;
 	Material yellowPlayer;
@@ -57,11 +68,13 @@ public:
 
 	//Shaders
 	ShaderProgram phong;
+	ShaderProgram phongColorSides;
 	ShaderProgram textShader;
 
 	glm::mat4 cameraTransform;
 	glm::mat4 cameraProjection;
 	glm::mat4 cameraOrtho;
+	glm::mat4 lightSpinner;
 
 private:
 
@@ -82,9 +95,11 @@ private:
 
 	bool shouldLightsSpin = false;
 	void updateEnemyProjectiles();
-	enum gameStates{main, gameOver, title, win};
+	enum gameStates{main, gameOver, title};
 	gameStates state = title;
 	float delay;
+
+	bool debugSelect;
 
 	bool empty = false;
 
@@ -97,4 +112,6 @@ private:
 	Material play, play_un, quit, quit_un;
 
 	Font text;
+
+	Foreground foreground;
 };

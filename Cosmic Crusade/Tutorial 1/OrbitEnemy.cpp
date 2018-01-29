@@ -5,7 +5,7 @@ OrbitEnemy::OrbitEnemy()
 	glm::vec2 direction = glm::vec2() - location;
 
 	velocity = glm::normalize(direction);
-	delay = 0.75f;
+	delay = 2.0f;
 }
 
 OrbitEnemy::~OrbitEnemy()
@@ -63,7 +63,7 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 		
 	}
 
-		move(velocity.x * 0.2f, velocity.y * 0.2f);
+		move(velocity.x * .4f, velocity.y * .4f);
 	//if ((location.x >= 20.0f) || (location.x <= -20.0f))
 	//	velocity.x = -velocity.x;
 

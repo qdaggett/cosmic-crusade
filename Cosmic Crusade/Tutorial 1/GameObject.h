@@ -28,6 +28,8 @@ public:
 	void draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat4 cameraProjection, Light pointLight);
 	void loadTexture(TextureType type, const std::string &texFile);
 
+	void lookAt(glm::vec3 &position, glm::vec3 &target, glm::vec3 up);
+
 	//For collision sphere
 	float radius = 0.5f;
 

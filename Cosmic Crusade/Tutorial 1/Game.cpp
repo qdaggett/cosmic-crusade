@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/functions.hpp>
+#include "SoundEngine.h"
 
 GameObject bullet;
 
@@ -96,6 +97,9 @@ void Game::initializeGame()
 		exit(0);
 	}
 
+	player.mesh = basicPlayer.mesh;
+	player2.mesh = basicPlayer.mesh;
+
 	if (!bullet.mesh.loadFromFile("meshes/bullet1.obj"))
 	{
 		std::cout << "Projectile model failed to load." << std::endl;
@@ -114,20 +118,25 @@ void Game::initializeGame()
 		exit(0);
 	}
 
-	if (!circleEnemy.mesh.loadFromFile("meshes/Circle_Enemy.obj"))
+	if (!circleEnemy.mesh.loadFromFile("meshes/sphere.obj"))
 	{
 		std::cout << "Player model failed to load." << std::endl;
 		system("pause");
 		exit(0);
 	}
 
-	orbitEnemy.mesh = basicEnemy.mesh;
-
-	orbitEnemy.projectile.mesh = bullet.mesh;
+	if (!orbitEnemy.mesh.loadFromFile("meshes/sphere.obj"))
+	{
+		std::cout << "Player model failed to load." << std::endl;
+		system("pause");
+		exit(0);
+	}
 	
 	basicEnemy.projectile.mesh = bullet.mesh;
 	
 	circleEnemy.projectile.mesh = bullet.mesh;
+
+	orbitEnemy.projectile.mesh = bullet.mesh;
 
 	if (!player.blackBar.mesh.loadFromFile("meshes/bar.obj"))
 	{
@@ -157,10 +166,6 @@ void Game::initializeGame()
 		exit(0);
 	}
 
-
-	player.mesh = basicPlayer.mesh;
-	player2.mesh = basicPlayer.mesh;
-
 	quitButton.mesh = playButton.mesh;
 	playButton.setLocation(0, 0);
 	quitButton.setLocation(0, -8);
@@ -173,23 +178,22 @@ void Game::initializeGame()
 
 	cameraTransform = glm::translate(cameraTransform, glm::vec3(0.0f, 0.0f, -30.0f));
 	cameraProjection = glm::perspective(45.0f, ((float)GetSystemMetrics(SM_CXSCREEN) / (float)GetSystemMetrics(SM_CYSCREEN)), 0.1f, 10000.0f);
-	cameraOrtho = glm::ortho(-10.f, 10.f, -10.f, 10.f, -30.f, 100.f);
+	cameraOrtho = glm::ortho(-10.f, 10.f, -10.f, 10.f, -30.f, 1000.f);
 
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
 
 	basicEnemy.loadTexture(Diffuse, "Textures/Basic_Enemy.png");
-	circleEnemy.loadTexture(Diffuse, "Textures/Circle_Enemy.png");
 
 	red.loadTexture(Diffuse, "Textures/red.png");
 	blue.loadTexture(Diffuse, "Textures/blue.png");
 	yellow.loadTexture(Diffuse, "Textures/yellow.png");
+	green.loadTexture(Diffuse, "Textures/green.png");
 
 	play.loadTexture(Diffuse, "Textures/Play.png");
 	play_un.loadTexture(Diffuse, "Textures/Play_Un.png");
 	quit.loadTexture(Diffuse, "Textures/Quit.png");
 	quit_un.loadTexture(Diffuse, "Textures/Quit_Un.png");
-	combinedPlayer.loadTexture(Diffuse, "Textures/Green.png");
 
 	playButton.mat = play;
 	quitButton.mat = quit_un;
@@ -203,10 +207,12 @@ void Game::initializeGame()
 	player.setNum(0);
 	player2.setNum(1);
 		
-	orbitEnemy.mat = basicEnemy.mat;
-
 	basicEnemy.projectile.mat = red;
+
+	circleEnemy.mat = red;
 	circleEnemy.projectile.mat = red;
+
+	orbitEnemy.mat = red;
 	orbitEnemy.projectile.mat = red;
 
 	player.blackBar.loadTexture(Diffuse, "Textures/Black.png");
@@ -221,8 +227,8 @@ void Game::initializeGame()
 
 	player2.shield.loadTexture(Diffuse, "Textures/cyan.png");
 	
-	player.move(-10.0f, -5.0f);
-	player2.move(10.0f, -5.0f);
+	player.move(10.0f, -5.0f);
+	player2.move(-10.0f, -5.0f);
 	players.push_back(&player);
 	players.push_back(&player2);
 															 
@@ -234,12 +240,32 @@ void Game::initializeGame()
 
 	background.Initialize();
 
+	std::cout << player.radius << std::endl;
+
 	text.Intialize("Square.ttf");
+
+	foreground.Intialize();
+
+	// Initializing sound engine
+	se.Init();
+
+	// Loading in sound files
+	result = se.system->createSound("sounds/failsound.wav", FMOD_3D, 0, &failsound);
+	FModErrorCheck(result);
+	result = failsound->set3DMinMaxDistance(0.5f, 300.0f);
+	FModErrorCheck(result);
+
+	// Setting the failsound to not repeat
+	result = failsound->setMode(FMOD_LOOP_OFF);
 }
 
 //Happens once per frame, used to update state of the game
 void Game::update()
 {
+	// FMOD update function
+	result = se.system->update();
+	FModErrorCheck(result);
+
 	if (state == title)
 	{
 		draw();
@@ -294,17 +320,20 @@ void Game::update()
 		updateTimer->tick();
 		delay += updateTimer->getElapsedTimeS();
 		
-
+		//std::cout << updateTimer->getElapsedTimeS() << std::endl;
 		background.update();
+		foreground.Update(updateTimer->getElapsedTimeS());
 
 		if (player.isTransformed && player2.isTransformed)
 		{
 			player.mesh = combinedPlayer.mesh;
 			player2.mesh = combinedPlayer.mesh;
 
-			player.mat = combinedPlayer.mat;
+			player.mat = green;
+			player.projectile.mat = green;
 
-			player2.mat = combinedPlayer.mat;
+			player2.mat = green;
+			player2.projectile.mat = green;
 		}
 
 		if (!player.isTransformed && player.progress <= 1.0f)
@@ -351,7 +380,7 @@ void Game::update()
 
 		updateEnemyProjectiles();
 
-		if ((player.numLives == 0) && (player2.numLives == 0))
+		if ((player.numLives == 0) && (player2.numLives == 0) || currentEnemy == level1.size() - 1 && enemies.empty())
 			state = gameOver;
 
 		if ((currentEnemy < level1.size()) && (level1[currentEnemy]->spawnTime <= delay))
@@ -372,10 +401,10 @@ void Game::update()
 			if (level1[currentEnemy]->type == circle)
 			{
 				CircleEnemy* temp = new CircleEnemy();
-				temp->mesh = circleEnemy.mesh;
-				temp->mat = circleEnemy.mat;
-				temp->projectile.mesh = circleEnemy.projectile.mesh;
-				temp->projectile.mat = circleEnemy.projectile.mat;
+				temp->mesh = basicEnemy.mesh;
+				temp->mat = basicEnemy.mat;
+				temp->projectile.mesh = basicEnemy.projectile.mesh;
+				temp->projectile.mat = basicEnemy.projectile.mat;
 
 				temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
 
@@ -397,31 +426,6 @@ void Game::update()
 
 			currentEnemy++;
 		}
-
-		if ((currentEnemy == level1.size()) && (enemies.size() == 0))
-		{
-			state = win;
-		}
-	}
-
-	if (state == win)
-	{
-		background.victory();
-
-		draw();
-
-		for (int i = 0; i < players.size(); i++)
-		{
-			players[i]->controller.DownloadPackets(2);
-
-			if (players[i]->controller.GetButton(i, XBox::A))
-			{
-				//state = title;
-				//background.mainMenu();
-				//empty = false;
-				exit(0);
-			}
-		}
 	}
 
 	if (state == gameOver)
@@ -431,6 +435,16 @@ void Game::update()
 			emptyGame();
 
 			background.gameOver();
+
+			FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
+			FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
+
+			result = se.system->playSound(failsound, 0, true, &channel);
+			FModErrorCheck(result);
+			result = channel->set3DAttributes(&pos, &vel);
+			FModErrorCheck(result);
+			result = channel->setPaused(false);
+			FModErrorCheck(result);
 		}
 
 
@@ -457,6 +471,7 @@ void Game::draw()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 	if (state == main)
 	{
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player.score), -9.5, -8, .01f, glm::vec3(0, 0, 1));
@@ -468,30 +483,15 @@ void Game::draw()
 			text.RenderText(textShader, cameraOrtho, "Press LB to transform", -2.5f, -7, .01f, glm::vec3(1));
 	}
 
-	if (state == win)
-	{
-		float accuracy1 = player.getAccuracy();
-		float accuracy2 = player2.getAccuracy();
-		text.RenderText(textShader, cameraOrtho, "Player 1 Score: ", -9.5, -6, .01f, glm::vec3(0, 0, 1));
-		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player.score), -9.5, -7, .01f, glm::vec3(0, 0, 1));
-		//	text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(accuracy1) + "%", -9.5, -8, .01f, glm::vec3(0, 0, 1));
-
-		text.RenderText(textShader, cameraOrtho, "Player 2 Score: ", 5.5f, -6, .01f, glm::vec3(1, 1, 0));
-		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player2.score), 5.5f, -7, .01f, glm::vec3(1, 1, 0));
-		//text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(accuracy2) + "%", 5.5f, -8, .01f, glm::vec3(1, 1, 0));
-	}
-
 	if (state == gameOver)
 	{
-		float accuracy1 = player.getAccuracy();
-		float accuracy2 = player2.getAccuracy();
-		text.RenderText(textShader, cameraOrtho, "Player 1 Score: ", -9.5, -6, .01f, glm::vec3(0, 0, 1));
+		text.RenderText(textShader, cameraOrtho, "Player 1 Score: " , -9.5, -6, .01f, glm::vec3(0, 0, 1));
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player.score), -9.5, -7, .01f, glm::vec3(0, 0, 1));
-	//	text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(accuracy1) + "%", -9.5, -8, .01f, glm::vec3(0, 0, 1));
+		text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(player.getAccuracy()) + "%", -9.5, -8, .01f, glm::vec3(0, 0, 1));
 
 		text.RenderText(textShader, cameraOrtho, "Player 2 Score: ", 5.5f, -6, .01f, glm::vec3(1, 1, 0));
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player2.score), 5.5f, -7, .01f, glm::vec3(1, 1, 0));
-		//text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(accuracy2) + "%", 5.5f, -8, .01f, glm::vec3(1, 1, 0));
+		text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(player2.getAccuracy()) + "%", 5.5f, -8, .01f, glm::vec3(1, 1, 0));
 	}
 
 	phong.bind();
@@ -504,11 +504,6 @@ void Game::draw()
 	}
 
 	else if (state == gameOver)
-	{
-		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
-	}
-
-	else if (state == win)
 	{
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 	}
@@ -534,10 +529,11 @@ void Game::draw()
 			if (players[i]->isAlive())
 			{
 				players[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
-			}
-			for (int j = 0; j < players[i]->getProjectiles().size(); j++)
-			{
-				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+
+				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
+				{
+					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+				}
 			}
 		}
 
@@ -545,8 +541,11 @@ void Game::draw()
 		player.yellowBar.draw(phong, cameraTransform, cameraOrtho, pointLights);
 
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
+		foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
+
 	}
 
+	
 	phong.unbind();
 
 	glutSwapBuffers();
@@ -576,7 +575,8 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 	case 'L':
 		shouldLightsSpin = !shouldLightsSpin;
 		break;
-
+	case 'a':
+		debugSelect = true;
 	default:
 		break;
 	}
@@ -643,12 +643,6 @@ void Game::updateEnemyProjectiles()
 		{
 			players[0]->setDead();
 			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-
-			for (int j = 0; j < players[0]->projectiles.size(); i++)
-			{
-				players[0]->projectiles.erase(players[0]->projectiles.begin() + j);
-			}
-
 			break;
 		}
 		
@@ -657,11 +651,6 @@ void Game::updateEnemyProjectiles()
 		{
 			players[1]->setDead();
 			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-
-			for(int j = 0; j < players[1]->projectiles.size(); i++)
-			{
-				players[1]->projectiles.erase(players[1]->projectiles.begin() + j);
-			}
 			break;
 		}
 
@@ -724,55 +713,57 @@ void Game::emptyGame()
 
 void Game::initializeLevel()
 {
-
 	level1.push_back(new enemyNode(2, glm::vec2(10, 20), basic));
-
+	level1.push_back(new enemyNode(2, glm::vec2(-10, 20), orbit));
+	
 	level1.push_back(new enemyNode(8, glm::vec2(10, 20), basic));
 	level1.push_back(new enemyNode(8, glm::vec2(-10, 20), basic));
+	
+	level1.push_back(new enemyNode(20, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(20, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(20, glm::vec2(10, 20), basic));
 
-	level1.push_back(new enemyNode(15, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(15, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(15, glm::vec2(10, 20), basic));
-	
-	level1.push_back(new enemyNode(25, glm::vec2(0, 20), circle));
-	
-	level1.push_back(new enemyNode(35, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(35, glm::vec2(0, 20), circle));
-	level1.push_back(new enemyNode(35, glm::vec2(10, 20), basic));
-	
-	level1.push_back(new enemyNode(45, glm::vec2(-19, 20), basic));
-	level1.push_back(new enemyNode(45, glm::vec2(-10, 20), circle));
-	level1.push_back(new enemyNode(45, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(45, glm::vec2(10, 20), circle));
-	level1.push_back(new enemyNode(45, glm::vec2(19, 20), basic));
-	
-	level1.push_back(new enemyNode(55, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(55, glm::vec2(0, 20), orbit));
-	level1.push_back(new enemyNode(55, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(30, glm::vec2(-19, 20), basic));
+	level1.push_back(new enemyNode(30, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(30, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(30, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(30, glm::vec2(19, 20), basic));
 
-	level1.push_back(new enemyNode(62, glm::vec2(-10, 20), orbit));
-	level1.push_back(new enemyNode(62, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(62, glm::vec2(10, 20), orbit));
+	level1.push_back(new enemyNode(40, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(40, glm::vec2(0, 20), circle));
+	level1.push_back(new enemyNode(40, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(40, glm::vec2(10, 20), orbit));
 
+	level1.push_back(new enemyNode(50, glm::vec2(-10, 20), circle));
+	level1.push_back(new enemyNode(50, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(50, glm::vec2(10, 20), circle));
+
+	level1.push_back(new enemyNode(60, glm::vec2(-19, 20), circle));
+	level1.push_back(new enemyNode(60, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(60, glm::vec2(0, 20), circle));
+	level1.push_back(new enemyNode(60, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(60, glm::vec2(19, 20), circle));
+	level1.push_back(new enemyNode(60, glm::vec2(2, 20), orbit));
+
+	level1.push_back(new enemyNode(65, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(65, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(65, glm::vec2(10, 20), basic));
+
+	level1.push_back(new enemyNode(70, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(70, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(70, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(70, glm::vec2(20, 20), orbit));
 	level1.push_back(new enemyNode(70, glm::vec2(0, 20), orbit));
-	level1.push_back(new enemyNode(70, glm::vec2(-30, 0), orbit));
-	level1.push_back(new enemyNode(70, glm::vec2(30, 0), orbit));
 
-	level1.push_back(new enemyNode(75, glm::vec2(0, 20), circle));
-	level1.push_back(new enemyNode(75, glm::vec2(-30, 0), orbit));
-	level1.push_back(new enemyNode(75, glm::vec2(30, 0), orbit));
+	level1.push_back(new enemyNode(75, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(75, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(75, glm::vec2(10, 20), basic));
 
+	level1.push_back(new enemyNode(80, glm::vec2(-19, 20), circle));
 	level1.push_back(new enemyNode(80, glm::vec2(-10, 20), circle));
+	level1.push_back(new enemyNode(80, glm::vec2(0, 20), circle));
 	level1.push_back(new enemyNode(80, glm::vec2(10, 20), circle));
-	level1.push_back(new enemyNode(80, glm::vec2(-30, 0), orbit));
-	level1.push_back(new enemyNode(80, glm::vec2(30, 0), orbit));
+	level1.push_back(new enemyNode(80, glm::vec2(19, 20), circle));
 
-	level1.push_back(new enemyNode(90, glm::vec2(-10, 20), circle));
-	level1.push_back(new enemyNode(90, glm::vec2(10, 20), circle));
-	level1.push_back(new enemyNode(90, glm::vec2(0, 20), circle));
-	level1.push_back(new enemyNode(90, glm::vec2(-30, 0), orbit));
-	level1.push_back(new enemyNode(90, glm::vec2(30, 0), orbit));
-	level1.push_back(new enemyNode(90, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(90, glm::vec2(-10, 20), basic));
 	
 }
