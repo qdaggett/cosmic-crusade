@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "Projectile.h"
 #include "Enemy.h"
+#include "SoundEngine.h"
 
 
 class Player : public GameObject
@@ -15,6 +16,8 @@ public:
 	//Getting input from the controller
 	void xin(Player* otherPlayer);
 	void shoot();
+	bool hasShot;
+	bool hasHit;
 	void update(std::vector<Enemy*>* enemies, Player* otherPlayer);
 
 	XBox::Stick getLStick(); 

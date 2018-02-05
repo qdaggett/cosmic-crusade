@@ -36,10 +36,14 @@ public:
 	// FMOD data members
 	SoundEngine se;
 	FMOD::Sound *failsound;
-	FMOD::Channel *channel = 0;
+	FMOD::Sound *music;
+	FMOD::Sound *shoot;
+	FMOD::Sound *hit;
+	FMOD::Channel *channel1, *channel2, *channel3, *channel4 = 0;
 	FMOD_VECTOR soundPos = { 0.0f, 0.0f, 0.0f };
 	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
 	FMOD_RESULT result;
+	bool hasPlayed = false;
 
 	//Data Members
 	Timer* updateTimer = nullptr;

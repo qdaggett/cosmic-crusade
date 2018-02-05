@@ -252,11 +252,27 @@ void Game::initializeGame()
 	// Loading in sound files
 	result = se.system->createSound("sounds/failsound.wav", FMOD_3D, 0, &failsound);
 	FModErrorCheck(result);
+	result = se.system->createSound("sounds/meme.wav", FMOD_3D, 0, &music);
+	FModErrorCheck(result);
+	result = se.system->createSound("sounds/laser.wav", FMOD_3D, 0, &shoot);
+	FModErrorCheck(result);
+	result = se.system->createSound("sounds/hit.wav", FMOD_3D, 0, &hit);
+	FModErrorCheck(result);
 	result = failsound->set3DMinMaxDistance(0.5f, 300.0f);
 	FModErrorCheck(result);
 
 	// Setting the failsound to not repeat
 	result = failsound->setMode(FMOD_LOOP_OFF);
+
+	// Setting the background music to loop
+	result = music->setMode(FMOD_LOOP_NORMAL);
+
+	// Setting shooting sound not to loop
+	result = shoot->setMode(FMOD_LOOP_OFF);
+
+	// Setting hitsound to not loop
+	result = hit->setMode(FMOD_LOOP_OFF);
+
 }
 
 //Happens once per frame, used to update state of the game
@@ -314,7 +330,21 @@ void Game::update()
 
 	if (state == main)
 	{
-		
+		// Game music
+		if (!hasPlayed) {
+			FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
+			FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
+
+			result = se.system->playSound(music, 0, true, &channel1);
+			FModErrorCheck(result);
+			result = channel1->set3DAttributes(&pos, &vel);
+			FModErrorCheck(result);
+			result = channel1->setPaused(false);
+			FModErrorCheck(result);
+
+			hasPlayed = true;
+		}
+
 		//std::cout << "Main" << std::endl;
 		//Update timer so we have correct delta time since last update
 		updateTimer->tick();
@@ -334,6 +364,35 @@ void Game::update()
 
 			player2.mat = green;
 			player2.projectile.mat = green;
+		}
+
+		// Plays shooting sound when player fires a bullet
+		if (player.hasShot == true)
+		{
+			FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
+			FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
+
+			result = se.system->playSound(shoot, 0, true, &channel3);
+			FModErrorCheck(result);
+			result = channel3->set3DAttributes(&pos, &vel);
+			FModErrorCheck(result);
+			result = channel3->setPaused(false);
+			FModErrorCheck(result);
+			player.hasShot = false;
+		}
+
+		if (player.hasHit == true)
+		{
+			FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
+			FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
+
+			result = se.system->playSound(hit, 0, true, &channel4);
+			FModErrorCheck(result);
+			result = channel4->set3DAttributes(&pos, &vel);
+			FModErrorCheck(result);
+			result = channel4->setPaused(false);
+			FModErrorCheck(result);
+			player.hasHit = false;
 		}
 
 		if (!player.isTransformed && player.progress <= 1.0f)
@@ -439,11 +498,13 @@ void Game::update()
 			FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
 			FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
 
-			result = se.system->playSound(failsound, 0, true, &channel);
+			channel1->stop();
+			channel2->setVolume(3.0f);
+			result = se.system->playSound(failsound, 0, true, &channel2);
 			FModErrorCheck(result);
-			result = channel->set3DAttributes(&pos, &vel);
+			result = channel2->set3DAttributes(&pos, &vel);
 			FModErrorCheck(result);
-			result = channel->setPaused(false);
+			result = channel2->setPaused(false);
 			FModErrorCheck(result);
 		}
 
