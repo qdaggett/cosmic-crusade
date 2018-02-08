@@ -28,7 +28,7 @@ void TimerCallbackFunction(int value)
 {
 	game->update();
 
-	glutPostRedisplay();
+		glutPostRedisplay();
 	glutTimerFunc(FRAME_DELAY, TimerCallbackFunction, 0);
 }
 

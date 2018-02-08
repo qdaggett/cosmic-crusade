@@ -10,6 +10,9 @@ public:
 
 	void update(std::vector<Player*>, std::vector<Projectile*>*);
 	void shoot(std::vector<Player*>, std::vector<Projectile*>*);
-	
 
+	void Intialize();
+	
+private:
+	bool moveUpDown = false;
 };

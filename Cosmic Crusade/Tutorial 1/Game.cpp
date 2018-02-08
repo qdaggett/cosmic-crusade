@@ -31,6 +31,7 @@ Game::~Game()
 	player.blackBar.mesh.unload();
 	player.yellowBar.mesh.unload();
 	player2.shield.mesh.unload();
+	enemyManager.Unload();
 
 	for (int i = 0; i < players.size(); i++)
 	{
@@ -63,8 +64,6 @@ void Game::initializeGame()
 	light1.constantAttenuation = 0.01f;
 	light1.linearAttenuation = 0.01f;
 	light1.quadraticAttenuation = 0.01f;
-
-	initializeLevel();
 
 	pointLights.push_back(light1);
 
@@ -110,33 +109,6 @@ void Game::initializeGame()
 	player.projectile.mesh = bullet.mesh;
 
 	player2.projectile.mesh = bullet.mesh;
-
-	if (!basicEnemy.mesh.loadFromFile("meshes/Basic_Enemy.obj"))
-	{
-		std::cout << "Player model failed to load." << std::endl;
-		system("pause");
-		exit(0);
-	}
-
-	if (!circleEnemy.mesh.loadFromFile("meshes/sphere.obj"))
-	{
-		std::cout << "Player model failed to load." << std::endl;
-		system("pause");
-		exit(0);
-	}
-
-	if (!orbitEnemy.mesh.loadFromFile("meshes/sphere.obj"))
-	{
-		std::cout << "Player model failed to load." << std::endl;
-		system("pause");
-		exit(0);
-	}
-	
-	basicEnemy.projectile.mesh = bullet.mesh;
-	
-	circleEnemy.projectile.mesh = bullet.mesh;
-
-	orbitEnemy.projectile.mesh = bullet.mesh;
 
 	if (!player.blackBar.mesh.loadFromFile("meshes/bar.obj"))
 	{
@@ -206,14 +178,6 @@ void Game::initializeGame()
 
 	player.setNum(0);
 	player2.setNum(1);
-		
-	basicEnemy.projectile.mat = red;
-
-	circleEnemy.mat = red;
-	circleEnemy.projectile.mat = red;
-
-	orbitEnemy.mat = red;
-	orbitEnemy.projectile.mat = red;
 
 	player.blackBar.loadTexture(Diffuse, "Textures/Black.png");
 	player.yellowBar.mat = yellow;
@@ -245,6 +209,7 @@ void Game::initializeGame()
 	text.Intialize("Square.ttf");
 
 	foreground.Intialize();
+	enemyManager.Intialize(players);
 
 	// Initializing sound engine
 	se.Init();
@@ -320,9 +285,9 @@ void Game::update()
 		updateTimer->tick();
 		delay += updateTimer->getElapsedTimeS();
 		
-		//std::cout << updateTimer->getElapsedTimeS() << std::endl;
 		background.update();
-		foreground.Update(updateTimer->getElapsedTimeS());
+		//foreground.Update(updateTimer->getElapsedTimeS());
+		enemyManager.Update(updateTimer->getElapsedTimeS());
 
 		if (player.isTransformed && player2.isTransformed)
 		{
@@ -351,7 +316,7 @@ void Game::update()
 		for (int i = 0; i < players.size(); i++)
 		{
 			if (players[i]->isAlive())
-				players[i]->update(&enemies, players[(i + 1) % 2]);
+				players[i]->update(&enemyManager.getEnemyList(), players[(i + 1) % 2]);
 
 			else
 			{
@@ -367,65 +332,10 @@ void Game::update()
 			}
 		}
 
-		for (int i = 0; i < enemies.size(); i++)
-		{
-			enemies[i]->update(players, &enemyProjectiles);
-
-			if (enemies[i]->location.y <= -20)
-			{
-				enemies.erase(enemies.begin() + i);
-				break;
-			}
-		}	
-
-		updateEnemyProjectiles();
 
 		if ((player.numLives == 0) && (player2.numLives == 0) || currentEnemy == level1.size() - 1 && enemies.empty())
 			state = gameOver;
 
-		if ((currentEnemy < level1.size()) && (level1[currentEnemy]->spawnTime <= delay))
-		{
-			if (level1[currentEnemy]->type == basic)
-			{
-				BasicEnemy* temp = new BasicEnemy();
-				temp->mesh = basicEnemy.mesh;
-				temp->mat = basicEnemy.mat;
-				temp->projectile.mesh = basicEnemy.projectile.mesh;
-				temp->projectile.mat = basicEnemy.projectile.mat;
-
-				temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
-
-				enemies.push_back(temp);
-			}
-
-			if (level1[currentEnemy]->type == circle)
-			{
-				CircleEnemy* temp = new CircleEnemy();
-				temp->mesh = basicEnemy.mesh;
-				temp->mat = basicEnemy.mat;
-				temp->projectile.mesh = basicEnemy.projectile.mesh;
-				temp->projectile.mat = basicEnemy.projectile.mat;
-
-				temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
-
-				enemies.push_back(temp);
-			}
-
-			if (level1[currentEnemy]->type == orbit)
-			{
-				OrbitEnemy* temp = new OrbitEnemy();
-				temp->mesh = orbitEnemy.mesh;
-				temp->mat = orbitEnemy.mat;
-				temp->projectile.mesh = orbitEnemy.projectile.mesh;
-				temp->projectile.mat = orbitEnemy.projectile.mat;
-
-				temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
-
-				enemies.push_back(temp);
-			}
-
-			currentEnemy++;
-		}
 	}
 
 	if (state == gameOver)
@@ -513,16 +423,7 @@ void Game::draw()
 		if (player.isTransformed && player2.isTransformed)
 			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
 
-		//Iterate through vector of enemies and draw each one
-		for (int i = 0; i < enemies.size(); i++)
-		{
-			enemies[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
-		}
-
-		for (int i = 0; i < enemyProjectiles.size(); i++)
-		{
-			enemyProjectiles[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
-		}
+		enemyManager.Draw(phong, cameraTransform, cameraProjection, pointLights);
 
 		for (int i = 0; i < players.size(); i++)
 		{
@@ -542,7 +443,6 @@ void Game::draw()
 
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 		foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
-
 	}
 
 	
@@ -709,61 +609,4 @@ void Game::emptyGame()
 	background.gameOver();
 
 	empty = true;
-}
-
-void Game::initializeLevel()
-{
-	level1.push_back(new enemyNode(2, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(2, glm::vec2(-10, 20), orbit));
-	
-	level1.push_back(new enemyNode(8, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(8, glm::vec2(-10, 20), basic));
-	
-	level1.push_back(new enemyNode(20, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(20, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(20, glm::vec2(10, 20), basic));
-
-	level1.push_back(new enemyNode(30, glm::vec2(-19, 20), basic));
-	level1.push_back(new enemyNode(30, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(30, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(30, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(30, glm::vec2(19, 20), basic));
-
-	level1.push_back(new enemyNode(40, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(40, glm::vec2(0, 20), circle));
-	level1.push_back(new enemyNode(40, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(40, glm::vec2(10, 20), orbit));
-
-	level1.push_back(new enemyNode(50, glm::vec2(-10, 20), circle));
-	level1.push_back(new enemyNode(50, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(50, glm::vec2(10, 20), circle));
-
-	level1.push_back(new enemyNode(60, glm::vec2(-19, 20), circle));
-	level1.push_back(new enemyNode(60, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(60, glm::vec2(0, 20), circle));
-	level1.push_back(new enemyNode(60, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(60, glm::vec2(19, 20), circle));
-	level1.push_back(new enemyNode(60, glm::vec2(2, 20), orbit));
-
-	level1.push_back(new enemyNode(65, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(65, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(65, glm::vec2(10, 20), basic));
-
-	level1.push_back(new enemyNode(70, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(70, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(70, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(70, glm::vec2(20, 20), orbit));
-	level1.push_back(new enemyNode(70, glm::vec2(0, 20), orbit));
-
-	level1.push_back(new enemyNode(75, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(75, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(75, glm::vec2(10, 20), basic));
-
-	level1.push_back(new enemyNode(80, glm::vec2(-19, 20), circle));
-	level1.push_back(new enemyNode(80, glm::vec2(-10, 20), circle));
-	level1.push_back(new enemyNode(80, glm::vec2(0, 20), circle));
-	level1.push_back(new enemyNode(80, glm::vec2(10, 20), circle));
-	level1.push_back(new enemyNode(80, glm::vec2(19, 20), circle));
-
-	
 }

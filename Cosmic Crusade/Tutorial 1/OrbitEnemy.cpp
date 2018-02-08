@@ -6,6 +6,7 @@ OrbitEnemy::OrbitEnemy()
 
 	velocity = glm::normalize(direction);
 	delay = 2.0f;
+	target = rand() % 2;
 }
 
 OrbitEnemy::~OrbitEnemy()
@@ -19,7 +20,18 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 	updateTimer->tick();
 	localTime += updateTimer->getElapsedTimeS();
 
-	glm::vec2 direction = glm::vec2() - location;
+	if (!players[0]->isAlive() && players[1]->isAlive())
+	{
+		targetPosition = glm::vec2();
+		std::cout << "See ya" << std::endl;
+	}
+	else
+	{
+		targetPosition = players[target]->location;
+		
+	}
+
+	glm::vec2 direction = targetPosition -location;
 
 	velocity = glm::normalize(direction);
 
@@ -33,59 +45,47 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 
 
 
-	if (glm::distance(location, glm::vec2()) <= distanceToPlayer)
+	if (glm::distance(location, targetPosition) <= distanceToPlayer)
 	{
 		orbit = true;
-
 	}
 
 	if (orbit)
 	{
-		glm::vec2 newDir = glm::vec2() - location;
+		glm::vec2 newDir = targetPosition - location;
 		glm::vec2 normal = glm::normalize(newDir);
 		velocity = glm::vec2(normal.y, -normal.x);
 	}
 
-	if (location.y < distanceToPlayer)
-		boundary = true;
+	//if (location.y < distanceToPlayer)
+	//	boundary = true;
 
-	//int target = rand() % (2);
-	if (boundary)
-	{
-		if (location.x >= 20)
-			setLocation(20, location.y);
-		if (location.x <= -20)
-			setLocation(-20, location.y);
-		if (location.y >= 15)
-			setLocation(location.x, 15);
-		if (location.y <= -15)
-			setLocation(location.x, -15);		
-		
+	if (!players[target]->isAlive())
+	{	
+		if (target == 0)
+			target = 1;
+		else
+			target = 0;
+
+		std::cout << "Switching target to " << target << std::endl;
 	}
 
-		move(velocity.x * .4f, velocity.y * .4f);
-	//if ((location.x >= 20.0f) || (location.x <= -20.0f))
-	//	velocity.x = -velocity.x;
 
-	//for (int i = 0; i < getProjectiles().size(); i++)
+	//int target = rand() % (2);
+	//if (boundary)
 	//{
-	//	projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);
-	//
-	//	if(players[0]->getTransform() && players[1]->getTransform())
-	//	{
-	//		if (projectiles[i]->collide(players[1]->shield))
-	//		{
-	//			projectiles.erase(projectiles.begin() + i);
-	//			break;
-	//		}
-	//	}
-	//
-	//	if(projectiles[i]->isOffscreen())
-	//	{
-	//		projectiles.erase(projectiles.begin() + i);
-	//		break;
-	//	}
+	//	if (location.x >= 20)
+	//		setLocation(20, location.y);
+	//	if (location.x <= -20)
+	//		setLocation(-20, location.y);
+	//	if (location.y >= 15)
+	//		setLocation(location.x, 15);
+	//	if (location.y <= -15)
+	//		setLocation(location.x, -15);		
+	//	
 	//}
+
+		move(velocity.x * .4f, velocity.y * .4f);
 }
 
 void OrbitEnemy::shoot(std::vector<Player*> players, std::vector<Projectile*> *gameProjectiles)
@@ -134,4 +134,9 @@ void OrbitEnemy::shoot(std::vector<Player*> players, std::vector<Projectile*> *g
 	temp->velocity = glm::vec2(0.2 * enemyToPlayer.x, 0.2 * enemyToPlayer.y);
 
 	gameProjectiles->push_back(temp);
+}
+
+void OrbitEnemy::Intialize()
+{
+	
 }

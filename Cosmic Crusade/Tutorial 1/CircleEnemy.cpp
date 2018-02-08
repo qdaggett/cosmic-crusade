@@ -70,6 +70,10 @@ void CircleEnemy::shoot(std::vector<Player*> players, std::vector<Projectile*>* 
 	}
 }
 
+void CircleEnemy::Intialize()
+{
+}
+
 void CircleEnemy::lerp(float x, float y, float dt)
 {
 	glm::vec2 pos = glm::vec2(((1 - dt) * location.x) + (dt * x), ((1 - dt) * location.y) + (dt * y));

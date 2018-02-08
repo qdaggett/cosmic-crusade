@@ -11,6 +11,7 @@
 #include "Font.h"
 #include "Foreground.h"
 #include "SoundEngine.h"
+#include "EnemyManager.h"
 
 #define FRAMES_PER_SECOND 60
 
@@ -31,7 +32,6 @@ public:
 	void mouseMoved(int x, int y);
 
 	void emptyGame();
-	void initializeLevel();
 
 	// FMOD data members
 	SoundEngine se;
@@ -114,4 +114,6 @@ private:
 	Font text;
 
 	Foreground foreground;
+
+	EnemyManager enemyManager;
 };

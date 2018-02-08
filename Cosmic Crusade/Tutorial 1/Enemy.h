@@ -12,6 +12,7 @@ public:
 
 	virtual void update(std::vector<Player*> players, std::vector<Projectile*>*) = 0;
 	virtual void shoot(std::vector<Player*> players, std::vector<Projectile*>*) = 0;
+	virtual void Intialize() = 0;
 
 	std::vector<Projectile*> getProjectiles();
 	std::vector<Projectile*> projectiles;

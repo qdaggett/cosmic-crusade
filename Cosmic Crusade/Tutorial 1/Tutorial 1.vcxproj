@@ -78,7 +78,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>./lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;lib/fmod_vc.lib;freetyped.lib;glew32.lib;opengl32.lib;SOIL_ext.lib;sfml-main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;fmod_vc.lib;freetyped.lib;SOIL_ext.lib;sfml-main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -128,6 +128,7 @@
     <ClCompile Include="CircleEnemy.cpp" />
     <ClCompile Include="controller.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyManager.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Foreground.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="CircleEnemy.h" />
     <ClInclude Include="controller.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyManager.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Foreground.h" />
     <ClInclude Include="Game.h" />

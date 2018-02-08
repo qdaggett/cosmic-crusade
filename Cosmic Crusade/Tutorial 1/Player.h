@@ -35,6 +35,11 @@ public:
 	float progress = 0;
 	float transformMax = 15;
 
+	state getState()
+	{
+		return playerState;
+	}
+
 	float getAccuracy()
 	{
 		if (totalShots <= 0)
@@ -57,7 +62,7 @@ private:
 	XBox::Stick lStick;
 	XBox::Stick rStick;
 	int playerNum;
-	unsigned int numLives = 3;
+	unsigned int numLives = 0;
 	float delay = 0.25f;
 	float localTime = 0.0f;
 	float spawnTime = 0.0f;
