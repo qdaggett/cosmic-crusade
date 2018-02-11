@@ -3,7 +3,7 @@
 BasicEnemy::BasicEnemy()
 {
 	velocity = glm::vec2(0.1f, -0.025f);
-	delay = 0.75f;
+	delay = 0.7f;
 }
 
 BasicEnemy::~BasicEnemy()
@@ -35,6 +35,9 @@ void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 
 void BasicEnemy::shoot(std::vector<Player*> players, std::vector<Projectile*> *gameProjectiles)
 {
+	// Toggling on boolean for shooting sound
+	enemyHasShot = true;
+
 	//Projectile pointer to be pushed back into the vector of projectiles
 	Projectile* temp = new Projectile();
 

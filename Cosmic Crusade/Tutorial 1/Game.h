@@ -11,6 +11,7 @@
 #include "Font.h"
 #include "Foreground.h"
 #include "SoundEngine.h"
+#include "SoundEffect.h"
 
 #define FRAMES_PER_SECOND 60
 
@@ -33,17 +34,8 @@ public:
 	void emptyGame();
 	void initializeLevel();
 
-	// FMOD data members
-	SoundEngine se;
-	FMOD::Sound *failsound;
-	FMOD::Sound *music;
-	FMOD::Sound *shoot;
-	FMOD::Sound *hit;
-	FMOD::Channel *channel1, *channel2, *channel3, *channel4 = 0;
-	FMOD_VECTOR soundPos = { 0.0f, 0.0f, 0.0f };
-	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
-	FMOD_RESULT result;
-	bool hasPlayed = false;
+	// FMOD Sound handler
+	SoundEffect gameSounds;
 
 	//Data Members
 	Timer* updateTimer = nullptr;
@@ -96,6 +88,10 @@ private:
 
 	std::vector<enemyNode*> level1;
 
+	// Pause functionality
+	bool paused;
+	float pauseDelay = 0.25f;
+	float pauseTime = 0.0f;
 
 	bool shouldLightsSpin = false;
 	void updateEnemyProjectiles();
