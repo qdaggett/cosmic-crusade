@@ -316,7 +316,7 @@ void Game::update()
 		for (int i = 0; i < players.size(); i++)
 		{
 			if (players[i]->isAlive())
-				players[i]->update(&enemyManager.getEnemyList(), players[(i + 1) % 2]);
+				players[i]->update(&enemyManager.enemyList, players[(i + 1) % 2]);
 
 			else
 			{
@@ -330,12 +330,27 @@ void Game::update()
 					players[i]->numLives--;
 				}
 			}
+
+			if (players[i]->location.x >= 29)
+				players[i]->setLocation(29, players[i]->location.y);
+
+			if (players[i]->location.x <= -29)
+				players[i]->setLocation(-29, players[i]->location.y);
+
+			if (players[i]->location.y >= 16)
+				players[i]->setLocation(players[i]->location.x, 16);
+
+			if (players[i]->location.y <= -16)
+				players[i]->setLocation(players[i]->location.x, -16);
 		}
 
 
 		if ((player.numLives == 0) && (player2.numLives == 0) || currentEnemy == level1.size() - 1 && enemies.empty())
 			state = gameOver;
 
+
+		//Player Boundary
+		
 	}
 
 	if (state == gameOver)
@@ -384,10 +399,16 @@ void Game::draw()
 
 	if (state == main)
 	{
-		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player.score), -9.5, -8, .01f, glm::vec3(0, 0, 1));
-		text.RenderText(textShader, cameraOrtho, "Lives: " + std::to_string(player.numLives), -9.5, -7, .01f, glm::vec3(0, 0, 1));
-		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player2.score), 7, -8, .01f, glm::vec3(1, 1, 0));
-		text.RenderText(textShader, cameraOrtho, "Lives: " + std::to_string(player2.numLives), 7, -7, .01f, glm::vec3(1, 1, 0));
+		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[0]->score), -9.5, -8, .01f, glm::vec3(0, 0, 1));
+		text.RenderText(textShader, cameraOrtho, "Lives: " + std::to_string(players[0]->numLives), -9.5, -7, .01f, glm::vec3(0, 0, 1));
+		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[1]->score), 7, -8, .01f, glm::vec3(1, 1, 0));
+		text.RenderText(textShader, cameraOrtho, "Lives: " + std::to_string(players[1]->numLives), 7, -7, .01f, glm::vec3(1, 1, 0));
+
+		if (delay < 5)
+		{
+			text.RenderText(textShader, cameraOrtho, "LeftStick - Move", -2, 0.5f, 0.01f, glm::vec3(1));
+			text.RenderText(textShader, cameraOrtho, "RightStick - Aim/Shoot", -2.5f, -.5f, 0.01f, glm::vec3(1));
+		}
 
 		if (player.progress == player.transformMax)
 			text.RenderText(textShader, cameraOrtho, "Press LB to transform", -2.5f, -7, .01f, glm::vec3(1));
@@ -396,12 +417,13 @@ void Game::draw()
 	if (state == gameOver)
 	{
 		text.RenderText(textShader, cameraOrtho, "Player 1 Score: " , -9.5, -6, .01f, glm::vec3(0, 0, 1));
-		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player.score), -9.5, -7, .01f, glm::vec3(0, 0, 1));
-		text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(player.getAccuracy()) + "%", -9.5, -8, .01f, glm::vec3(0, 0, 1));
+		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[0]->score), -9.5, -7, .01f, glm::vec3(0, 0, 1));
+		//float num = (players[0]->hits / players[0]->totalShots) * 100;
+		//text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(num) + "%", -9.5, -8, .01f, glm::vec3(0, 0, 1));
 
 		text.RenderText(textShader, cameraOrtho, "Player 2 Score: ", 5.5f, -6, .01f, glm::vec3(1, 1, 0));
-		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player2.score), 5.5f, -7, .01f, glm::vec3(1, 1, 0));
-		text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(player2.getAccuracy()) + "%", 5.5f, -8, .01f, glm::vec3(1, 1, 0));
+		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[1]->score), 5.5f, -7, .01f, glm::vec3(1, 1, 0));
+	//	text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(players[1]->getAccuracy()) + "%", 5.5f, -8, .01f, glm::vec3(1, 1, 0));
 	}
 
 	phong.bind();

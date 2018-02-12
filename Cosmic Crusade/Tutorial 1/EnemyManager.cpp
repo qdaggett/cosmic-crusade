@@ -44,6 +44,8 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 		exit(0);
 	}
 
+	enemyBullet.scale = glm::scale(enemyBullet.scale, glm::vec3(0.5f));
+
 	//Set the enemy meshes 
 	basicEnemy.projectile.mesh = enemyBullet.mesh;
 
@@ -59,15 +61,16 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 
 	blue.loadTexture(Diffuse, "Textures/blue.png");
 
+	purple.loadTexture(Diffuse, "Textures/purple.png");
 
 	//Set their materia;
-	basicEnemy.projectile.mat = blue;
+	basicEnemy.projectile.mat = purple;
 
 	circleEnemy.mat = red;
-	circleEnemy.projectile.mat = blue;
+	circleEnemy.projectile.mat = purple;
 
 	orbitEnemy.mat = red;
-	orbitEnemy.projectile.mat = blue;
+	orbitEnemy.projectile.mat = purple;
 
 	LoadLevel();
 }
@@ -119,10 +122,24 @@ void EnemyManager::SpawnEnemy()
 			temp->projectile.mesh = basicEnemy.projectile.mesh;
 			temp->projectile.mat = basicEnemy.projectile.mat;
 			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
+			temp->moveSideways = false;
 			temp->Intialize();
 
 			enemyList.push_back(temp);
 
+		}
+		if (spawnList[count]->type == BasicMove)
+		{
+			BasicEnemy* temp = new BasicEnemy();
+			temp->mesh = basicEnemy.mesh;
+			temp->mat = basicEnemy.mat;
+			temp->projectile.mesh = basicEnemy.projectile.mesh;
+			temp->projectile.mat = basicEnemy.projectile.mat;
+			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
+			temp->moveSideways = true;
+			temp->Intialize();
+
+			enemyList.push_back(temp);
 		}
 		if (spawnList[count]->type == Circle)
 		{
@@ -156,57 +173,46 @@ void EnemyManager::SpawnEnemy()
 
 void EnemyManager::LoadLevel()
 {
-	//spawnList.push_back(new EnemyNode(2, glm::vec2(-30, 10), Basic));
-	spawnList.push_back(new EnemyNode(2, glm::vec2(-10, 20), Orbit));
+	spawnList.push_back(new EnemyNode(5, glm::vec2(0, 20), Basic));
+	spawnList.push_back(new EnemyNode(5.1f, glm::vec2(-30, 0), Basic));
+	spawnList.push_back(new EnemyNode(5.2f, glm::vec2(30, 0), Basic));
+	//spawnList.push_back(new EnemyNode(2, glm::vec2(-10, 20), Orbit));
 
-	//spawnList.push_back(new EnemyNode(8, glm::vec2(10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(8, glm::vec2(-10, 20), Basic));
-	//
-	//spawnList.push_back(new EnemyNode(20, glm::vec2(-10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(20, glm::vec2(0, 20), Basic));
-	//spawnList.push_back(new EnemyNode(20, glm::vec2(10, 20), Basic));
-	//
-	//spawnList.push_back(new EnemyNode(30, glm::vec2(-19, 20), Basic));
-	//spawnList.push_back(new EnemyNode(30, glm::vec2(-10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(30, glm::vec2(0, 20), Basic));
-	//spawnList.push_back(new EnemyNode(30, glm::vec2(10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(30, glm::vec2(19, 20), Basic));
-	//
-	//spawnList.push_back(new EnemyNode(40, glm::vec2(-10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(40, glm::vec2(0, 20), Circle));
-	//spawnList.push_back(new EnemyNode(40, glm::vec2(10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(40, glm::vec2(10, 20), Orbit));
-	//
-	//spawnList.push_back(new EnemyNode(50, glm::vec2(-10, 20), Circle));
-	//spawnList.push_back(new EnemyNode(50, glm::vec2(0, 20), Basic));
-	//spawnList.push_back(new EnemyNode(50, glm::vec2(10, 20), Circle));
-	//
-	//spawnList.push_back(new EnemyNode(60, glm::vec2(-19, 20), Circle));
-	//spawnList.push_back(new EnemyNode(60, glm::vec2(-10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(60, glm::vec2(0, 20), Circle));
-	//spawnList.push_back(new EnemyNode(60, glm::vec2(10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(60, glm::vec2(19, 20), Circle));
-	//spawnList.push_back(new EnemyNode(60, glm::vec2(2, 20), Orbit));
-	//
-	//spawnList.push_back(new EnemyNode(65, glm::vec2(-10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(65, glm::vec2(0, 20), Basic));
-	//spawnList.push_back(new EnemyNode(65, glm::vec2(10, 20), Basic));
-	//
-	//spawnList.push_back(new EnemyNode(70, glm::vec2(-10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(70, glm::vec2(0, 20), Basic));
-	//spawnList.push_back(new EnemyNode(70, glm::vec2(10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(70, glm::vec2(20, 20), Orbit));
-	//spawnList.push_back(new EnemyNode(70, glm::vec2(0, 20), Orbit));
-	//
-	//spawnList.push_back(new EnemyNode(75, glm::vec2(-10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(75, glm::vec2(0, 20), Basic));
-	//spawnList.push_back(new EnemyNode(75, glm::vec2(10, 20), Basic));
-	//
-	//spawnList.push_back(new EnemyNode(80, glm::vec2(-19, 20), Circle));
-	//spawnList.push_back(new EnemyNode(80, glm::vec2(-10, 20), Circle));
-	//spawnList.push_back(new EnemyNode(80, glm::vec2(0, 20), Circle));
-	//spawnList.push_back(new EnemyNode(80, glm::vec2(10, 20), Circle));
-	//spawnList.push_back(new EnemyNode(80, glm::vec2(19, 20), Circle));
+	spawnList.push_back(new EnemyNode(12, glm::vec2(-30, -10), BasicMove));
+	spawnList.push_back(new EnemyNode(12, glm::vec2(30, 10), BasicMove));
+	
+	spawnList.push_back(new EnemyNode(20, glm::vec2(-30, 20), BasicMove));
+	spawnList.push_back(new EnemyNode(20.5f, glm::vec2(30, -20), BasicMove));
+	spawnList.push_back(new EnemyNode(21, glm::vec2(0, 20), BasicMove));
+	
+	spawnList.push_back(new EnemyNode(29, glm::vec2(-30, 0), BasicMove));
+	spawnList.push_back(new EnemyNode(30, glm::vec2(30, 0), BasicMove));
+	spawnList.push_back(new EnemyNode(31, glm::vec2(0, 20), BasicMove));
+	spawnList.push_back(new EnemyNode(32, glm::vec2(10, 20), Basic));
+	
+	spawnList.push_back(new EnemyNode(40, glm::vec2(30, 10), Basic));
+	spawnList.push_back(new EnemyNode(41, glm::vec2(-30, -10), Basic));
+	spawnList.push_back(new EnemyNode(42, glm::vec2(30, -10), Basic));
+	spawnList.push_back(new EnemyNode(43, glm::vec2(-30, 10), Basic));
+	spawnList.push_back(new EnemyNode(48, glm::vec2(10, 20), Orbit));
+	
+	spawnList.push_back(new EnemyNode(52, glm::vec2(-30, 20), Orbit));
+	spawnList.push_back(new EnemyNode(55, glm::vec2(30, -20), Orbit));
+	spawnList.push_back(new EnemyNode(60, glm::vec2(0, 20), BasicMove));
+	
+	spawnList.push_back(new EnemyNode(70, glm::vec2(-30, 20), Circle));
+	spawnList.push_back(new EnemyNode(74, glm::vec2(30, -20), Circle));
+	
+	spawnList.push_back(new EnemyNode(84, glm::vec2(-30, 20), Basic));
+	spawnList.push_back(new EnemyNode(85, glm::vec2(10, 20), Basic));
+	spawnList.push_back(new EnemyNode(85, glm::vec2(-10, 20), Basic));
+	spawnList.push_back(new EnemyNode(86, glm::vec2(-30, -15), Basic));
+	
+	spawnList.push_back(new EnemyNode(93, glm::vec2(-10, 20), Basic));
+	spawnList.push_back(new EnemyNode(95, glm::vec2(0, 20), BasicMove));
+	spawnList.push_back(new EnemyNode(97, glm::vec2(10, 20), Basic));
+	spawnList.push_back(new EnemyNode(99, glm::vec2(20, 20), Orbit));
+	spawnList.push_back(new EnemyNode(100, glm::vec2(0, 20), Orbit));
 }
 
 void EnemyManager::UpdateEnemyProjectile()

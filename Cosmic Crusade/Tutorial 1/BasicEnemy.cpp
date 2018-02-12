@@ -10,18 +10,21 @@ void BasicEnemy::Intialize()
 {
 	delay = 0.75f;
 
-	if (location.x <= -30 && location.y <= 20)
+	if (moveSideways)
 	{
-		moveUpDown = true;
-		velocity = glm::vec2(0.025f, 0.1f);
+		if (location.x <= -30 && location.y <= 20)
+		{
+			moveUpDown = true;
+			velocity = glm::vec2(0.05f, 0.3f);
+		}
+		else if (location.x >= 30 && location.y <= 20)
+		{
+			moveUpDown = true;
+			velocity = glm::vec2(-0.05f, 0.3f);
+		}
+		else
+			velocity = glm::vec2(0.3f, -0.05f);
 	}
-	else if (location.x <= 30 && location.y <= 20)
-	{
-		moveUpDown = true;
-		velocity = glm::vec2(-0.025f, 0.1f);
-	}
-	else
-		velocity = glm::vec2(0.1f, -0.025f);
 }
 
 BasicEnemy::~BasicEnemy()
@@ -45,17 +48,29 @@ void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 
 	move(velocity.x, velocity.y);
 
-	if (moveUpDown)
+	if (moveSideways)
 	{
-		if ((location.y >= 15.0f) || (location.y <= -15.0f))
-			velocity.y = -velocity.y;
+		if (moveUpDown)
+		{
+			if ((location.y >= 15.0f) || (location.y <= -15.0f))
+				velocity.y = -velocity.y;
+		}
+		else
+		{
+			if ((location.x >= 20.0f) || (location.x <= -20.0f))
+				velocity.x = -velocity.x;
+		}
 	}
 	else
 	{
-		if ((location.x >= 20.0f) || (location.x <= -20.0f))
-			velocity.x = -velocity.x;
+		if(!stopMove)
+			velocity = glm::normalize(players[target]->location - location) * 0.15f;
+		if (glm::distance(location, players[target]->location) <= 12)
+		{
+			velocity = glm::vec2();
+			stopMove = true;
+		}
 	}
-	//lookAt(glm::vec3(location.x, location.y, 0), glm::vec3(players[target]->location.x, players[target]->location.y, 0), glm::vec3(0, 0, 1));
 }
 
 void BasicEnemy::shoot(std::vector<Player*> players, std::vector<Projectile*> *gameProjectiles)

@@ -55,6 +55,11 @@ public:
 
 	unsigned int score = 0;
 
+	unsigned int numLives = 1;
+
+	unsigned int hits = 0;
+	unsigned int totalShots = 0;
+
 private: 
 
 	state playerState = alive;
@@ -62,13 +67,12 @@ private:
 	XBox::Stick lStick;
 	XBox::Stick rStick;
 	int playerNum;
-	unsigned int numLives = 0;
+
 	float delay = 0.25f;
 	float localTime = 0.0f;
 	float spawnTime = 0.0f;
 	bool isTransformed = false;
-	unsigned int hits = 0;
-	unsigned int totalShots = 0;
+
 
 
 	Material baseMat;

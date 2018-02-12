@@ -24,7 +24,8 @@ public:
 		Basic = 0,
 		Circle,
 		Orbit,
-		Laser
+		Laser, 
+		BasicMove
 	};
 	struct EnemyNode {
 		EnemyNode(float time, glm::vec2 pos, EnemyType type) : spawnTime(time), position(pos), type(type) {}
@@ -32,7 +33,7 @@ public:
 		float spawnTime;
 		EnemyType type;
 	};
-
+	std::vector<Enemy*> enemyList;
 private:
 
 	CircleEnemy circleEnemy;
@@ -41,10 +42,10 @@ private:
 
 	GameObject enemyBullet;
 
-	Material red, blue; 
+	Material red, blue, purple; 
 
 	float timer = 0;
-	std::vector<Enemy*> enemyList;
+
 
 	std::vector<EnemyNode*> spawnList;
 	int count = 0;

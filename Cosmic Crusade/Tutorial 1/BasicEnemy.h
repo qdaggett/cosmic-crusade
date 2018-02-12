@@ -12,7 +12,10 @@ public:
 	void shoot(std::vector<Player*>, std::vector<Projectile*>*);
 
 	void Intialize();
+	bool moveSideways = false;
 	
 private:
 	bool moveUpDown = false;
+	bool stopMove = false;
+
 };

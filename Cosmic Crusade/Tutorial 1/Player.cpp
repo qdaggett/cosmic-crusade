@@ -212,10 +212,10 @@ void Player::shoot()
 	}
 
 	//Assign velovity
-	temp->velocity = glm::vec2(0.5 * normalVel.x, 0.5 * normalVel.y);
+	temp->velocity = glm::vec2(0.7 * normalVel.x, 0.7 * normalVel.y);
 
 	totalShots++;
-	std::cout << totalShots << std::endl;
+	//std::cout << getAccuracy() << std::endl;
 
 	projectiles.push_back(temp);
 }
