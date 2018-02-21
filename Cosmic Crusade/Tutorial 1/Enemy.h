@@ -20,6 +20,9 @@ public:
 
 	Projectile projectile;
 
+	// Variable for handling sounds related to shooting
+	bool enemyHasShot = false;
+
 	Timer* updateTimer = nullptr;
 	float localTime = 0.0f;
 	float delay;

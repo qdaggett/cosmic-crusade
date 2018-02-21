@@ -7,8 +7,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/functions.hpp>
 #include "SoundEngine.h"
+#include "SoundEffect.h"
+#include <math.h>
+#include <Windows.h>
+#include <minwindef.h>
 
 GameObject bullet;
+
+
 
 Game::Game()
 {
@@ -211,25 +217,15 @@ void Game::initializeGame()
 	foreground.Intialize();
 	enemyManager.Intialize(players);
 
-	// Initializing sound engine
-	se.Init();
+	gameSounds.initializeSounds();
 
-	// Loading in sound files
-	result = se.system->createSound("sounds/failsound.wav", FMOD_3D, 0, &failsound);
-	FModErrorCheck(result);
-	result = failsound->set3DMinMaxDistance(0.5f, 300.0f);
-	FModErrorCheck(result);
-
-	// Setting the failsound to not repeat
-	result = failsound->setMode(FMOD_LOOP_OFF);
 }
 
 //Happens once per frame, used to update state of the game
 void Game::update()
 {
 	// FMOD update function
-	result = se.system->update();
-	FModErrorCheck(result);
+	gameSounds.updateSounds();
 
 	if (state == title)
 	{
@@ -279,6 +275,7 @@ void Game::update()
 
 	if (state == main)
 	{
+<<<<<<< HEAD
 		
 		//std::cout << "Main" << std::endl;
 		//Update timer so we have correct delta time since last update
@@ -288,48 +285,58 @@ void Game::update()
 		background.update();
 		//foreground.Update(updateTimer->getElapsedTimeS());
 		enemyManager.Update(updateTimer->getElapsedTimeS());
+=======
+>>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
 
-		if (player.isTransformed && player2.isTransformed)
-		{
-			player.mesh = combinedPlayer.mesh;
-			player2.mesh = combinedPlayer.mesh;
+		pauseTime += updateTimer->getElapsedTimeS();
+		empty = false;
 
-			player.mat = green;
-			player.projectile.mat = green;
+		// Game music
+		if (gameSounds.hasPlayed == false) {
+			gameSounds.playSound(gameSounds.music, &gameSounds.channel1);
 
-			player2.mat = green;
-			player2.projectile.mat = green;
+			gameSounds.hasPlayed = true;
 		}
 
-		if (!player.isTransformed && player.progress <= 1.0f)
+		// Attempted work around, pause is current bound to 'p'
+		if (player.controller.GetButton(player.playerNum, XBox::Start) && pauseTime > pauseDelay)
 		{
-			player.mesh = basicPlayer.mesh;
-			player2.mesh = basicPlayer.mesh;
+			//keyboardDown('p', 0, 0);
 
-			player.mat = player.baseMat;
-			player.projectile.mat = blue;
-
-			player2.mat = player2.baseMat;
-			player2.projectile.mat = yellow;
 		}
 
+<<<<<<< HEAD
 		for (int i = 0; i < players.size(); i++)
 		{
 			if (players[i]->isAlive())
 				players[i]->update(&enemyManager.enemyList, players[(i + 1) % 2]);
+=======
+		
+			//std::cout << "Main" << std::endl;
+			//Update timer so we have correct delta time since last update
+			updateTimer->tick();
+			delay += updateTimer->getElapsedTimeS();
+>>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
 
-			else
+			if (paused == false)
 			{
-				players[i]->spawnTime += updateTimer->getElapsedTimeS();
 
-				if ((players[i]->spawnTime >= 2.0f) && (players[i]->numLives > 0))
-				{
-					players[i]->setLocation(0.0f, 0.0f);
-					players[i]->playerState = player.state::alive;
-					players[i]->spawnTime = 0.0f;
-					players[i]->numLives--;
-				}
+			//std::cout << updateTimer->getElapsedTimeS() << std::endl;
+			background.update();
+			foreground.Update(updateTimer->getElapsedTimeS());
+
+			if (player.isTransformed && player2.isTransformed)
+			{
+				player.mesh = combinedPlayer.mesh;
+				player2.mesh = combinedPlayer.mesh;
+
+				player.mat = green;
+				player.projectile.mat = green;
+
+				player2.mat = green;
+				player2.projectile.mat = green;
 			}
+<<<<<<< HEAD
 
 			if (players[i]->location.x >= 29)
 				players[i]->setLocation(29, players[i]->location.y);
@@ -348,6 +355,125 @@ void Game::update()
 		if ((player.numLives == 0) && (player2.numLives == 0) || currentEnemy == level1.size() - 1 && enemies.empty())
 			state = gameOver;
 		
+=======
+
+			// Plays shooting sound when player fires a bullet
+			if (player.hasShot == true)
+			{
+				gameSounds.playSound(gameSounds.shoot, &gameSounds.channel2);
+				player.hasShot = false;
+			}
+
+			// Plays hit sound when player hits an enemy ship
+			if (player.hasHit == true)
+			{
+				gameSounds.playSound(gameSounds.enemyHit, &gameSounds.channel3);
+				player.hasHit = false;
+			}
+
+			// Plays when an enemy fires a bullet
+			for (int i = 0; i < enemies.size(); i++) {
+				if (enemies[i]->enemyHasShot == true)
+				{
+					gameSounds.playSound(gameSounds.enemyShot, &gameSounds.channel4);
+					//gameSounds.pitchShift->getParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, float(rand() % 1000) / 999.0f*1.5f + 0.5f);
+					enemies[i]->enemyHasShot = false;
+				}
+			}
+
+
+			if (!player.isTransformed && player.progress <= 1.0f)
+			{
+				player.mesh = basicPlayer.mesh;
+				player2.mesh = basicPlayer.mesh;
+
+				player.mat = player.baseMat;
+				player.projectile.mat = blue;
+
+				player2.mat = player2.baseMat;
+				player2.projectile.mat = yellow;
+			}
+
+			for (int i = 0; i < players.size(); i++)
+			{
+				if (players[i]->isAlive())
+					players[i]->update(&enemies, players[(i + 1) % 2]);
+
+				else
+				{
+					players[i]->spawnTime += updateTimer->getElapsedTimeS();
+
+					if ((players[i]->spawnTime >= 2.0f) && (players[i]->numLives > 0))
+					{
+						players[i]->setLocation(0.0f, 0.0f);
+						players[i]->playerState = player.state::alive;
+						players[i]->spawnTime = 0.0f;
+						players[i]->numLives--;
+					}
+				}
+			}
+
+			for (int i = 0; i < enemies.size(); i++)
+			{
+				enemies[i]->update(players, &enemyProjectiles);
+
+				if (enemies[i]->location.y <= -20)
+				{
+					enemies.erase(enemies.begin() + i);
+					break;
+				}
+			}
+
+			updateEnemyProjectiles();
+
+			if ((player.numLives == 0) && (player2.numLives == 0) || currentEnemy == level1.size() - 1 && enemies.empty())
+				state = gameOver;
+
+			if ((currentEnemy < level1.size()) && (level1[currentEnemy]->spawnTime <= delay))
+			{
+				if (level1[currentEnemy]->type == basic)
+				{
+					BasicEnemy* temp = new BasicEnemy();
+					temp->mesh = basicEnemy.mesh;
+					temp->mat = basicEnemy.mat;
+					temp->projectile.mesh = basicEnemy.projectile.mesh;
+					temp->projectile.mat = basicEnemy.projectile.mat;
+
+					temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
+
+					enemies.push_back(temp);
+				}
+
+				if (level1[currentEnemy]->type == circle)
+				{
+					CircleEnemy* temp = new CircleEnemy();
+					temp->mesh = basicEnemy.mesh;
+					temp->mat = basicEnemy.mat;
+					temp->projectile.mesh = basicEnemy.projectile.mesh;
+					temp->projectile.mat = basicEnemy.projectile.mat;
+
+					temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
+
+					enemies.push_back(temp);
+				}
+
+				if (level1[currentEnemy]->type == orbit)
+				{
+					OrbitEnemy* temp = new OrbitEnemy();
+					temp->mesh = orbitEnemy.mesh;
+					temp->mat = orbitEnemy.mat;
+					temp->projectile.mesh = orbitEnemy.projectile.mesh;
+					temp->projectile.mat = orbitEnemy.projectile.mat;
+
+					temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
+
+					enemies.push_back(temp);
+				}
+
+				currentEnemy++;
+			}
+		}
+>>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
 	}
 
 	if (state == gameOver)
@@ -358,15 +484,8 @@ void Game::update()
 
 			background.gameOver();
 
-			FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
-			FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
-
-			result = se.system->playSound(failsound, 0, true, &channel);
-			FModErrorCheck(result);
-			result = channel->set3DAttributes(&pos, &vel);
-			FModErrorCheck(result);
-			result = channel->setPaused(false);
-			FModErrorCheck(result);
+			gameSounds.stopSound(&gameSounds.channel1);
+			gameSounds.playSound(gameSounds.failsound, &gameSounds.channel5);
 		}
 
 
@@ -409,6 +528,9 @@ void Game::draw()
 
 		if (player.progress == player.transformMax)
 			text.RenderText(textShader, cameraOrtho, "Press LB to transform", -2.5f, -7, .01f, glm::vec3(1));
+
+		if (paused == true)
+			text.RenderText(textShader, cameraOrtho, "Game Paused", -7.0f, 0.0f, 0.05f, glm::vec3(1.0f, 1.0f, 1.0f));
 	}
 
 	if (state == gameOver)
@@ -486,8 +608,10 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 	case 'r':
 	case 'R':
 		if (state == gameOver)
-			initializeGame();
-
+		{
+			state = main;
+			background.restart();
+		}
 		break;
 
 	case 'l':
@@ -496,6 +620,11 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 		break;
 	case 'a':
 		debugSelect = true;
+		break;
+	case 'p':
+		paused = !paused;
+		pauseTime = 0.0f;
+		break;
 	default:
 		break;
 	}
@@ -562,6 +691,8 @@ void Game::updateEnemyProjectiles()
 		{
 			players[0]->setDead();
 			enemyProjectiles.erase(enemyProjectiles.begin() + i);
+			// FMOD sound playing
+			gameSounds.playSound(gameSounds.playerHit, &gameSounds.channel6);
 			break;
 		}
 		
@@ -570,6 +701,8 @@ void Game::updateEnemyProjectiles()
 		{
 			players[1]->setDead();
 			enemyProjectiles.erase(enemyProjectiles.begin() + i);
+			// FMOD sound playing
+			gameSounds.playSound(gameSounds.playerHit, &gameSounds.channel6);
 			break;
 		}
 
@@ -593,23 +726,23 @@ void Game::emptyGame()
 	{
 		for (int j = 0; j < players[i]->projectiles.size(); j++)
 		{
-			delete players[i]->projectiles[j];
+			//delete players[i]->projectiles[j];
 		}
 
-		players[i]->projectiles.clear();
+		//players[i]->projectiles.clear();
 	}
 
 	for (int i = 0; i < enemies.size(); i++)
 	{
 
-		delete enemies[i];
+		//delete enemies[i];
 	}
 
 	enemies.clear();
 
 	for (int i = 0; i < enemyProjectiles.size(); i++)
 	{
-		delete enemyProjectiles[i];
+		//delete enemyProjectiles[i];
 	}
 
 	enemyProjectiles.clear();
@@ -618,9 +751,9 @@ void Game::emptyGame()
 	player.playerState = player.state::alive;
 	player2.playerState = player.state::alive;
 
-	basicEnemy.mat = red;
+	//basicEnemy.mat = red;
 	basicEnemy.projectile.mat = red;
-	circleEnemy.mat = red;
+	//circleEnemy.mat = red;
 	circleEnemy.projectile.mat = red;
 
 	selected = none;
@@ -628,4 +761,67 @@ void Game::emptyGame()
 	background.gameOver();
 
 	empty = true;
+	gameSounds.hasPlayed = false;
 }
+<<<<<<< HEAD
+=======
+
+void Game::initializeLevel()
+{
+	level1.push_back(new enemyNode(2, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(2, glm::vec2(-10, 20), orbit));
+	
+	level1.push_back(new enemyNode(8, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(8, glm::vec2(-10, 20), basic));
+	
+	level1.push_back(new enemyNode(20, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(20, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(20, glm::vec2(10, 20), basic));
+
+	level1.push_back(new enemyNode(30, glm::vec2(-19, 20), basic));
+	level1.push_back(new enemyNode(30, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(30, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(30, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(30, glm::vec2(19, 20), basic));
+
+	level1.push_back(new enemyNode(40, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(40, glm::vec2(0, 20), circle));
+	level1.push_back(new enemyNode(40, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(40, glm::vec2(10, 20), orbit));
+
+	level1.push_back(new enemyNode(50, glm::vec2(-10, 20), circle));
+	level1.push_back(new enemyNode(50, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(50, glm::vec2(10, 20), circle));
+
+	level1.push_back(new enemyNode(60, glm::vec2(-19, 20), circle));
+	level1.push_back(new enemyNode(60, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(60, glm::vec2(0, 20), circle));
+	level1.push_back(new enemyNode(60, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(60, glm::vec2(19, 20), circle));
+	level1.push_back(new enemyNode(60, glm::vec2(2, 20), orbit));
+
+	level1.push_back(new enemyNode(65, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(65, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(65, glm::vec2(10, 20), basic));
+
+	level1.push_back(new enemyNode(70, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(70, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(70, glm::vec2(10, 20), basic));
+	level1.push_back(new enemyNode(70, glm::vec2(20, 20), orbit));
+	level1.push_back(new enemyNode(70, glm::vec2(0, 20), orbit));
+
+	level1.push_back(new enemyNode(75, glm::vec2(-10, 20), basic));
+	level1.push_back(new enemyNode(75, glm::vec2(0, 20), basic));
+	level1.push_back(new enemyNode(75, glm::vec2(10, 20), basic));
+
+	level1.push_back(new enemyNode(80, glm::vec2(-19, 20), circle));
+	level1.push_back(new enemyNode(80, glm::vec2(-10, 20), circle));
+	level1.push_back(new enemyNode(80, glm::vec2(0, 20), circle));
+	level1.push_back(new enemyNode(80, glm::vec2(10, 20), circle));
+	level1.push_back(new enemyNode(80, glm::vec2(19, 20), circle));
+
+	
+}
+
+
+>>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df

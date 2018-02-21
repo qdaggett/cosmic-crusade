@@ -87,8 +87,13 @@
     <ClCompile Include="SoundEngine.cpp">
       <Filter>SoundEngine</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="EnemyManager.cpp">
       <Filter>Source Files</Filter>
+=======
+    <ClCompile Include="SoundEffect.cpp">
+      <Filter>SoundEngine</Filter>
+>>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -149,8 +154,13 @@
     <ClInclude Include="SoundEngine.h">
       <Filter>SoundEngine</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="EnemyManager.h">
       <Filter>Header Files</Filter>
+=======
+    <ClInclude Include="SoundEffect.h">
+      <Filter>SoundEngine</Filter>
+>>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

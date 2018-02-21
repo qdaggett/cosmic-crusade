@@ -30,6 +30,7 @@ void SoundEngine::CleanUp()
 	init = false;
 }
 
+
 bool SoundEngine::Init()
 {
 	if (!init)
@@ -53,7 +54,7 @@ bool SoundEngine::Init()
 		}
 
 		// Initializing the sound system
-		result = system->init(100, FMOD_INIT_NORMAL, extraDriverData);
+		result = system->init(100, FMOD_INIT_3D_RIGHTHANDED, extraDriverData);
 		FModErrorCheck(result);
 		if (result != FMOD_OK)
 		{
