@@ -347,9 +347,6 @@ void Game::update()
 
 		if ((player.numLives == 0) && (player2.numLives == 0) || currentEnemy == level1.size() - 1 && enemies.empty())
 			state = gameOver;
-
-
-		//Player Boundary
 		
 	}
 
@@ -419,7 +416,7 @@ void Game::draw()
 		text.RenderText(textShader, cameraOrtho, "Player 1 Score: " , -9.5, -6, .01f, glm::vec3(0, 0, 1));
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[0]->score), -9.5, -7, .01f, glm::vec3(0, 0, 1));
 		//float num = (players[0]->hits / players[0]->totalShots) * 100;
-		//text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(num) + "%", -9.5, -8, .01f, glm::vec3(0, 0, 1));
+		text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(players[0]->hits) + " / " + std::to_string(players[0]->totalShots), -9.5, -8, .01f, glm::vec3(0, 0, 1));
 
 		text.RenderText(textShader, cameraOrtho, "Player 2 Score: ", 5.5f, -6, .01f, glm::vec3(1, 1, 0));
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[1]->score), 5.5f, -7, .01f, glm::vec3(1, 1, 0));

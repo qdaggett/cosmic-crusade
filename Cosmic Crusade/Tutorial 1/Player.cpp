@@ -55,10 +55,12 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 			temp.location = derefEnemies[j]->location;
 			temp.radius = derefEnemies[j]->radius;
 
-			if (projectiles[i]->collide(temp))
+			if (projectiles[i]->collide(temp) && derefEnemies[j]->hitPoints != 0)
 			{
 				score += 10;
 				hits++;
+				derefEnemies[j]->hitPoints--;
+
 				if(progress < transformMax)
 				{
 					progress++;
@@ -74,7 +76,7 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
-					enemies->erase(enemies->begin() + j);
+					//enemies->erase(enemies->begin() + j);
 					break;
 				}
 

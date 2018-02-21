@@ -68,7 +68,7 @@ private:
 	XBox::Stick rStick;
 	int playerNum;
 
-	float delay = 0.25f;
+	float delay = 0.1f;
 	float localTime = 0.0f;
 	float spawnTime = 0.0f;
 	bool isTransformed = false;
