@@ -87,6 +87,9 @@
     <ClCompile Include="SoundEngine.cpp">
       <Filter>SoundEngine</Filter>
     </ClCompile>
+    <ClCompile Include="SoundEffect.cpp">
+      <Filter>SoundEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -144,6 +147,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SoundEngine.h">
+      <Filter>SoundEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundEffect.h">
       <Filter>SoundEngine</Filter>
     </ClInclude>
   </ItemGroup>

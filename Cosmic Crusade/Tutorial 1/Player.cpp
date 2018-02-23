@@ -57,6 +57,7 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 
 			if (projectiles[i]->collide(temp))
 			{
+				hasHit = true;
 				score += 10;
 				hits++;
 				if(progress < transformMax)
@@ -180,6 +181,7 @@ void Player::setNum(int num)
 
 void Player::shoot()
 {
+	hasShot = true;
 	//Projectile pointer to be pushed back into the vector of projectiles
 	Projectile* temp = new Projectile();
 
@@ -224,7 +226,7 @@ void Player::deleteProjectile(int index)
 {
 	//delete projectiles[index];
 	projectiles.erase(projectiles.begin() + index);
-	std::cout << "Deleted prjectile : " << index << std::endl;
+	std::cout << "Deleted projectile : " << index << std::endl;
 }
 
 bool Player::isAlive()
