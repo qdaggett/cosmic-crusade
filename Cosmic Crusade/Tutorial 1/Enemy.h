@@ -1,8 +1,9 @@
 #pragma once
+#include <glm\glm.hpp>
 #include "GameObject.h"
 #include "Projectile.h"
 #include "Player.h"
-#include "glm\glm.hpp"
+
 
 class Enemy : public GameObject
 {

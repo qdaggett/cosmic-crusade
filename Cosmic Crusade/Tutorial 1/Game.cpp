@@ -1,10 +1,8 @@
+#pragma once
 #include "Game.h"
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
-#include <GL/glut.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/functions.hpp>
 #include "SoundEngine.h"
 #include "SoundEffect.h"
@@ -78,6 +76,13 @@ void Game::initializeGame()
 	if (!phong.load("shaders/phong.vert", "shaders/phong.frag"))
 	{
 		std::cout << "Shaders failed to initialize." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
+	if (!unlit.load("shaders/unlit.vert", "shaders/unlit.frag"))
+	{
+		std::cout << "Unlit Shaders failed to initialize." << std::endl;
 		system("pause");
 		exit(0);
 	}
@@ -172,6 +177,13 @@ void Game::initializeGame()
 		exit(0);
 	}
 
+	//if (!fullscreenQuad.mesh.loadFromFile("meshes/plane.obj"))
+	//{
+	//	std::cout << "Fullscreen Quad model failed to load." << std::endl;
+	//	system("pause");
+	//	exit(0);
+	//}
+
 	quitButton.mesh = playButton.mesh;
 	playButton.setLocation(0, 0);
 	quitButton.setLocation(0, -8);
@@ -254,6 +266,10 @@ void Game::initializeGame()
 
 	gameSounds.initializeSounds();
 
+	fbo1.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
+	fbo2.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
+	fullscreenQuad.mesh.createFSQ();
+	//fsq.createVBO();
 }
 
 //Happens once per frame, used to update state of the game
@@ -339,7 +355,7 @@ void Game::update()
 
 			//std::cout << updateTimer->getElapsedTimeS() << std::endl;
 			background.update();
-			foreground.Update(updateTimer->getElapsedTimeS());
+			//foreground.Update(updateTimer->getElapsedTimeS());
 
 			if (player.isTransformed && player2.isTransformed)
 			{
@@ -483,7 +499,6 @@ void Game::update()
 			gameSounds.playSound(gameSounds.failsound, &gameSounds.channel5);
 		}
 
-
 		draw();
 
 		for (int i = 0; i < players.size(); i++)
@@ -503,10 +518,10 @@ void Game::update()
 
 void Game::draw()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	fbo1.bindFrameBufferForDrawing();
+	fbo1.clearFrameBuffer(glm::vec4(0.4f, 0.4f, 0.5f, 0.0f));
 
 	if (state == main)
 	{
@@ -581,11 +596,18 @@ void Game::draw()
 
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 		foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
-
 	}
 
-	
+	fbo1.unbindFrameBuffer(fbo1.getWidth(), fbo1.getHeight());
 	phong.unbind();
+
+	unlit.bind();
+
+	fbo1.bindTextureForSampling(0, GL_TEXTURE0);
+	fullscreenQuad.mesh.draw(unlit, cameraTransform, cameraProjection);
+	fbo1.unbindTexture(GL_TEXTURE0);
+
+	unlit.unbind();
 
 	glutSwapBuffers();
 }

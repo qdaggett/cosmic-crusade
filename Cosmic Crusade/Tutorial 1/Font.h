@@ -1,13 +1,14 @@
 #pragma once
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include <iostream>
-#include <GL\glew.h>
-#include <glm\glm.hpp>
+#include <GL/glew.h>
 #include <GL\glut.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <map>
 #include "ShaderProgram.h"
+#include <ft2build.h>
+#include <iostream>
+#include <map>
+
+#include FT_FREETYPE_H
+
 
 struct  Character
 {

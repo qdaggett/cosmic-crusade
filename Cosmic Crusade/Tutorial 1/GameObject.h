@@ -1,8 +1,8 @@
 #pragma once
 #include "Mesh.h"
+#include "ShaderProgram.h"
 #include "Material.h"
 #include "Light.h"
-#include "ShaderProgram.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
@@ -26,6 +26,7 @@ public:
 	bool collide(GameObject other);
 	void draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat4 cameraProjection, std::vector<Light> pointLights);
 	void draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat4 cameraProjection, Light pointLight);
+	void drawFSQ(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat4 cameraProjection, std::vector<Light> pointLights);
 	void loadTexture(TextureType type, const std::string &texFile);
 
 	void lookAt(glm::vec3 &position, glm::vec3 &target, glm::vec3 up);

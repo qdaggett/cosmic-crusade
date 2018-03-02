@@ -176,7 +176,7 @@ void ShaderProgram::sendUniformMat3(const std::string & name, float * matrix, bo
 	glUniformMatrix3fv(location, 1, transpose, matrix);
 }
 
-void ShaderProgram::sendUniformMat4(const std::string & name, float * matrix, bool transpose)
+void ShaderProgram::sendUniformMat4(const std::string & name, const float * matrix, bool transpose)
 {
 	GLint location = getUniformLocation(name);
 	glUniformMatrix4fv(location, 1, transpose, matrix);

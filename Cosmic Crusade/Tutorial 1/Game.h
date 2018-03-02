@@ -1,10 +1,11 @@
 #pragma once
+#include "FrameBufferObject.h"
+#include "ShaderProgram.h"
 #include "Player.h"
 #include "BasicEnemy.h"
 #include "CircleEnemy.h"
 #include "OrbitEnemy.h"
 #include "Light.h"
-#include "ShaderProgram.h"
 #include "Background.h"
 #include <WinUser.h>
 #include <vector>
@@ -63,9 +64,7 @@ public:
 	GameObject combinedPlayer;
 
 	//Shaders
-	ShaderProgram phong;
-	ShaderProgram phongColorSides;
-	ShaderProgram textShader;
+	ShaderProgram phong, textShader, unlit;
 
 	glm::mat4 cameraTransform;
 	glm::mat4 cameraProjection;
@@ -106,7 +105,7 @@ private:
 	Light backgroundLight;
 	Background background;
 
-	GameObject playButton, quitButton;
+	GameObject playButton, quitButton, fullscreenQuad;
 	enum selectedButton{ _play, _quit, none };
 	selectedButton selected = _play;
 	Material play, play_un, quit, quit_un;
@@ -114,4 +113,6 @@ private:
 	Font text;
 
 	Foreground foreground;
+	FrameBufferObject fbo1, fbo2;
+
 };
