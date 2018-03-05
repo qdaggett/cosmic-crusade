@@ -30,10 +30,6 @@ Game::~Game()
 	player2.mesh.unload();
 	player.projectile.mesh.unload();
 	player2.projectile.mesh.unload();
-	basicEnemy.mesh.unload();
-	basicEnemy.projectile.mesh.unload();
-	circleEnemy.mesh.unload();
-	circleEnemy.projectile.mesh.unload();
 	player.blackBar.mesh.unload();
 	player.yellowBar.mesh.unload();
 	player2.shield.mesh.unload();
@@ -44,17 +40,15 @@ Game::~Game()
 		players.erase(players.begin() + i);
 	}
 
-	for (int i = 0; i < enemies.size(); i++)
-	{
-		enemies.erase(enemies.begin() + i);
-	}
 }
 
 //Happens once at the beginning of the game
 void Game::initializeGame()
 {
-	state = title;
+	//state = title;
 	
+	state = main; updateTimer = new Timer();
+
 	std::srand(time(NULL));
 
 	glEnable(GL_DEPTH_TEST);
@@ -161,8 +155,6 @@ void Game::initializeGame()
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
 
-	basicEnemy.loadTexture(Diffuse, "Textures/Basic_Enemy.png");
-
 	red.loadTexture(Diffuse, "Textures/red.png");
 	blue.loadTexture(Diffuse, "Textures/blue.png");
 	yellow.loadTexture(Diffuse, "Textures/yellow.png");
@@ -196,9 +188,11 @@ void Game::initializeGame()
 	player.blackBar.move(0, -8.0f);
 
 	player2.shield.loadTexture(Diffuse, "Textures/cyan.png");
+
+	player2.shield.collider = new Collider(Collider::BOX, glm::vec3(2, 0.5f, 0));
 	
-	player.move(10.0f, -5.0f);
-	player2.move(-10.0f, -5.0f);
+	player.move(-10.0f, -5.0f);
+	player2.move(10.0f, -5.0f);
 	players.push_back(&player);
 	players.push_back(&player2);
 															 
@@ -274,9 +268,7 @@ void Game::update()
 	}
 
 	if (state == main)
-	{
-<<<<<<< HEAD
-		
+	{		
 		//std::cout << "Main" << std::endl;
 		//Update timer so we have correct delta time since last update
 		updateTimer->tick();
@@ -285,8 +277,7 @@ void Game::update()
 		background.update();
 		//foreground.Update(updateTimer->getElapsedTimeS());
 		enemyManager.Update(updateTimer->getElapsedTimeS());
-=======
->>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
+
 
 		pauseTime += updateTimer->getElapsedTimeS();
 		empty = false;
@@ -305,25 +296,22 @@ void Game::update()
 
 		}
 
-<<<<<<< HEAD
 		for (int i = 0; i < players.size(); i++)
 		{
 			if (players[i]->isAlive())
 				players[i]->update(&enemyManager.enemyList, players[(i + 1) % 2]);
-=======
-		
+
 			//std::cout << "Main" << std::endl;
 			//Update timer so we have correct delta time since last update
 			updateTimer->tick();
 			delay += updateTimer->getElapsedTimeS();
->>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
 
 			if (paused == false)
 			{
 
 			//std::cout << updateTimer->getElapsedTimeS() << std::endl;
-			background.update();
-			foreground.Update(updateTimer->getElapsedTimeS());
+			//background.update();
+			//foreground.Update(updateTimer->getElapsedTimeS());
 
 			if (player.isTransformed && player2.isTransformed)
 			{
@@ -336,7 +324,6 @@ void Game::update()
 				player2.mat = green;
 				player2.projectile.mat = green;
 			}
-<<<<<<< HEAD
 
 			if (players[i]->location.x >= 29)
 				players[i]->setLocation(29, players[i]->location.y);
@@ -352,10 +339,8 @@ void Game::update()
 		}
 
 
-		if ((player.numLives == 0) && (player2.numLives == 0) || currentEnemy == level1.size() - 1 && enemies.empty())
+		if ((player.numLives == 0) && (player2.numLives == 0) || enemyManager.count == enemyManager.spawnList.size() - 1 && enemyManager.enemyList.empty())
 			state = gameOver;
-		
-=======
 
 			// Plays shooting sound when player fires a bullet
 			if (player.hasShot == true)
@@ -369,16 +354,6 @@ void Game::update()
 			{
 				gameSounds.playSound(gameSounds.enemyHit, &gameSounds.channel3);
 				player.hasHit = false;
-			}
-
-			// Plays when an enemy fires a bullet
-			for (int i = 0; i < enemies.size(); i++) {
-				if (enemies[i]->enemyHasShot == true)
-				{
-					gameSounds.playSound(gameSounds.enemyShot, &gameSounds.channel4);
-					//gameSounds.pitchShift->getParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, float(rand() % 1000) / 999.0f*1.5f + 0.5f);
-					enemies[i]->enemyHasShot = false;
-				}
 			}
 
 
@@ -397,83 +372,24 @@ void Game::update()
 			for (int i = 0; i < players.size(); i++)
 			{
 				if (players[i]->isAlive())
-					players[i]->update(&enemies, players[(i + 1) % 2]);
+					players[i]->update(&enemyManager.enemyList, players[(i + 1) % 2]);
 
 				else
 				{
+					//std::cout << "Player " + std::to_string(i) + "is Dead. " + std::to_string(players[i]->spawnTime) << std::endl;
 					players[i]->spawnTime += updateTimer->getElapsedTimeS();
 
 					if ((players[i]->spawnTime >= 2.0f) && (players[i]->numLives > 0))
 					{
-						players[i]->setLocation(0.0f, 0.0f);
+						std::cout << "ReSpawned" << std::endl;
+						players[i]->setLocation(players[i]->location.x, players[i]->location.y);
 						players[i]->playerState = player.state::alive;
 						players[i]->spawnTime = 0.0f;
 						players[i]->numLives--;
 					}
 				}
 			}
-
-			for (int i = 0; i < enemies.size(); i++)
-			{
-				enemies[i]->update(players, &enemyProjectiles);
-
-				if (enemies[i]->location.y <= -20)
-				{
-					enemies.erase(enemies.begin() + i);
-					break;
-				}
-			}
-
-			updateEnemyProjectiles();
-
-			if ((player.numLives == 0) && (player2.numLives == 0) || currentEnemy == level1.size() - 1 && enemies.empty())
-				state = gameOver;
-
-			if ((currentEnemy < level1.size()) && (level1[currentEnemy]->spawnTime <= delay))
-			{
-				if (level1[currentEnemy]->type == basic)
-				{
-					BasicEnemy* temp = new BasicEnemy();
-					temp->mesh = basicEnemy.mesh;
-					temp->mat = basicEnemy.mat;
-					temp->projectile.mesh = basicEnemy.projectile.mesh;
-					temp->projectile.mat = basicEnemy.projectile.mat;
-
-					temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
-
-					enemies.push_back(temp);
-				}
-
-				if (level1[currentEnemy]->type == circle)
-				{
-					CircleEnemy* temp = new CircleEnemy();
-					temp->mesh = basicEnemy.mesh;
-					temp->mat = basicEnemy.mat;
-					temp->projectile.mesh = basicEnemy.projectile.mesh;
-					temp->projectile.mat = basicEnemy.projectile.mat;
-
-					temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
-
-					enemies.push_back(temp);
-				}
-
-				if (level1[currentEnemy]->type == orbit)
-				{
-					OrbitEnemy* temp = new OrbitEnemy();
-					temp->mesh = orbitEnemy.mesh;
-					temp->mat = orbitEnemy.mat;
-					temp->projectile.mesh = orbitEnemy.projectile.mesh;
-					temp->projectile.mat = orbitEnemy.projectile.mat;
-
-					temp->setLocation(level1[currentEnemy]->location.x, level1[currentEnemy]->location.y);
-
-					enemies.push_back(temp);
-				}
-
-				currentEnemy++;
-			}
 		}
->>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
 	}
 
 	if (state == gameOver)
@@ -544,6 +460,8 @@ void Game::draw()
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[1]->score), 5.5f, -7, .01f, glm::vec3(1, 1, 0));
 	//	text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(players[1]->getAccuracy()) + "%", 5.5f, -8, .01f, glm::vec3(1, 1, 0));
 	}
+
+	//players[0]->collider->DisplayCollider();
 
 	phong.bind();
 
@@ -668,53 +586,6 @@ void Game::mouseMoved(int x, int y)
 
 }
 
-void Game::updateEnemyProjectiles()
-{
-	for (int i = 0; i < enemyProjectiles.size(); i++)
-	{
-		enemyProjectiles[i]->move(enemyProjectiles[i]->getVelocity().x, enemyProjectiles[i]->getVelocity().y);
-
-		if (players[0]->getTransform() && players[1]->getTransform())
-		{
-			if (enemyProjectiles[i]->collide(players[1]->shield))
-			{
-				enemyProjectiles.erase(enemyProjectiles.begin() + i);
-				break;
-			}
-		}
-
-		GameObject temp;
-		temp.location = enemyProjectiles[i]->location;
-		temp.radius = enemyProjectiles[i]->radius;
-
-		if ((players[0]->collide(temp)) && (players[0]->playerState == player.state::alive)) 
-		{
-			players[0]->setDead();
-			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-			// FMOD sound playing
-			gameSounds.playSound(gameSounds.playerHit, &gameSounds.channel6);
-			break;
-		}
-		
-		
-		if (players[1]->collide(temp) && (players[1]->playerState == player.state::alive))
-		{
-			players[1]->setDead();
-			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-			// FMOD sound playing
-			gameSounds.playSound(gameSounds.playerHit, &gameSounds.channel6);
-			break;
-		}
-
-
-		if (enemyProjectiles[i]->isOffscreen())
-		{
-			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-			break;
-		}
-	}
-}
-
 void Game::emptyGame()
 {
 	updateTimer = new Timer();
@@ -732,29 +603,11 @@ void Game::emptyGame()
 		//players[i]->projectiles.clear();
 	}
 
-	for (int i = 0; i < enemies.size(); i++)
-	{
-
-		//delete enemies[i];
-	}
-
-	enemies.clear();
-
-	for (int i = 0; i < enemyProjectiles.size(); i++)
-	{
-		//delete enemyProjectiles[i];
-	}
-
-	enemyProjectiles.clear();
 	background.gameOver();
 
 	player.playerState = player.state::alive;
 	player2.playerState = player.state::alive;
 
-	//basicEnemy.mat = red;
-	basicEnemy.projectile.mat = red;
-	//circleEnemy.mat = red;
-	circleEnemy.projectile.mat = red;
 
 	selected = none;
 
@@ -763,65 +616,3 @@ void Game::emptyGame()
 	empty = true;
 	gameSounds.hasPlayed = false;
 }
-<<<<<<< HEAD
-=======
-
-void Game::initializeLevel()
-{
-	level1.push_back(new enemyNode(2, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(2, glm::vec2(-10, 20), orbit));
-	
-	level1.push_back(new enemyNode(8, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(8, glm::vec2(-10, 20), basic));
-	
-	level1.push_back(new enemyNode(20, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(20, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(20, glm::vec2(10, 20), basic));
-
-	level1.push_back(new enemyNode(30, glm::vec2(-19, 20), basic));
-	level1.push_back(new enemyNode(30, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(30, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(30, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(30, glm::vec2(19, 20), basic));
-
-	level1.push_back(new enemyNode(40, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(40, glm::vec2(0, 20), circle));
-	level1.push_back(new enemyNode(40, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(40, glm::vec2(10, 20), orbit));
-
-	level1.push_back(new enemyNode(50, glm::vec2(-10, 20), circle));
-	level1.push_back(new enemyNode(50, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(50, glm::vec2(10, 20), circle));
-
-	level1.push_back(new enemyNode(60, glm::vec2(-19, 20), circle));
-	level1.push_back(new enemyNode(60, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(60, glm::vec2(0, 20), circle));
-	level1.push_back(new enemyNode(60, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(60, glm::vec2(19, 20), circle));
-	level1.push_back(new enemyNode(60, glm::vec2(2, 20), orbit));
-
-	level1.push_back(new enemyNode(65, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(65, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(65, glm::vec2(10, 20), basic));
-
-	level1.push_back(new enemyNode(70, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(70, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(70, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(70, glm::vec2(20, 20), orbit));
-	level1.push_back(new enemyNode(70, glm::vec2(0, 20), orbit));
-
-	level1.push_back(new enemyNode(75, glm::vec2(-10, 20), basic));
-	level1.push_back(new enemyNode(75, glm::vec2(0, 20), basic));
-	level1.push_back(new enemyNode(75, glm::vec2(10, 20), basic));
-
-	level1.push_back(new enemyNode(80, glm::vec2(-19, 20), circle));
-	level1.push_back(new enemyNode(80, glm::vec2(-10, 20), circle));
-	level1.push_back(new enemyNode(80, glm::vec2(0, 20), circle));
-	level1.push_back(new enemyNode(80, glm::vec2(10, 20), circle));
-	level1.push_back(new enemyNode(80, glm::vec2(19, 20), circle));
-
-	
-}
-
-
->>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df

@@ -13,6 +13,8 @@ public:
 
 	bool isOffscreen();
 
+	void update();
+
 	glm::vec2 getVelocity();
 	glm::vec2 velocity;
 

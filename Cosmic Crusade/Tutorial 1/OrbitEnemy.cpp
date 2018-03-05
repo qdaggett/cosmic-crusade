@@ -7,6 +7,7 @@ OrbitEnemy::OrbitEnemy()
 	velocity = glm::normalize(direction);
 	delay = 2.0f;
 	target = rand() % 2;
+	collider = new Collider(Collider::SPHERE, 0.5f);
 }
 
 OrbitEnemy::~OrbitEnemy()
@@ -18,6 +19,7 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 {
 	//Used for shooting delay
 	updateTimer->tick();
+	collider->ColliderUpdate(glm::vec3(location, 0));
 	localTime += updateTimer->getElapsedTimeS();
 
 	if (!players[0]->isAlive() && players[1]->isAlive())
@@ -97,6 +99,8 @@ void OrbitEnemy::shoot(std::vector<Player*> players, std::vector<Projectile*> *g
 	temp->mesh = projectile.mesh;
 
 	temp->mat = projectile.mat;
+
+	temp->collider = new Collider(Collider::SPHERE, 0.5f);
 
 	//Make the new projectile's starting location equal to the player's 
 	temp->setLocation(location.x, location.y);

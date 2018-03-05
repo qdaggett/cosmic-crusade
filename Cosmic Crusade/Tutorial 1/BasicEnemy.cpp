@@ -2,7 +2,6 @@
 
 BasicEnemy::BasicEnemy()
 {
-<<<<<<< HEAD
 	//velocity = glm::vec2(0.1f, -0.025f);
 
 }
@@ -26,10 +25,11 @@ void BasicEnemy::Intialize()
 		else
 			velocity = glm::vec2(0.3f, -0.05f);
 	}
-=======
+
 	velocity = glm::vec2(0.1f, -0.025f);
 	delay = 0.7f;
->>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
+
+	collider = new Collider(Collider::SPHERE, 0.2f);
 }
 
 BasicEnemy::~BasicEnemy()
@@ -41,6 +41,7 @@ void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 {
 	//Used for shooting delay
 	updateTimer->tick();
+	this->collider->ColliderUpdate(glm::vec3(location, 0));
 	localTime += updateTimer->getElapsedTimeS();
 
 	//Shoot after they delay, and reset delay
@@ -90,6 +91,8 @@ void BasicEnemy::shoot(std::vector<Player*> players, std::vector<Projectile*> *g
 	temp->mesh = projectile.mesh;
 
 	temp->mat = projectile.mat;
+
+	temp->collider = new Collider(Collider::SPHERE, 1.f);
 
 	//Make the new projectile's starting location equal to the player's 
 	temp->setLocation(location.x, location.y);

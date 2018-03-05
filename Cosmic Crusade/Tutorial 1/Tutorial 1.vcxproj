@@ -126,6 +126,7 @@
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BasicEnemy.cpp" />
     <ClCompile Include="CircleEnemy.cpp" />
+    <ClCompile Include="Collider.cpp" />
     <ClCompile Include="controller.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyManager.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="Background.h" />
     <ClInclude Include="BasicEnemy.h" />
     <ClInclude Include="CircleEnemy.h" />
+    <ClInclude Include="Collider.h" />
     <ClInclude Include="controller.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyManager.h" />

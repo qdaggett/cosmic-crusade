@@ -11,11 +11,8 @@
 #include "Font.h"
 #include "Foreground.h"
 #include "SoundEngine.h"
-<<<<<<< HEAD
 #include "EnemyManager.h"
-=======
 #include "SoundEffect.h"
->>>>>>> 0b5d7e07f9befeb2adf65b07accae000a165c7df
 
 #define FRAMES_PER_SECOND 60
 
@@ -46,12 +43,6 @@ public:
 	Player player2;
 	std::vector<Player*> players;
 
-	//Vector of enemies, because we will be drawing some arbitrary amount
-	BasicEnemy basicEnemy;
-	CircleEnemy circleEnemy;
-	OrbitEnemy orbitEnemy;
-	std::vector<Enemy*> enemies;
-	std::vector<Projectile*> enemyProjectiles;
 	std::vector<Light> pointLights;
 
 	Material red; 
@@ -76,20 +67,7 @@ public:
 	glm::mat4 lightSpinner;
 
 private:
-
-	enum enemyType { basic, circle, orbit };
 	unsigned int currentEnemy = 0;
-
-	struct enemyNode
-	{
-		enemyNode(float time, glm::vec2 loc, enemyType nmy) : spawnTime(time), location(loc), type(nmy){}
-		float spawnTime;
-		glm::vec2 location;
-		enemyType type;
-		
-	};
-
-	std::vector<enemyNode*> level1;
 
 	// Pause functionality
 	bool paused;
@@ -97,7 +75,6 @@ private:
 	float pauseTime = 0.0f;
 
 	bool shouldLightsSpin = false;
-	void updateEnemyProjectiles();
 	enum gameStates{main, gameOver, title};
 	gameStates state = title;
 	float delay;

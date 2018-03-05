@@ -34,6 +34,9 @@ public:
 		EnemyType type;
 	};
 	std::vector<Enemy*> enemyList;
+	std::vector<EnemyNode*> spawnList;
+
+	int count = 0;
 private:
 
 	CircleEnemy circleEnemy;
@@ -42,16 +45,15 @@ private:
 
 	GameObject enemyBullet;
 
-	Material red, blue, purple; 
+	Material red, blue, purple, damaged; 
 
 	float timer = 0;
 
 
-	std::vector<EnemyNode*> spawnList;
-	int count = 0;
-
 	std::vector<Projectile*> enemyProjectiles;
 
 	std::vector<Player*> players;
+
+	float damagedTimer = 0.1f;
 
 };

@@ -6,7 +6,6 @@
 #include "SoundEngine.h"
 #include "SoundEffect.h"
 
-
 class Player : public GameObject
 {
 public:
@@ -60,7 +59,7 @@ public:
 
 	unsigned int score = 0;
 
-	unsigned int numLives = 1;
+	unsigned int numLives = 3;
 
 	unsigned int hits = 0;
 	unsigned int totalShots = 0;

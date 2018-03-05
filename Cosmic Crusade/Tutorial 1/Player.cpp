@@ -6,6 +6,7 @@ Player::Player()
 {
 	updateTimer = new Timer();
 	updateTimer->tick();
+	collider = new Collider(Collider::BOX, glm::vec3(1.5f, 1.5f, 0));
 }
 
 Player::~Player()
@@ -20,9 +21,10 @@ Player::~Player()
 void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 {
 	updateTimer->tick();
+	collider->ColliderUpdate(glm::vec3(location, 0));
 	xin(otherPlayer);
 	std::vector<Enemy*> derefEnemies = *enemies;
-
+			
 	if ((isTransformed && otherPlayer->isTransformed) && progress >= 0.0f)
 	{
 		progress -= updateTimer->getElapsedTimeS();
@@ -40,7 +42,9 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 
 	for (int i = 0; i < projectiles.size(); i++)
 	{
-		projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);
+		//projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);
+
+		projectiles[i]->update();
 
 		if (projectiles[i]->isOffscreen())
 		{
@@ -54,13 +58,18 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 			GameObject temp;
 			temp.location = derefEnemies[j]->location;
 			temp.radius = derefEnemies[j]->radius;
+			temp.collider = derefEnemies[j]->collider;
 
-			if (projectiles[i]->collide(temp) && derefEnemies[j]->hitPoints != 0)
+			if(derefEnemies[j]->hitPoints == 0)
+				enemies->erase(enemies->begin() + j);
+
+			if (projectiles[i]->collider->Collide(*temp.collider))//if(projectiles[i]->collider->Collide(*temp.collider))//if (projectiles[i]->collider.Collide(temp.collider))
 			{
 				hasHit = true;
 				score += 10;
 				hits++;
 				derefEnemies[j]->hitPoints--;
+				derefEnemies[j]->gotDamaged = true;
 
 				if(progress < transformMax)
 				{
@@ -191,6 +200,8 @@ void Player::shoot()
 	temp->mesh = projectile.mesh;
 	temp->mat = projectile.mat;
 
+	temp->collider = new Collider(Collider::BOX, glm::vec3(0.5f, 1, 0));
+
 	//Make the new projectile's starting location equal to the player's 
 	//temp->transform = transform;
 	temp->location = glm::vec2(0.0f, 0.0f);
@@ -216,7 +227,7 @@ void Player::shoot()
 	}
 
 	//Assign velovity
-	temp->velocity = glm::vec2(0.7 * normalVel.x, 0.7 * normalVel.y);
+	temp->velocity = glm::vec2(0.5 * normalVel.x, 0.5 * normalVel.y);
 
 	totalShots++;
 	//std::cout << getAccuracy() << std::endl;

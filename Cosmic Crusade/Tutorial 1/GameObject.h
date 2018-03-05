@@ -5,6 +5,7 @@
 #include "ShaderProgram.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
+#include "Collider.h"
 
 class GameObject
 {
@@ -45,6 +46,7 @@ public:
 	Mesh mesh;
 	Material mat;
 
+	Collider* collider;
 private:
 	
 };

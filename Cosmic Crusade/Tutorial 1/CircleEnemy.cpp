@@ -7,6 +7,7 @@ CircleEnemy::CircleEnemy()
 	delay = 2.0f;
 	target.x = (rand() % 40) - 20;
 	target.y = (rand() % 40) - 20;
+	collider = new Collider(Collider::SPHERE, 0.5f);
 }
 
 CircleEnemy::~CircleEnemy()
@@ -18,6 +19,7 @@ void CircleEnemy::update(std::vector<Player*> players, std::vector<Projectile*>*
 {
 	//Used for shooting delay
 	updateTimer->tick();
+	collider->ColliderUpdate(glm::vec3(location, 0));
 	localTime += updateTimer->getElapsedTimeS();
 
 	//Shoot after they delay, and reset delay
@@ -28,7 +30,7 @@ void CircleEnemy::update(std::vector<Player*> players, std::vector<Projectile*>*
 		target.x = (rand() % 40) - 20;
 		target.y = (rand() % 40) - 20;
 
-		shoot(players, gameProjectiles);
+	//	shoot(players, gameProjectiles);
 	}
 
 	std::cout << localTime << std::endl;
@@ -43,6 +45,7 @@ void CircleEnemy::shoot(std::vector<Player*> players, std::vector<Projectile*>* 
 		Projectile* temp = new Projectile();
 		temp->mesh = projectile.mesh;
 		temp->mat = projectile.mat;
+		temp->collider = new Collider(Collider::SPHERE, 0.5f);
 
 		temp->location = glm::vec2(0.0f, 0.0f);
 		temp->move(location.x, location.y);

@@ -10,6 +10,7 @@
 GameObject::GameObject(glm::vec2 loc, float rad) :  radius(rad)
 {
 	move(loc.x, loc.y);
+	collider = new Collider();
 }
 
 GameObject::~GameObject() 
@@ -74,6 +75,9 @@ void GameObject::draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat
 {
 	//shader.bind();
 	//tex.bind();
+	if (collider->collider != Collider::NONE)
+		collider->DisplayCollider();
+
 	shader.sendUniformMat4("uModel", glm::value_ptr(transform), false);
 	shader.sendUniformMat4("uView", glm::value_ptr(cameraTransform), false);
 	shader.sendUniformMat4("uProj", glm::value_ptr(cameraProjection), false);
@@ -108,6 +112,7 @@ void GameObject::draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat
 	//mat.specular.bind();
 
 	glBindVertexArray(mesh.vao);
+
 	glDrawArrays(GL_TRIANGLES, 0, mesh.getNumVertices());
 	glBindVertexArray(GL_NONE);
 
@@ -115,12 +120,16 @@ void GameObject::draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat
 
 	//glActiveTexture(GL_TEXTURE0);
 	mat.diffuse.unbind();
+
+
 	//tex.unbind();
 	//shader.unbind();
 }
 
 void GameObject::draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat4 cameraProjection, Light pointLight)
 {
+	if (collider->collider != Collider::NONE)
+		collider->DisplayCollider();
 	//shader.bind();
 	//tex.bind();
 	shader.sendUniformMat4("uModel", glm::value_ptr(transform), false);
@@ -153,6 +162,7 @@ void GameObject::draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat
 	//mat.specular.bind();
 
 	glBindVertexArray(mesh.vao);
+
 	glDrawArrays(GL_TRIANGLES, 0, mesh.getNumVertices());
 	glBindVertexArray(GL_NONE);
 
@@ -162,6 +172,7 @@ void GameObject::draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat
 	mat.diffuse.unbind();
 	//tex.unbind();
 	//shader.unbind();
+
 }
 
 

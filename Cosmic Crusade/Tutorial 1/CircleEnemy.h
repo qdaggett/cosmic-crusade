@@ -13,4 +13,5 @@ public:
 	void lerp(float x, float y, float dt);
 
 	glm::vec2 target;
+
 };
