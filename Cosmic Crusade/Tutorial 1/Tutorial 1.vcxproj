@@ -131,6 +131,7 @@
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Foreground.cpp" />
     <ClCompile Include="FrameBufferObject.cpp" />
+    <ClCompile Include="FullScreenQuad.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="Font.h" />
     <ClInclude Include="Foreground.h" />
     <ClInclude Include="FrameBufferObject.h" />
+    <ClInclude Include="FullScreenQuad.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Light.h" />
@@ -172,6 +174,9 @@
     <ClInclude Include="VertexBufferObject.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\bloom.frag" />
+    <None Include="shaders\blur.frag" />
+    <None Include="shaders\bright.frag" />
     <None Include="shaders\phong.frag" />
     <None Include="shaders\phong.vert" />
     <None Include="shaders\text.frag" />

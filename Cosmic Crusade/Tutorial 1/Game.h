@@ -13,6 +13,7 @@
 #include "Foreground.h"
 #include "SoundEngine.h"
 #include "SoundEffect.h"
+#include "FullScreenQuad.h"
 
 #define FRAMES_PER_SECOND 60
 
@@ -34,6 +35,9 @@ public:
 
 	void emptyGame();
 	void initializeLevel();
+
+	void doBrightPass();
+	void doBlurPass();
 
 	// FMOD Sound handler
 	SoundEffect gameSounds;
@@ -64,7 +68,7 @@ public:
 	GameObject combinedPlayer;
 
 	//Shaders
-	ShaderProgram phong, textShader, unlit;
+	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader;
 
 	glm::mat4 cameraTransform;
 	glm::mat4 cameraProjection;
@@ -105,14 +109,15 @@ private:
 	Light backgroundLight;
 	Background background;
 
-	GameObject playButton, quitButton, fullscreenQuad;
+	GameObject playButton, quitButton;
 	enum selectedButton{ _play, _quit, none };
 	selectedButton selected = _play;
 	Material play, play_un, quit, quit_un;
+	FullScreenQuad fullscreenQuad;
 
 	Font text;
 
 	Foreground foreground;
-	FrameBufferObject fbo1, fbo2;
+	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom;
 
 };

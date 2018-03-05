@@ -80,9 +80,30 @@ void Game::initializeGame()
 		exit(0);
 	}
 
-	if (!unlit.load("shaders/unlit.vert", "shaders/unlit.frag"))
+	if (!unlitShader.load("shaders/unlit.vert", "shaders/unlit.frag"))
 	{
 		std::cout << "Unlit Shaders failed to initialize." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
+	if (!brightPass.load("shaders/unlit.vert", "shaders/bright.frag"))
+	{
+		std::cout << "Brightpass Shaders failed to initialize." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
+	if (!blurShader.load("shaders/unlit.vert", "shaders/blur.frag"))
+	{
+		std::cout << "Blur Shaders failed to initialize." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
+	if (!bloomShader.load("shaders/unlit.vert", "shaders/bloom.frag"))
+	{
+		std::cout << "Bloom Shaders failed to initialize." << std::endl;
 		system("pause");
 		exit(0);
 	}
@@ -266,10 +287,15 @@ void Game::initializeGame()
 
 	gameSounds.initializeSounds();
 
-	fbo1.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
-	fbo2.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
-	fullscreenQuad.mesh.createFSQ();
-	//fsq.createVBO();
+	float blurAmount = 16.0f;
+
+	def.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
+	bright.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
+	blur_a.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 1, true);
+	blur_b.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 1, true);
+	lowRes.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 1, true);
+	toBloom.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
+	fullscreenQuad.create();
 }
 
 //Happens once per frame, used to update state of the game
@@ -321,7 +347,6 @@ void Game::update()
 			else if(selected == _quit)
 				exit(0);
 		}
-
 	}
 
 	if (state == main)
@@ -520,8 +545,13 @@ void Game::draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	fbo1.bindFrameBufferForDrawing();
-	fbo1.clearFrameBuffer(glm::vec4(0.4f, 0.4f, 0.5f, 0.0f));
+
+	toBloom.bindFrameBufferForDrawing();
+	toBloom.clearFrameBuffer(glm::vec4(0.0f));
+	toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+
+	def.bindFrameBufferForDrawing();
+	def.clearFrameBuffer(glm::vec4(0.0f));
 
 	if (state == main)
 	{
@@ -573,41 +603,68 @@ void Game::draw()
 			enemies[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
 		}
 
+		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
 		for (int i = 0; i < enemyProjectiles.size(); i++)
 		{
+			def.bindFrameBufferForDrawing();
 			enemyProjectiles[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
+			def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
+			toBloom.bindFrameBufferForDrawing();
+			enemyProjectiles[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
+			toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
 		}
 
 		for (int i = 0; i < players.size(); i++)
 		{
 			if (players[i]->isAlive())
 			{
+				def.bindFrameBufferForDrawing();
 				players[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
+				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
 				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
 				{
+					def.bindFrameBufferForDrawing();
 					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
+					toBloom.bindFrameBufferForDrawing();
+					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());	
 				}
 			}
 		}
 
+		def.bindFrameBufferForDrawing();
 		player.blackBar.draw(phong, cameraTransform, cameraOrtho, pointLights);
 		player.yellowBar.draw(phong, cameraTransform, cameraOrtho, pointLights);
 
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 		foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
+		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 	}
 
-	fbo1.unbindFrameBuffer(fbo1.getWidth(), fbo1.getHeight());
 	phong.unbind();
 
-	unlit.bind();
+	doBlurPass();
 
-	fbo1.bindTextureForSampling(0, GL_TEXTURE0);
-	fullscreenQuad.mesh.draw(unlit, cameraTransform, cameraProjection);
-	fbo1.unbindTexture(GL_TEXTURE0);
+	bloomShader.bind();
 
-	unlit.unbind();
+	blur_a.bindTextureForSampling(0, GL_TEXTURE0);
+	def.bindTextureForSampling(0, GL_TEXTURE1);
+
+
+	FrameBufferObject::unbindFrameBuffer(def.getWidth(), def.getHeight());
+	FrameBufferObject::clearFrameBuffer(glm::vec4(0));
+
+	fullscreenQuad.draw(bloomShader);
+
+	def.unbindTexture(GL_TEXTURE1);
+	blur_a.unbindTexture(GL_TEXTURE0);
+
+	bloomShader.unbind();
 
 	glutSwapBuffers();
 }
@@ -787,7 +844,6 @@ void Game::emptyGame()
 void Game::initializeLevel()
 {
 	level1.push_back(new enemyNode(2, glm::vec2(10, 20), basic));
-	level1.push_back(new enemyNode(2, glm::vec2(-10, 20), orbit));
 	
 	level1.push_back(new enemyNode(8, glm::vec2(10, 20), basic));
 	level1.push_back(new enemyNode(8, glm::vec2(-10, 20), basic));
@@ -837,8 +893,80 @@ void Game::initializeLevel()
 	level1.push_back(new enemyNode(80, glm::vec2(0, 20), circle));
 	level1.push_back(new enemyNode(80, glm::vec2(10, 20), circle));
 	level1.push_back(new enemyNode(80, glm::vec2(19, 20), circle));
-
-	
 }
 
+void Game::doBrightPass()
+{
+	bright.bindFrameBufferForDrawing();
+	bright.clearFrameBuffer(glm::vec4(0.4f, 0.4f, 0.5f, 1.0f));
 
+	brightPass.bind();
+	brightPass.sendUniform("u_bloomThreshold", 0.5f);
+
+	toBloom.bindTextureForSampling(0, GL_TEXTURE0);
+	fullscreenQuad.draw(brightPass);
+	toBloom.unbindTexture(GL_TEXTURE0);
+
+	brightPass.unbind();
+	bright.unbindFrameBuffer(bright.getWidth(), bright.getHeight());
+}
+
+void Game::doBlurPass()
+{
+	lowRes.bindFrameBufferForDrawing();
+	lowRes.clearFrameBuffer(glm::vec4(0.0f));
+
+	brightPass.bind();
+	brightPass.sendUniform("u_bloomThreshold", 0.2f);
+
+	toBloom.bindTextureForSampling(0, GL_TEXTURE0);
+	fullscreenQuad.draw(brightPass);
+	toBloom.unbindTexture(GL_TEXTURE0);
+
+	brightPass.unbind();
+	lowRes.unbindFrameBuffer(lowRes.getWidth(), lowRes.getHeight());
+
+	blur_a.bindFrameBufferForDrawing();
+	blur_a.clearFrameBuffer(glm::vec4(0.0f));
+
+	blurShader.bind();
+	blurShader.sendUniform("u_texelSize", glm::vec4(1 / lowRes.getWidth(), 1 / lowRes.getHeight(), 0.0f, 0.0f));
+
+	lowRes.bindTextureForSampling(0, GL_TEXTURE0);
+	fullscreenQuad.draw(blurShader);
+	lowRes.unbindTexture(GL_TEXTURE0);
+
+	blur_a.unbindFrameBuffer(blur_a.getWidth(), blur_a.getHeight());
+	blurShader.unbind();
+
+	int numBlurs = 5;
+
+	for (int i = 0; i < numBlurs; i++)
+	{
+		//Blur Buffer A
+		blurShader.bind();
+		blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_b.getWidth(), 1 / blur_b.getHeight(), 0.0f, 0.0f));
+		blur_b.bindFrameBufferForDrawing();
+		blur_b.clearFrameBuffer(glm::vec4());
+
+		blur_a.bindTextureForSampling(0, GL_TEXTURE0);
+		fullscreenQuad.draw(blurShader);
+		blur_a.unbindTexture(GL_TEXTURE0);
+
+		blur_b.unbindFrameBuffer(blur_b.getWidth(), blur_b.getHeight());
+		blurShader.unbind();
+
+		//Blur Buffer B
+		blurShader.bind();
+		blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_a.getWidth(), 1 / blur_a.getHeight(), 0.0f, 0.0f));
+		blur_a.bindFrameBufferForDrawing();
+		blur_a.clearFrameBuffer(glm::vec4());
+
+		blur_b.bindTextureForSampling(0, GL_TEXTURE0);
+		fullscreenQuad.draw(blurShader);
+		blur_b.unbindTexture(GL_TEXTURE0);
+
+		blur_a.unbindFrameBuffer(blur_a.getWidth(), blur_a.getHeight());
+		blurShader.unbind();
+	}
+}

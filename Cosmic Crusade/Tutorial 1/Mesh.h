@@ -20,21 +20,11 @@ public:
 	unsigned int getNumFaces();
 	unsigned int getNumVertices();
 
-	void createFSQ();
-	void draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat4 cameraProjection);
-
 	//OpenGl buffers and objects
 	GLuint vboVertices = 0;
 	GLuint vboUVs = 0;
 	GLuint vboNormals = 0;
 	GLuint vao = 0;
-
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec3> normals;
-	std::vector<glm::vec2> textureCoordinates;
-	std::vector<glm::vec4> colours;
-
-	VertexBufferObject vbo;
 
 private:
 	unsigned int numFaces = 0;
