@@ -1,5 +1,7 @@
 #include "Collider.h"
 
+#define BUFFER_OFFSET(i) ((char*)0 + i)
+
 Collider::Collider()
 {
 	collider = NONE;
@@ -155,25 +157,41 @@ void Collider::DisplayCollider()
 			boxColliderVertices.push_back(boxCollider.center.y - boxCollider.extents.y);
 			boxColliderVertices.push_back(boxCollider.center.z - boxCollider.extents.z); //Right, Down, Back
 
-
-
+																						 //Send data to OpenGL
 			glGenVertexArrays(1, &vao);
 			glGenBuffers(1, &vboVertices);
 
 			glBindVertexArray(vao);
 
-			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(0); //Vertices
 
+										  //Vertices 
 			glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-			glBufferData(GL_ARRAY_BUFFER, boxColliderVertices.size() * sizeof(float*), &boxColliderVertices[0], GL_STATIC_DRAW);
-			//glDrawArrays(GL_QUADS, 0, boxColliderVertices.size());
-			//glVertexAttribPointer(0);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * boxColliderVertices.size(), &boxColliderVertices[0], GL_STATIC_DRAW);
+			glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 4, BUFFER_OFFSET(0));
 
-			//glBindBuffer(GL_ARRAY_BUFFER, GL_QUADS);
-			//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * boxColliderVertices.size(), &boxColliderVertices[0], GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+
+			glBindVertexArray(vao);
+
+			glDrawArrays(GL_QUADS, 0, boxColliderVertices.size());
 			glBindVertexArray(GL_NONE);
+			//glGenVertexArrays(1, &vao);
+			//glGenBuffers(1, &vboVertices);
+
+			//glBindVertexArray(vao);
+			//
+			//glEnableVertexAttribArray(0);
+			//
+			//glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+			//glBufferData(GL_ARRAY_BUFFER, boxColliderVertices.size() * sizeof(float*), &boxColliderVertices[0], GL_STATIC_DRAW);
+			////glDrawArrays(GL_QUADS, 0, boxColliderVertices.size());
+			////glVertexAttribPointer(0);
+			//
+			////glBindBuffer(GL_ARRAY_BUFFER, GL_QUADS);
+			////glBufferData(GL_ARRAY_BUFFER, sizeof(float) * boxColliderVertices.size(), &boxColliderVertices[0], GL_STATIC_DRAW);
+			//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, &boxCollider.center);
+			//glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+			//glBindVertexArray(GL_NONE);
 			//glDrawArrays(GL_QUADS, 0, boxColliderVertices.size());
 			//glBindVertexArray(GL_NONE);
 			//glEnable(GL_CULL_FACE);

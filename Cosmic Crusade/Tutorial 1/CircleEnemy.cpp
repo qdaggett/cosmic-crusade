@@ -33,7 +33,7 @@ void CircleEnemy::update(std::vector<Player*> players, std::vector<Projectile*>*
 	//	shoot(players, gameProjectiles);
 	}
 
-	std::cout << localTime << std::endl;
+	//std::cout << localTime << std::endl;
 	lerp(target.x, target.y, localTime / 2);
 }
 

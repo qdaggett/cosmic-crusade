@@ -189,7 +189,7 @@ void Game::initializeGame()
 
 	player2.shield.loadTexture(Diffuse, "Textures/cyan.png");
 
-	player2.shield.collider = new Collider(Collider::BOX, glm::vec3(2, 0.5f, 0));
+	player2.shield.collider = new Collider(Collider::BOX, glm::vec3(1, 0.5f, 1));
 	
 	player.move(-10.0f, -5.0f);
 	player2.move(10.0f, -5.0f);
@@ -278,7 +278,6 @@ void Game::update()
 		//foreground.Update(updateTimer->getElapsedTimeS());
 		enemyManager.Update(updateTimer->getElapsedTimeS());
 
-
 		pauseTime += updateTimer->getElapsedTimeS();
 		empty = false;
 
@@ -300,11 +299,20 @@ void Game::update()
 		{
 			if (players[i]->isAlive())
 				players[i]->update(&enemyManager.enemyList, players[(i + 1) % 2]);
+			else
+			{
+				//std::cout << "Player " + std::to_string(i) + "is Dead. " + std::to_string(players[i]->spawnTime) << std::endl;
+				players[i]->spawnTime += updateTimer->getElapsedTimeS();
 
-			//std::cout << "Main" << std::endl;
-			//Update timer so we have correct delta time since last update
-			updateTimer->tick();
-			delay += updateTimer->getElapsedTimeS();
+				if ((players[i]->spawnTime >= 2.0f) && (players[i]->numLives > 0))
+				{
+					std::cout << "ReSpawned" << std::endl;
+					players[i]->setLocation(players[i]->location.x, players[i]->location.y);
+					players[i]->playerState = player.state::alive;
+					players[i]->spawnTime = 0.0f;
+					players[i]->numLives--;
+				}
+			}
 
 			if (paused == false)
 			{
@@ -323,6 +331,7 @@ void Game::update()
 
 				player2.mat = green;
 				player2.projectile.mat = green;
+				player2.shield.collider->ColliderUpdate(glm::vec3(player2.shield.location,0));
 			}
 
 			if (players[i]->location.x >= 29)
@@ -367,27 +376,6 @@ void Game::update()
 
 				player2.mat = player2.baseMat;
 				player2.projectile.mat = yellow;
-			}
-
-			for (int i = 0; i < players.size(); i++)
-			{
-				if (players[i]->isAlive())
-					players[i]->update(&enemyManager.enemyList, players[(i + 1) % 2]);
-
-				else
-				{
-					//std::cout << "Player " + std::to_string(i) + "is Dead. " + std::to_string(players[i]->spawnTime) << std::endl;
-					players[i]->spawnTime += updateTimer->getElapsedTimeS();
-
-					if ((players[i]->spawnTime >= 2.0f) && (players[i]->numLives > 0))
-					{
-						std::cout << "ReSpawned" << std::endl;
-						players[i]->setLocation(players[i]->location.x, players[i]->location.y);
-						players[i]->playerState = player.state::alive;
-						players[i]->spawnTime = 0.0f;
-						players[i]->numLives--;
-					}
-				}
 			}
 		}
 	}

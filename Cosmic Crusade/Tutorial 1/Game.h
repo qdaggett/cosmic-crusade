@@ -60,7 +60,6 @@ public:
 	ShaderProgram phong;
 	ShaderProgram phongColorSides;
 	ShaderProgram textShader;
-
 	glm::mat4 cameraTransform;
 	glm::mat4 cameraProjection;
 	glm::mat4 cameraOrtho;

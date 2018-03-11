@@ -76,7 +76,7 @@ private:
 	float localTime = 0.0f;
 	float spawnTime = 0.0f;
 	bool isTransformed = false;
-
+	float dt;
 
 
 	Material baseMat;

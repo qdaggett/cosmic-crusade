@@ -59,9 +59,11 @@ public:
 
 	BoxCollider boxCollider;
 	SphereCollider sphereCollider;
-	
-private:
+
 	std::vector<float>boxColliderVertices;
 	GLuint vboVertices, vao;
+	
+private:
+
 
 };

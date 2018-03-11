@@ -40,6 +40,12 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 		otherPlayer->isTransformed = false;
 	}
 
+
+	if (progress == transformMax || otherPlayer->progress == transformMax)
+	{
+		progress = transformMax;
+		otherPlayer->progress = transformMax;
+	}
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		//projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);
@@ -60,15 +66,15 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
-			if(derefEnemies[j]->hitPoints == 0)
-				enemies->erase(enemies->begin() + j);
+			//if(derefEnemies[j]->hitPoints == 0)
+			//	enemies->erase(enemies->begin() + j);
 
 			if (projectiles[i]->collider->Collide(*temp.collider))//if(projectiles[i]->collider->Collide(*temp.collider))//if (projectiles[i]->collider.Collide(temp.collider))
 			{
 				hasHit = true;
 				score += 10;
 				hits++;
-				derefEnemies[j]->hitPoints--;
+				//derefEnemies[j]->hitPoints--;
 				derefEnemies[j]->gotDamaged = true;
 
 				if(progress < transformMax)
@@ -95,7 +101,7 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 				
-					enemies->erase(enemies->begin() + j);
+				//	enemies->erase(enemies->begin() + j);
 					break;
 				}
 			}
@@ -144,7 +150,9 @@ void Player::xin(Player* otherPlayer)
 				}
 
 				shield.move(normalDir.x * 3.0f, normalDir.y * 3.0f);
-			}		
+			}
+			else
+				shield.setLocation(shield.location.x, shield.location.y);
 		}
 	}
 
@@ -162,10 +170,15 @@ void Player::xin(Player* otherPlayer)
 		shoot();
 	}
 
+	if (controller.GetButton(playerNum, XBox::LB))
+	{
+		std::cout << playerNum << ", " << progress << std::endl;
+	}
+
 	if (controller.GetButton(playerNum, XBox::LB) && (progress == transformMax)) 
 	{
 		isTransformed = true;
-		std::cout << isTransformed << std::endl;
+		std::cout << playerNum << ", " << isTransformed << std::endl;
 	}
 }
 
