@@ -2,11 +2,15 @@
 #include <math.h>
 #include "Player.h"
 
+float Player::progress = 0.0f;
+float const Player::transformMax = 15.0f;
+
 Player::Player()
 {
 	updateTimer = new Timer();
 	updateTimer->tick();
 	collider = new Collider(Collider::BOX, glm::vec3(1.5f, 1.5f, 0));
+	//yellowBar.scale = glm::scale(yellowBar.ogScale, glm::vec3(.3f, .1f, .3f));
 }
 
 Player::~Player()
@@ -24,28 +28,23 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 	collider->ColliderUpdate(glm::vec3(location, 0));
 	xin(otherPlayer);
 	std::vector<Enemy*> derefEnemies = *enemies;
-			
+
+	blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), 2.1f, .3f));
+	yellowBar.scale = glm::scale(yellowBar.ogScale, glm::vec3(.3f, 2.1f, .3f));
+	blackBar.move(0, 0);
+
 	if ((isTransformed && otherPlayer->isTransformed) && progress >= 0.0f)
 	{
-		progress -= updateTimer->getElapsedTimeS();
-		blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3((transformMax - progress) / transformMax, .3f, .3f));
-		blackBar.move(0.0f, 0.0f);
+		progress -= updateTimer->getElapsedTimeS() * 0.5f;
 	}
 
 	if (progress <= 0.0f)
 	{
-		progress = 0.0f;
-		otherPlayer->progress = 0.0f;
 		isTransformed = false;
 		otherPlayer->isTransformed = false;
+		progress = 0.0f;
 	}
 
-
-	if (progress == transformMax || otherPlayer->progress == transformMax)
-	{
-		progress = transformMax;
-		otherPlayer->progress = transformMax;
-	}
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		//projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);
@@ -77,19 +76,9 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 				//derefEnemies[j]->hitPoints--;
 				derefEnemies[j]->gotDamaged = true;
 
-				if(progress < transformMax)
+				if (progress < transformMax)
 				{
 					progress++;
-					otherPlayer->progress++;
-
-					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
-					std::cout << 1.0f - (progress / transformMax) << std::endl;
-					blackBar.move(0, 0);
-
-					otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
-					otherPlayer->blackBar.move(0, 0);
-
-					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
 					//enemies->erase(enemies->begin() + j);
@@ -100,8 +89,7 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 				{
 					//Erase projectile, Erase enemy
 					deleteProjectile(i);
-				
-				//	enemies->erase(enemies->begin() + j);
+					//enemies->erase(enemies->begin() + j);
 					break;
 				}
 			}
@@ -135,10 +123,11 @@ void Player::xin(Player* otherPlayer)
 			normalDir.y /= length;
 
 			shield.setLocation(location.x, location.y);
-			
+
 			bool tilted = std::abs(lStick.xAxis) > 0.25f || std::abs(lStick.yAxis) > 0.25f ? true : false;
 			if (tilted)
 			{
+				shield.collider->boxCollider.size = glm::vec3(1, 0.5f, 0);
 				if (normalDir.x <= 0.0f)
 				{
 					shield.rotate = glm::rotate(shield.ogRotate, acos(normalDir.y), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -152,13 +141,15 @@ void Player::xin(Player* otherPlayer)
 				shield.move(normalDir.x * 3.0f, normalDir.y * 3.0f);
 			}
 			else
-				shield.setLocation(shield.location.x, shield.location.y);
+				shield.collider->boxCollider.size = glm::vec3();
+
+
 		}
 	}
 
 	else
 		move(lStick.xAxis * 0.25f, lStick.yAxis * 0.25f);
-	
+
 	//Checking if the right stick is tilted more than a certain amount. tilted will be true if the right stick is being tilted.
 	bool tilted = std::abs(rStick.xAxis) > 0.25f || std::abs(rStick.yAxis) > 0.25f ? true : false;
 
@@ -166,7 +157,7 @@ void Player::xin(Player* otherPlayer)
 	if (tilted && (localTime > delay))
 	{
 		localTime = 0;
-		
+
 		shoot();
 	}
 
@@ -175,7 +166,7 @@ void Player::xin(Player* otherPlayer)
 		std::cout << playerNum << ", " << progress << std::endl;
 	}
 
-	if (controller.GetButton(playerNum, XBox::LB) && (progress == transformMax)) 
+	if (controller.GetButton(playerNum, XBox::LB) && (progress == transformMax))
 	{
 		isTransformed = true;
 		std::cout << playerNum << ", " << isTransformed << std::endl;
@@ -219,8 +210,8 @@ void Player::shoot()
 	//temp->transform = transform;
 	temp->location = glm::vec2(0.0f, 0.0f);
 	temp->move(location.x, location.y);
-	
-   	 
+
+
 	//Normalize the projectile's velocity vector so that projectiles will fire at the same speed regardless of the amount of tilt amount
 	glm::vec2 normalVel = glm::vec2(rStick.xAxis, rStick.yAxis);
 	float length = sqrt((normalVel.x * normalVel.x) + (normalVel.y * normalVel.y));

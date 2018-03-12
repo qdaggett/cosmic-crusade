@@ -189,7 +189,7 @@ void Game::initializeGame()
 
 	player2.shield.loadTexture(Diffuse, "Textures/cyan.png");
 
-	player2.shield.collider = new Collider(Collider::BOX, glm::vec3(1, 0.5f, 1));
+	player2.shield.collider = new Collider(Collider::BOX, glm::vec3(1.1f, 0.5f, 1));
 	
 	player.move(-10.0f, -5.0f);
 	player2.move(10.0f, -5.0f);
@@ -280,6 +280,9 @@ void Game::update()
 
 		pauseTime += updateTimer->getElapsedTimeS();
 		empty = false;
+
+		if (Player::progress > Player::transformMax)
+			Player::progress = Player::transformMax;
 
 		// Game music
 		if (gameSounds.hasPlayed == false) {
@@ -420,8 +423,10 @@ void Game::draw()
 	if (state == main)
 	{
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[0]->score), -9.5, -8, .01f, glm::vec3(0, 0, 1));
+		//text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(Player::progress), -9.5, -8, .01f, glm::vec3(0, 0, 1));
 		text.RenderText(textShader, cameraOrtho, "Lives: " + std::to_string(players[0]->numLives), -9.5, -7, .01f, glm::vec3(0, 0, 1));
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[1]->score), 7, -8, .01f, glm::vec3(1, 1, 0));
+		//text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(players[1]->lStick.xAxis) + ", " + std::to_string(players[1]->lStick.yAxis), 7, -8, .01f, glm::vec3(1, 1, 0));
 		text.RenderText(textShader, cameraOrtho, "Lives: " + std::to_string(players[1]->numLives), 7, -7, .01f, glm::vec3(1, 1, 0));
 
 		if (delay < 5)
@@ -430,7 +435,7 @@ void Game::draw()
 			text.RenderText(textShader, cameraOrtho, "RightStick - Aim/Shoot", -2.5f, -.5f, 0.01f, glm::vec3(1));
 		}
 
-		if (player.progress == player.transformMax)
+		if (Player::progress == player.transformMax)
 			text.RenderText(textShader, cameraOrtho, "Press LB to transform", -2.5f, -7, .01f, glm::vec3(1));
 
 		if (paused == true)

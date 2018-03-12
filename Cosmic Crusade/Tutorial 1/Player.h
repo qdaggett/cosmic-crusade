@@ -8,6 +8,7 @@
 
 class Player : public GameObject
 {
+
 public:
 	friend class Game;
 	Player();
@@ -36,8 +37,9 @@ public:
 	void setDead() { playerState = dead; }
 	void setAlive() { playerState = alive; }
 
-	float progress = 0;
-	float transformMax = 15;
+	bool getIsTransformed() { return isTransformed;  }
+
+	
 
 	state getState()
 	{
@@ -64,6 +66,11 @@ public:
 	unsigned int hits = 0;
 	unsigned int totalShots = 0;
 
+
+	//Static stuff
+	static float progress;
+	static const float transformMax;
+
 private: 
 
 	state playerState = alive;
@@ -77,7 +84,6 @@ private:
 	float spawnTime = 0.0f;
 	bool isTransformed = false;
 	float dt;
-
 
 	Material baseMat;
 	Material transformMat;

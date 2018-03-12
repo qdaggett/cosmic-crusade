@@ -253,13 +253,9 @@ void EnemyManager::UpdateEnemyProjectile()
 		{
 			if (enemyProjectiles[i]->collider->Collide(*players[1]->shield.collider))
 			{
-				players[1]->shield.mat = red;
-				std::cout << "Collided with Shield" << std::endl;
 				enemyProjectiles.erase(enemyProjectiles.begin() + i);
 				break;
 			}
-			else
-				players[1]->shield.mat = purple;
 		}
 
 		GameObject temp;
@@ -270,20 +266,25 @@ void EnemyManager::UpdateEnemyProjectile()
 
 		if ((players[0]->collider->Collide(*temp.collider)) && (players[0]->getState() == Player::state::alive))
 		{
-			//players[0]->setDead();
+			players[0]->setDead();
 			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-			players[0]->progress -= 1.f;
-			//enemyProjectiles[i]->velocity = glm::vec2();
+			if (players[0]->getIsTransformed())
+				Player::progress -= 1.f;
+			else
+				Player::progress -= 5.f;
 			break;
 		}
 
 
 		if (players[1]->collider->Collide(*temp.collider) && (players[1]->getState() == Player::state::alive))
 		{
-			//players[1]->setDead();
-			players[1]->progress -= 1.f;
+			players[1]->setDead();
+			if (players[1]->getIsTransformed())
+				Player::progress -= 1.f;
+			else
+				Player::progress -= 5.f;
+
 			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-			//enemyProjectiles[i]->velocity = glm::vec2();
 			break;
 		}
 
