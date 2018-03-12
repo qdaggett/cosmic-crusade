@@ -98,7 +98,7 @@ private:
 
 	bool shouldLightsSpin = false;
 	void updateEnemyProjectiles();
-	enum gameStates{main, gameOver, title};
+	enum gameStates{main, gameOver, title, monologue};
 	gameStates state = title;
 	float delay;
 

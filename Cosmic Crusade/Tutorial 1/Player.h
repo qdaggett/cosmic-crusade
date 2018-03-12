@@ -20,7 +20,10 @@ public:
 	void update(std::vector<Enemy*>* enemies, Player* otherPlayer);
 
 	bool hasShot;
+	bool hasShotShotgun;
 	bool hasHit;
+
+	int weapon = 1;
 
 	XBox::Stick getLStick(); 
 	XBox::Stick getRStick();

@@ -7,11 +7,13 @@ void SoundEffect::initializeSounds()
 
 	// Loading in sounds from .wav files
 	se.system->createSound("sounds/failsound.wav", FMOD_3D, 0, &failsound);
-	se.system->createSound("sounds/meme.wav", FMOD_3D, 0, &music);
-	se.system->createSound("sounds/laser.wav", FMOD_3D, 0, &shoot);
-	se.system->createSound("sounds/enemyhit.wav", FMOD_3D, 0, &enemyHit);
-	se.system->createSound("sounds/hit.wav", FMOD_3D, 0, &playerHit);
-	se.system->createSound("sounds/enemyshot.wav", FMOD_3D, 0, &enemyShot);
+	se.system->createSound("sounds/music.wav", FMOD_3D, 0, &music);
+	se.system->createSound("sounds/playerShootBasic.wav", FMOD_3D, 0, &shoot);
+	se.system->createSound("sounds/enemyHit.wav", FMOD_3D, 0, &enemyHit);
+	se.system->createSound("sounds/playerHurt.wav", FMOD_3D, 0, &playerHit);
+	se.system->createSound("sounds/enemyShoot.wav", FMOD_3D, 0, &enemyShot);
+	se.system->createSound("sounds/shotgun.wav", FMOD_3D, 0, &shoot2);
+	se.system->createSound("sounds/introDialogue.wav", FMOD_3D, 0, &monologue);
 	failsound->set3DMinMaxDistance(0.5f, 300.0f);
 
 	// Setting looping (or lack thereof) for sounds
@@ -21,6 +23,8 @@ void SoundEffect::initializeSounds()
 	enemyHit->setMode(FMOD_LOOP_OFF);
 	playerHit->setMode(FMOD_LOOP_OFF);
 	enemyShot->setMode(FMOD_LOOP_OFF);
+	shoot2->setMode(FMOD_LOOP_OFF);
+	monologue->setMode(FMOD_LOOP_OFF);
 
 	// DSP initialization
 	se.system->createDSPByType(FMOD_DSP_TYPE_PITCHSHIFT, &pitchShift);

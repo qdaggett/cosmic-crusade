@@ -304,12 +304,12 @@ void Game::update()
 	// FMOD update function
 	gameSounds.updateSounds();
 
+	player.controller.DownloadPackets(2);
+	player.controller.GetSticks(player.playerNum, player.lStick, player.rStick);
+
 	if (state == title)
 	{
 		draw();
-
-		player.controller.DownloadPackets(2);
-		player.controller.GetSticks(player.playerNum, player.lStick, player.rStick);
 
 		if(selected == none)
 		{ 
@@ -340,13 +340,31 @@ void Game::update()
 			if (selected == _play)
 			{
 				updateTimer = new Timer();
-				state = main;
+				state = monologue;
 				background.restart();
 			}
 
 			else if(selected == _quit)
 				exit(0);
 		}
+	}
+
+	if (state == monologue)
+	{
+		if (gameSounds.introHasPlayed == false)
+		{
+			gameSounds.playSound(gameSounds.monologue, &gameSounds.channel8);
+
+			gameSounds.introHasPlayed = true;
+		}
+
+		if (player.controller.GetButton(player.playerNum, XBox::B)) 
+		{
+			state = main;
+			gameSounds.channel8->stop();
+		}
+
+		//state = main;
 	}
 
 	if (state == main)
@@ -399,6 +417,13 @@ void Game::update()
 			{
 				gameSounds.playSound(gameSounds.shoot, &gameSounds.channel2);
 				player.hasShot = false;
+			}
+
+			// Plays shooting sounds when player fires a bullet with the shotgun weapon
+			if (player.hasShotShotgun == true)
+			{
+				gameSounds.playSound(gameSounds.shoot2, &gameSounds.channel7);
+				player.hasShotShotgun = false;
 			}
 
 			// Plays hit sound when player hits an enemy ship
@@ -587,6 +612,11 @@ void Game::draw()
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 	}
 
+	if (state == monologue)
+	{
+
+	}
+
 	else if (state == gameOver)
 	{
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
@@ -694,6 +724,14 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 	case 'l':
 	case 'L':
 		shouldLightsSpin = !shouldLightsSpin;
+		break;
+	case 'h':
+		player.weapon = 1;
+		player2.weapon = 1;
+		break;
+	case 'j':
+		player.weapon = 2;
+		player2.weapon = 2;
 		break;
 	case 'a':
 		debugSelect = true;
