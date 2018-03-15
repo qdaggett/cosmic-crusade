@@ -99,6 +99,12 @@
     <ClCompile Include="FullScreenQuad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleEmitterSoA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleEmitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -170,6 +176,15 @@
     <ClInclude Include="FullScreenQuad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleEmitterSoA.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\phong.vert">
@@ -197,6 +212,15 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\bright.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\particles.geom">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\passThru.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\unlitTextureP.frag">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

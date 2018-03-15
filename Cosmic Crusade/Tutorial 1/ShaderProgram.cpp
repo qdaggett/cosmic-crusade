@@ -69,6 +69,77 @@ bool ShaderProgram::load(const std::string & vertFile, const std::string & fragF
 	return true;
 }
 
+bool ShaderProgram::load(const std::string & vertFile, const std::string & geomFile, const std::string & fragFile)
+{
+	//Create shader and program objects
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	geomShader = glCreateShader(GL_GEOMETRY_SHADER);
+	fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+	program = glCreateProgram();
+
+	//Load out source code
+	std::string source = readFile(vertFile);
+	const GLchar *temp = static_cast<const GLchar*>(source.c_str());
+	glShaderSource(vertexShader, 1, &temp, NULL);
+
+	source = readFile(geomFile);
+	temp = static_cast<const GLchar*>(source.c_str());
+	glShaderSource(geomShader, 1, &temp, NULL);
+
+	source = readFile(fragFile);
+	temp = static_cast<const GLchar*>(source.c_str());
+	glShaderSource(fragShader, 1, &temp, NULL);
+
+	//Compile shader code
+	if (!compileShader(vertexShader))
+	{
+		std::cout << "Vertex shader failed to compile." << std::endl;
+
+		outputShaderLog(vertexShader);
+		unload();
+
+		return false;
+	}
+
+	if (!compileShader(geomShader))
+	{
+		std::cout << "Geometry shader failed to compile." << std::endl;
+
+		outputShaderLog(geomShader);
+		unload();
+
+		return false;
+	}
+
+	if (!compileShader(fragShader))
+	{
+		std::cout << "Fragment shader failed to compile." << std::endl;
+
+		outputShaderLog(fragShader);
+		unload();
+
+		return false;
+	}
+
+	//Setup our program object
+	glAttachShader(program, vertexShader);
+	glAttachShader(program, geomShader);
+	glAttachShader(program, fragShader);
+
+	if (!linkProgram())
+	{
+		std::cout << "Shader program failed to link." << std::endl;
+
+		outputProgramLog();
+		unload();
+
+		return false;
+	}
+
+	loaded = true;
+	return true;
+}
+
 bool ShaderProgram::isLoaded() const
 {
 	return loaded;
@@ -88,6 +159,13 @@ void ShaderProgram::unload()
 		glDetachShader(program, fragShader);
 		glDeleteShader(fragShader);
 		fragShader = 0;
+	}
+
+	if (geomShader != 0)
+	{
+		glDetachShader(program, geomShader);
+		glDeleteShader(geomShader);
+		geomShader = 0;
 	}
 
 	if (program != 0)

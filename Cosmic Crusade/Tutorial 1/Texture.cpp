@@ -43,11 +43,12 @@ void Texture::unload()
 
 void Texture::bind()
 {
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texObj);
 }
 
 void Texture::unbind()
 {
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
-
 }

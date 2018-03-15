@@ -12,6 +12,7 @@ public:
 
 	//load a vertex shader and a fragment shader and places them in a program
 	bool load(const std::string &vertFile, const std::string &fragFile);
+	bool load(const std::string &vertFile, const std::string &geomFile, const std::string &fragFile);
 
 	bool isLoaded() const;
 
@@ -52,6 +53,7 @@ private:
 
 	GLuint vertexShader = 0;
 	GLuint fragShader = 0;
+	GLuint geomShader = 0;
 	GLuint program = 0;
 
 	std::string readFile(const std::string &fileName) const;

@@ -80,6 +80,13 @@ void Game::initializeGame()
 		exit(0);
 	}
 
+	if (!particleShader.load("shaders/passThru.vert", "shaders/particles.geom", "shaders/unlitTextureP.frag"))
+	{
+		std::cout << "Particle Shader failed to initialize." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
 	if (!unlitShader.load("shaders/unlit.vert", "shaders/unlit.frag"))
 	{
 		std::cout << "Unlit Shaders failed to initialize." << std::endl;
@@ -114,6 +121,8 @@ void Game::initializeGame()
 		system("pause");
 		exit(0);
 	}
+
+	initializeParticles();
 
 	if (!basicPlayer.mesh.loadFromFile("meshes/Player_Ship.obj"))
 	{
@@ -215,7 +224,8 @@ void Game::initializeGame()
 	player2.blackBar = player.blackBar;
 	player2.yellowBar = player.yellowBar;
 
-	cameraTransform = glm::translate(cameraTransform, glm::vec3(0.0f, 0.0f, -30.0f));
+	cameraTranslation = glm::vec3(0.0f, 0.0f, -30.0f);
+	cameraTransform = glm::translate(cameraTransform, cameraTranslation);
 	cameraProjection = glm::perspective(45.0f, ((float)GetSystemMetrics(SM_CXSCREEN) / (float)GetSystemMetrics(SM_CYSCREEN)), 0.1f, 10000.0f);
 	cameraOrtho = glm::ortho(-10.f, 10.f, -10.f, 10.f, -30.f, 1000.f);
 
@@ -307,6 +317,10 @@ void Game::update()
 	player.controller.DownloadPackets(2);
 	player.controller.GetSticks(player.playerNum, player.lStick, player.rStick);
 
+	if (emitter.playing)
+		emitter.update(deltaTime);
+
+	
 	if (state == title)
 	{
 		draw();
@@ -607,6 +621,7 @@ void Game::draw()
 
 	if (state == title)
 	{
+		//emitter.draw(cameraTransform, cameraProjection);
 		playButton.draw(phong, cameraTransform, cameraProjection, pointLights);
 		quitButton.draw(phong, cameraTransform, cameraProjection, pointLights);
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
@@ -677,6 +692,10 @@ void Game::draw()
 	}
 
 	phong.unbind();
+
+	particleShader.bind();
+	emitter.draw(cameraTransform, cameraProjection);
+	particleShader.unbind();
 
 	doBlurPass();
 
@@ -1007,4 +1026,19 @@ void Game::doBlurPass()
 		blur_a.unbindFrameBuffer(blur_a.getWidth(), blur_a.getHeight());
 		blurShader.unbind();
 	}
+}
+
+void Game::initializeParticles()
+{
+	// Init particle emitter
+	// Set the emitter properties
+	emitter.lifeRange = glm::vec3(1.0f, 3.0f, 0.0f);
+	emitter.initialForceMin = glm::vec3(-3.0f, 5.0f, -4.0f);
+	emitter.initialForceMax = glm::vec3(3.0f, 15.0f, -10.0f);
+	
+	emitter.shader = &particleShader;
+	emitter.texture.load("Textures/smoke.png");
+	emitter.initialize(1000);
+	emitter.initialPosition = glm::vec3(3.0f, 3.0f, 3.0f);
+	emitter.play();
 }

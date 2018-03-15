@@ -14,6 +14,7 @@
 #include "SoundEngine.h"
 #include "SoundEffect.h"
 #include "FullScreenQuad.h"
+#include "ParticleEmitterSoA.h"
 
 #define FRAMES_PER_SECOND 60
 
@@ -38,6 +39,9 @@ public:
 
 	void doBrightPass();
 	void doBlurPass();
+
+	float deltaTime;
+	glm::vec3 cameraTranslation;
 
 	// FMOD Sound handler
 	SoundEffect gameSounds;
@@ -68,7 +72,7 @@ public:
 	GameObject combinedPlayer;
 
 	//Shaders
-	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader;
+	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader, particleShader;
 
 	glm::mat4 cameraTransform;
 	glm::mat4 cameraProjection;
@@ -80,6 +84,8 @@ private:
 	enum enemyType { basic, circle, orbit };
 	unsigned int currentEnemy = 0;
 
+	void initializeParticles();
+	
 	struct enemyNode
 	{
 		enemyNode(float time, glm::vec2 loc, enemyType nmy) : spawnTime(time), location(loc), type(nmy){}
@@ -119,5 +125,5 @@ private:
 
 	Foreground foreground;
 	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom;
-
+	ParticleEmitterSoA emitter;
 };
