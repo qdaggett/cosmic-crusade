@@ -3,7 +3,6 @@
 BasicEnemy::BasicEnemy()
 {
 	//velocity = glm::vec2(0.1f, -0.025f);
-
 }
 
 void BasicEnemy::Intialize()
@@ -34,7 +33,6 @@ void BasicEnemy::Intialize()
 
 BasicEnemy::~BasicEnemy()
 {
-
 }
 
 void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* gameProjectiles)

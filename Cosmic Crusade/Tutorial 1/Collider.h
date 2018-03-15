@@ -36,8 +36,6 @@ public:
 
 	void ColliderUpdate(glm::vec3& center);
 
-	void DisplayCollider();
-
 	bool Collide(Collider& type);
 
 	bool BoxBoxCollision(BoxCollider obj, BoxCollider obj2);
@@ -62,7 +60,7 @@ public:
 
 	std::vector<float>boxColliderVertices;
 	GLuint vboVertices, vao;
-	
+
 private:
 
 

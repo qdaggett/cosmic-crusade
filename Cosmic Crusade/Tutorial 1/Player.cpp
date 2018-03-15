@@ -2,6 +2,8 @@
 #include <math.h>
 #include "Player.h"
 
+// 15/3/2018
+
 float Player::progress = 0.0f;
 float const Player::transformMax = 15.0f;
 

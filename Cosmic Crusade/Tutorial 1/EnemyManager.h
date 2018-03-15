@@ -55,5 +55,4 @@ private:
 	std::vector<Player*> players;
 
 	float damagedTimer = 0.1f;
-
 };

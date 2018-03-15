@@ -1,8 +1,7 @@
 #include "EnemyManager.h"
-
+// 15/3/2018
 EnemyManager::EnemyManager()
 {
-
 }
 
 EnemyManager::~EnemyManager()

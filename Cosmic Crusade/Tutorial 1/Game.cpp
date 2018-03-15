@@ -14,11 +14,10 @@
 
 GameObject bullet;
 
-
+// 15/3/2018
 
 Game::Game()
 {
-
 }
 
 Game::~Game()
@@ -39,7 +38,6 @@ Game::~Game()
 	{
 		players.erase(players.begin() + i);
 	}
-
 }
 
 //Happens once at the beginning of the game
@@ -212,7 +210,6 @@ void Game::initializeGame()
 	enemyManager.Intialize(players);
 
 	gameSounds.initializeSounds();
-
 }
 
 //Happens once per frame, used to update state of the game

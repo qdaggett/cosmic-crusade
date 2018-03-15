@@ -33,7 +33,4 @@ public:
 	float damagedTimer = 0.0f;
 	Material defaultMaterial;
 private:
-
-
-
 };
