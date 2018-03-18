@@ -28,7 +28,4 @@ public:
 	float delay;
 	int target = 0;
 private:
-
-
-
 };

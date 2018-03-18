@@ -29,3 +29,9 @@ bool Projectile::isOffscreen()
 
 	return false;
 }
+
+void Projectile::update()
+{
+	this->collider->ColliderUpdate(glm::vec3(location, 0));
+	move(velocity.x, velocity.y);
+}

@@ -6,9 +6,11 @@
 #include "SoundEngine.h"
 #include "SoundEffect.h"
 
+// 15/3/2018
 
 class Player : public GameObject
 {
+
 public:
 	friend class Game;
 	Player();
@@ -20,10 +22,7 @@ public:
 	void update(std::vector<Enemy*>* enemies, Player* otherPlayer);
 
 	bool hasShot;
-	bool hasShotShotgun;
 	bool hasHit;
-
-	int weapon = 1;
 
 	XBox::Stick getLStick(); 
 	XBox::Stick getRStick();
@@ -40,8 +39,14 @@ public:
 	void setDead() { playerState = dead; }
 	void setAlive() { playerState = alive; }
 
-	float progress = 0;
-	float transformMax = 15;
+	bool getIsTransformed() { return isTransformed;  }
+
+	
+
+	state getState()
+	{
+		return playerState;
+	}
 
 	float getAccuracy()
 	{
@@ -58,6 +63,16 @@ public:
 
 	unsigned int score = 0;
 
+	unsigned int numLives = 3;
+
+	unsigned int hits = 0;
+	unsigned int totalShots = 0;
+
+
+	//Static stuff
+	static float progress;
+	static const float transformMax;
+
 private: 
 
 	state playerState = alive;
@@ -65,14 +80,12 @@ private:
 	XBox::Stick lStick;
 	XBox::Stick rStick;
 	int playerNum;
-	unsigned int numLives = 3;
-	float delay = 0.25f;
+
+	float delay = 0.1f;
 	float localTime = 0.0f;
 	float spawnTime = 0.0f;
 	bool isTransformed = false;
-	unsigned int hits = 0;
-	unsigned int totalShots = 0;
-
+	float dt;
 
 	Material baseMat;
 	Material transformMat;

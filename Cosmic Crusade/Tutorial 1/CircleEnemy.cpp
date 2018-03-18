@@ -11,7 +11,6 @@ CircleEnemy::CircleEnemy()
 
 CircleEnemy::~CircleEnemy()
 {
-
 }
 
 void CircleEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* gameProjectiles)

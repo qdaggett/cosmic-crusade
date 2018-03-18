@@ -18,5 +18,4 @@ public:
 
 private:
 	//Projectiles will be given an x and y velocity based on the direction the right controller stick is tilted. 
-
 };
