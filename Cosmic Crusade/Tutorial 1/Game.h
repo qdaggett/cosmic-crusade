@@ -6,12 +6,14 @@
 #include "CircleEnemy.h"
 #include "OrbitEnemy.h"
 #include "Light.h"
+#include "ShaderProgram.h"
 #include "Background.h"
 #include <WinUser.h>
 #include <vector>
 #include "Font.h"
 #include "Foreground.h"
 #include "SoundEngine.h"
+#include "EnemyManager.h"
 #include "SoundEffect.h"
 #include "FullScreenQuad.h"
 
@@ -48,16 +50,10 @@ public:
 	Player player2;
 	std::vector<Player*> players;
 
-	//Vector of enemies, because we will be drawing some arbitrary amount
-	BasicEnemy basicEnemy;
-	CircleEnemy circleEnemy;
-	OrbitEnemy orbitEnemy;
-	std::vector<Enemy*> enemies;
-	std::vector<Projectile*> enemyProjectiles;
 	std::vector<Light> pointLights;
 
-	Material red; 
-	Material blue; 
+	Material red;
+	Material blue;
 	Material yellow;
 	Material green;
 	Material purple;
@@ -70,26 +66,14 @@ public:
 	//Shaders
 	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader;
 
+	ShaderProgram phongColorSides;
 	glm::mat4 cameraTransform;
 	glm::mat4 cameraProjection;
 	glm::mat4 cameraOrtho;
 	glm::mat4 lightSpinner;
 
 private:
-
-	enum enemyType { basic, circle, orbit };
 	unsigned int currentEnemy = 0;
-
-	struct enemyNode
-	{
-		enemyNode(float time, glm::vec2 loc, enemyType nmy) : spawnTime(time), location(loc), type(nmy){}
-		float spawnTime;
-		glm::vec2 location;
-		enemyType type;
-		
-	};
-
-	std::vector<enemyNode*> level1;
 
 	// Pause functionality
 	bool paused;
@@ -97,8 +81,7 @@ private:
 	float pauseTime = 0.0f;
 
 	bool shouldLightsSpin = false;
-	void updateEnemyProjectiles();
-	enum gameStates{main, gameOver, title, monologue};
+	enum gameStates { main, gameOver, title, monologue };
 	gameStates state = title;
 	float delay;
 
@@ -110,7 +93,7 @@ private:
 	Background background;
 
 	GameObject playButton, quitButton;
-	enum selectedButton{ _play, _quit, none };
+	enum selectedButton { _play, _quit, none };
 	selectedButton selected = _play;
 	Material play, play_un, quit, quit_un;
 	FullScreenQuad fullscreenQuad;
@@ -120,4 +103,5 @@ private:
 	Foreground foreground;
 	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom;
 
+	EnemyManager enemyManager;
 };

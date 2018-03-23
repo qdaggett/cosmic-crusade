@@ -3,6 +3,7 @@
 BasicEnemy::BasicEnemy()
 {
 	//velocity = glm::vec2(0.1f, -0.025f);
+
 }
 
 void BasicEnemy::Intialize()
@@ -33,6 +34,7 @@ void BasicEnemy::Intialize()
 
 BasicEnemy::~BasicEnemy()
 {
+
 }
 
 void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* gameProjectiles)
@@ -67,7 +69,7 @@ void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 	}
 	else
 	{
-		if(!stopMove)
+		if (!stopMove)
 			velocity = glm::normalize(players[target]->location - location) * 0.15f;
 		if (glm::distance(location, players[target]->location) <= 12)
 		{

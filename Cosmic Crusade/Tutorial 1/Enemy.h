@@ -1,9 +1,8 @@
 #pragma once
-#include <glm\glm.hpp>
 #include "GameObject.h"
 #include "Projectile.h"
 #include "Player.h"
-
+#include "glm\glm.hpp"
 
 class Enemy : public GameObject
 {
@@ -13,6 +12,7 @@ public:
 
 	virtual void update(std::vector<Player*> players, std::vector<Projectile*>*) = 0;
 	virtual void shoot(std::vector<Player*> players, std::vector<Projectile*>*) = 0;
+	virtual void Intialize() = 0;
 
 	std::vector<Projectile*> getProjectiles();
 	std::vector<Projectile*> projectiles;
@@ -27,5 +27,13 @@ public:
 	float localTime = 0.0f;
 	float delay;
 	int target = 0;
+	int hitPoints = 3;
+
+	bool gotDamaged = false;
+	float damagedTimer = 0.0f;
+	Material defaultMaterial;
 private:
+
+
+
 };

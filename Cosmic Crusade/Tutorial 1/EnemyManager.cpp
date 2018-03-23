@@ -62,7 +62,7 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 
 	purple.loadTexture(Diffuse, "Textures/purple.png");
 
-	damaged.loadTexture(Diffuse, "Textures/white.png");
+	damaged.loadTexture(Diffuse, "Textures/NotWhite.png");
 
 	//Set their material
 	basicEnemy.defaultMaterial = basicEnemy.mat;
