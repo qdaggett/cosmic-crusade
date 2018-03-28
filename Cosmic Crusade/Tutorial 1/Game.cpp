@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <minwindef.h>
 
+
 GameObject bullet;
 
 
@@ -46,6 +47,7 @@ Game::~Game()
 		enemies.erase(enemies.begin() + i);
 	}
 }
+
 
 //Happens once at the beginning of the game
 void Game::initializeGame()
@@ -121,8 +123,6 @@ void Game::initializeGame()
 		system("pause");
 		exit(0);
 	}
-
-	initializeParticles();
 
 	if (!basicPlayer.mesh.loadFromFile("meshes/Player_Ship.obj"))
 	{
@@ -229,6 +229,10 @@ void Game::initializeGame()
 	cameraProjection = glm::perspective(45.0f, ((float)GetSystemMetrics(SM_CXSCREEN) / (float)GetSystemMetrics(SM_CYSCREEN)), 0.1f, 10000.0f);
 	cameraOrtho = glm::ortho(-10.f, 10.f, -10.f, 10.f, -30.f, 1000.f);
 
+	camera = Camera();
+	camera.cameraPosition = cameraTranslation;
+	camera.projMatrix = glm::perspective(45.0f, ((float)GetSystemMetrics(SM_CXSCREEN) / (float)GetSystemMetrics(SM_CYSCREEN)), 0.1f, 10000.0f);
+
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
 
@@ -299,13 +303,15 @@ void Game::initializeGame()
 
 	float blurAmount = 16.0f;
 
-	def.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
-	bright.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
-	blur_a.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 1, true);
-	blur_b.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 1, true);
-	lowRes.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 1, true);
-	toBloom.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
+	def.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
+	bright.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
+	blur_a.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
+	blur_b.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
+	lowRes.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
+	toBloom.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
 	fullscreenQuad.create();
+
+	//initializeParticles(&emitter);
 }
 
 //Happens once per frame, used to update state of the game
@@ -313,17 +319,24 @@ void Game::update()
 {
 	// FMOD update function
 	gameSounds.updateSounds();
+	camera.update();
 
 	player.controller.DownloadPackets(2);
 	player.controller.GetSticks(player.playerNum, player.lStick, player.rStick);
 
-	if (emitter.playing)
-		emitter.update(deltaTime);
+	for (int i = 0; i < emitters.size(); i++)
+	{
+		if (emitters[i]->playing)
+			emitters[i]->update(deltaTime);
 
-	
+		else
+			emitters.erase(emitters.begin() + i);
+	}
+
+
 	if (state == title)
 	{
-		draw();
+		//draw();
 
 		if(selected == none)
 		{ 
@@ -383,6 +396,7 @@ void Game::update()
 
 	if (state == main)
 	{
+		//emitter.play();
 
 		pauseTime += updateTimer->getElapsedTimeS();
 		empty = false;
@@ -472,8 +486,11 @@ void Game::update()
 
 			for (int i = 0; i < players.size(); i++)
 			{
+
+				players[i]->updateProjectiles(&enemies, players[(i + 1) % 2], &emitters);
+
 				if (players[i]->isAlive())
-					players[i]->update(&enemies, players[(i + 1) % 2]);
+					players[i]->update(players[(i + 1) % 2]);
 
 				else
 				{
@@ -563,7 +580,7 @@ void Game::update()
 			gameSounds.playSound(gameSounds.failsound, &gameSounds.channel5);
 		}
 
-		draw();
+		//draw();
 
 		for (int i = 0; i < players.size(); i++)
 		{
@@ -592,6 +609,8 @@ void Game::draw()
 	def.bindFrameBufferForDrawing();
 	def.clearFrameBuffer(glm::vec4(0.0f));
 
+	textShader.bind();
+
 	if (state == main)
 	{
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player.score), -9.5, -8, .01f, glm::vec3(0, 0, 1));
@@ -617,38 +636,65 @@ void Game::draw()
 		text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(player2.getAccuracy()) + "%", 5.5f, -8, .01f, glm::vec3(1, 1, 0));
 	}
 
-	phong.bind();
+	textShader.unbind();
+
+
 
 	if (state == title)
 	{
-		//emitter.draw(cameraTransform, cameraProjection);
+		phong.bind();
+
 		playButton.draw(phong, cameraTransform, cameraProjection, pointLights);
 		quitButton.draw(phong, cameraTransform, cameraProjection, pointLights);
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 	}
 
-	if (state == monologue)
+	else if (state == monologue)
 	{
 
 	}
 
 	else if (state == gameOver)
 	{
+		phong.bind();
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 	}
 
 	else
 	{
+
+
+		particleShader.bind();
+		glm::mat4 viewMatrix = glm::lookAt(cameraTranslation, cameraTranslation + glm::vec3(0.0f, 0.0f, 1.0f) , glm::vec3(0.0f, 1.0f, 0.0f));
+
+		for (int i = 0; i < emitters.size(); i++)
+		{
+			toBloom.bindFrameBufferForDrawing();
+			emitters[i]->draw(viewMatrix, cameraProjection, &particleShader);
+			toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+
+			def.bindFrameBufferForDrawing();
+			emitters[i]->draw(viewMatrix, cameraProjection, &particleShader);
+			def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+		}
+
+		particleShader.unbind();
+
+		phong.bind();
+
 		if (player.isTransformed && player2.isTransformed)
 			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
+		
 
 		//Iterate through vector of enemies and draw each one
 		for (int i = 0; i < enemies.size(); i++)
 		{
+			def.bindFrameBufferForDrawing();
 			enemies[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
+			def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 		}
 
-		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+		//def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
 		for (int i = 0; i < enemyProjectiles.size(); i++)
 		{
@@ -663,22 +709,21 @@ void Game::draw()
 
 		for (int i = 0; i < players.size(); i++)
 		{
+			for (int j = 0; j < players[i]->getProjectiles().size(); j++)
+			{
+				def.bindFrameBufferForDrawing();
+				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
+				toBloom.bindFrameBufferForDrawing();
+				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+				toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+			}
 			if (players[i]->isAlive())
 			{
 				def.bindFrameBufferForDrawing();
 				players[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
 				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
-
-				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
-				{
-					def.bindFrameBufferForDrawing();
-					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
-
-					toBloom.bindFrameBufferForDrawing();
-					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-					toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());	
-				}
 			}
 		}
 
@@ -688,22 +733,19 @@ void Game::draw()
 
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 		foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
+
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 	}
 
 	phong.unbind();
 
-	particleShader.bind();
-	emitter.draw(cameraTransform, cameraProjection);
-	particleShader.unbind();
-
 	doBlurPass();
 
 	bloomShader.bind();
+	//unlitShader.bind();
 
 	blur_a.bindTextureForSampling(0, GL_TEXTURE0);
 	def.bindTextureForSampling(0, GL_TEXTURE1);
-
 
 	FrameBufferObject::unbindFrameBuffer(def.getWidth(), def.getHeight());
 	FrameBufferObject::clearFrameBuffer(glm::vec4(0));
@@ -713,6 +755,7 @@ void Game::draw()
 	def.unbindTexture(GL_TEXTURE1);
 	blur_a.unbindTexture(GL_TEXTURE0);
 
+	//unlitShader.unbind();
 	bloomShader.unbind();
 
 	glutSwapBuffers();
@@ -998,47 +1041,32 @@ void Game::doBlurPass()
 
 	int numBlurs = 5;
 
-	for (int i = 0; i < numBlurs; i++)
-	{
-		//Blur Buffer A
-		blurShader.bind();
-		blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_b.getWidth(), 1 / blur_b.getHeight(), 0.0f, 0.0f));
-		blur_b.bindFrameBufferForDrawing();
-		blur_b.clearFrameBuffer(glm::vec4());
-
-		blur_a.bindTextureForSampling(0, GL_TEXTURE0);
-		fullscreenQuad.draw(blurShader);
-		blur_a.unbindTexture(GL_TEXTURE0);
-
-		blur_b.unbindFrameBuffer(blur_b.getWidth(), blur_b.getHeight());
-		blurShader.unbind();
-
-		//Blur Buffer B
-		blurShader.bind();
-		blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_a.getWidth(), 1 / blur_a.getHeight(), 0.0f, 0.0f));
-		blur_a.bindFrameBufferForDrawing();
-		blur_a.clearFrameBuffer(glm::vec4());
-
-		blur_b.bindTextureForSampling(0, GL_TEXTURE0);
-		fullscreenQuad.draw(blurShader);
-		blur_b.unbindTexture(GL_TEXTURE0);
-
-		blur_a.unbindFrameBuffer(blur_a.getWidth(), blur_a.getHeight());
-		blurShader.unbind();
-	}
-}
-
-void Game::initializeParticles()
-{
-	// Init particle emitter
-	// Set the emitter properties
-	emitter.lifeRange = glm::vec3(1.0f, 3.0f, 0.0f);
-	emitter.initialForceMin = glm::vec3(-3.0f, 5.0f, -4.0f);
-	emitter.initialForceMax = glm::vec3(3.0f, 15.0f, -10.0f);
-	
-	emitter.shader = &particleShader;
-	emitter.texture.load("Textures/smoke.png");
-	emitter.initialize(1000);
-	emitter.initialPosition = glm::vec3(3.0f, 3.0f, 3.0f);
-	emitter.play();
+	//for (int i = 0; i < numBlurs; i++)
+	//{
+	//	//Blur Buffer A
+	//	blurShader.bind();
+	//	blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_b.getWidth(), 1 / blur_b.getHeight(), 0.0f, 0.0f));
+	//	blur_b.bindFrameBufferForDrawing();
+	//	blur_b.clearFrameBuffer(glm::vec4());
+	//
+	//	blur_a.bindTextureForSampling(0, GL_TEXTURE0);
+	//	fullscreenQuad.draw(blurShader);
+	//	blur_a.unbindTexture(GL_TEXTURE0);
+	//
+	//	blur_b.unbindFrameBuffer(blur_b.getWidth(), blur_b.getHeight());
+	//	blurShader.unbind();
+	//
+	//	//Blur Buffer B
+	//	blurShader.bind();
+	//	blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_a.getWidth(), 1 / blur_a.getHeight(), 0.0f, 0.0f));
+	//	blur_a.bindFrameBufferForDrawing();
+	//	blur_a.clearFrameBuffer(glm::vec4());
+	//
+	//	blur_b.bindTextureForSampling(0, GL_TEXTURE0);
+	//	fullscreenQuad.draw(blurShader);
+	//	blur_b.unbindTexture(GL_TEXTURE0);
+	//
+	//	blur_a.unbindFrameBuffer(blur_a.getWidth(), blur_a.getHeight());
+	//	blurShader.unbind();
+	//}
 }

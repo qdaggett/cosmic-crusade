@@ -85,9 +85,10 @@ void FullScreenQuad::create()
 
 void FullScreenQuad::draw(ShaderProgram &shader)
 {
+	shader.bind();
 	shader.sendUniformMat4("u_mvp", glm::value_ptr(glm::mat4()), false);
 
 	glActiveTexture(GL_TEXTURE0);
 	vbo.draw();
-
+	shader.unbind();
 }

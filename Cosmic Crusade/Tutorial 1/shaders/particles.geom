@@ -67,7 +67,7 @@ void PointToQuadBillboarded(vec4 p, float size)
 
 void main()
 {
-	PointToQuadBillboarded(gl_in[0].gl_Position, (3.0 - vIn[0].colour.x));
+	PointToQuadBillboarded(gl_in[0].gl_Position, (1.0 - vIn[0].colour.x));
 }
 
 

@@ -102,9 +102,6 @@
     <ClCompile Include="ParticleEmitterSoA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleEmitter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -179,10 +176,10 @@
     <ClInclude Include="ParticleEmitterSoA.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleEmitter.h">
+    <ClInclude Include="AnimationMath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationMath.h">
+    <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

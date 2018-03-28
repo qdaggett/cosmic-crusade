@@ -82,7 +82,7 @@ public:
 	void createVBO(GLenum vboUsage);
 
 	// Call this when you want to draw the object
-	void draw();
+	void draw(GLenum primType = GL_TRIANGLES);
 
 	// Call this when you want to destroy the object
 	// Tip: Might want to put this in the destructor  

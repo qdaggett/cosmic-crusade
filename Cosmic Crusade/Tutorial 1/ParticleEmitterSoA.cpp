@@ -35,7 +35,10 @@ void ParticleEmitterSoA::initialize(unsigned int newNumParticles)
 		particles.accelerations = new glm::vec3[newNumParticles];
 		particles.remainingLives = new float[newNumParticles];
 		particles.masses = new float[newNumParticles];
+		particles.created = new bool[newNumParticles];
+
 		memset(particles.remainingLives, 0, sizeof(float) * newNumParticles);
+		memset(particles.created, false, sizeof(bool) * newNumParticles);
 
 		numParticles = newNumParticles;
 		allocated = true; // mark that memory has been allocated
@@ -55,7 +58,20 @@ void ParticleEmitterSoA::initialize(unsigned int newNumParticles)
 		vbo.primitiveType = GL_POINTS;
 
 		vbo.createVBO(GL_DYNAMIC_DRAW);
-	}
+ 	}
+}
+
+void ParticleEmitterSoA::explosionInit(glm::vec3 pos)
+{
+	// Init particle emitter
+	// Set the emitter properties
+	lifeRange = glm::vec3(0.5f, 1.0f, 0.0f);
+	initialForceMin = glm::vec3(-15.0f, -15.0f, 0.0f);
+	initialForceMax = glm::vec3(15.0f, 15.0f, 0.0f);
+
+	initialPosition = pos;
+	initialize(100);
+	play();
 }
 
 void ParticleEmitterSoA::update(float dt)
@@ -72,22 +88,33 @@ void ParticleEmitterSoA::update(float dt)
 			glm::vec3* accel = particles.accelerations + i;
 			float* life = particles.remainingLives + i;
 			float* mass = particles.masses + i;
+			bool *created = particles.created + i;
 			// other properties... 
 
 			// check if alive
-			if (*life <= 0)
+			if ((*life <= 0))
 			{
-				// if dead respawn
-				// could put additional logic here...
-				*pos = initialPosition;
+				if (*created)
+				{
+					*pos = glm::vec3(3000);
+					sentinel++;
+				}
 
-				(*vel).x = glm::mix(initialForceMin.x, initialForceMax.x, glm::linearRand(0.0f, 1.0f));
-				(*vel).y = glm::mix(initialForceMin.y, initialForceMax.y, glm::linearRand(0.0f, 1.0f));
-				(*vel).z = glm::mix(initialForceMin.z, initialForceMax.z, glm::linearRand(0.0f, 1.0f));
+				else
+				{
+					*created = true;
+					// if dead respawn
+					// could put additional logic here...
+					*pos = initialPosition;
 
-				*life = glm::linearRand(lifeRange.x, lifeRange.y);
-				*mass = glm::linearRand(0.5f, 1.0f);
-				*accel = *vel / *mass;
+					(*vel).x = glm::mix(initialForceMin.x, initialForceMax.x, glm::linearRand(0.0f, 1.0f));
+					(*vel).y = glm::mix(initialForceMin.y, initialForceMax.y, glm::linearRand(0.0f, 1.0f));
+					(*vel).z = glm::mix(initialForceMin.z, initialForceMax.z, glm::linearRand(0.0f, 1.0f));
+
+					*life = glm::linearRand(lifeRange.x, lifeRange.y);
+					*mass = glm::linearRand(0.5f, 1.0f);
+					*accel = *vel / *mass;
+				}
 			}
 
 			// Update position and velocity
@@ -96,9 +123,12 @@ void ParticleEmitterSoA::update(float dt)
 			*life -= dt;
 		}
 	}
+
+	if (sentinel == numParticles)
+		playing = false;
 }
 
-void ParticleEmitterSoA::draw(glm::mat4 cameraTransform, glm::mat4 cameraProjection)
+void ParticleEmitterSoA::draw(glm::mat4 cameraTransform, glm::mat4 cameraProjection, ShaderProgram* shader)
 {
 	//Update data in VBO
 	AttributeDescriptor* attrib = vbo.getAttributeDescriptor(VERTEX);
@@ -110,23 +140,22 @@ void ParticleEmitterSoA::draw(glm::mat4 cameraTransform, glm::mat4 cameraProject
 	glBufferSubData(GL_ARRAY_BUFFER, 0, numParticles * 3 * sizeof(float), particles.positions);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	//glm::vec4 pos = glm::vec4(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f) * cameraTransform);
-	glm::vec4 eye = glm::vec4(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) * cameraTransform);
-	glm::mat4 viewMatrix = glm::lookAt(glm::vec3(eye.x, eye.y, eye.z), glm::vec3(eye.x, eye.y + 1.0f, eye.z), glm::vec3(0.0f, 0.0f, 1.0f));
+	//shader->bind();
 
-	shader->bind();
 	shader->sendUniformMat4("u_mv", glm::value_ptr(cameraTransform), false);
 	shader->sendUniformMat4("u_proj", glm::value_ptr(cameraProjection), false);
+	shader->sendUniformMat4("u_mvp", glm::value_ptr(cameraProjection * cameraTransform), false);
+
 	texture.bind();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
 
-	vbo.draw();
+	vbo.draw(GL_POINTS);
 
 	glDepthMask(GL_TRUE);
-	//glDisable(GL_BLEND);
+	glDisable(GL_BLEND);
 	texture.unbind();
 }
 

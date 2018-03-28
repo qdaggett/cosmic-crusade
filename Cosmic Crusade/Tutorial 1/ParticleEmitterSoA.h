@@ -6,6 +6,7 @@
 #include "ShaderProgram.h"
 #include <math.h>
 #include "Texture.h"
+#include "Camera.h"
 
 class ParticleEmitterSoA
 {
@@ -50,6 +51,7 @@ class ParticleEmitterSoA
 		glm::vec3* accelerations;
 		float*	remainingLives;
 		float* masses;
+		bool* created;
 		// Other particle properties...
 	} particles;
 
@@ -59,6 +61,8 @@ public:
 
 	// Initialize memory for particles
 	void initialize(unsigned int numParticles);
+	void explosionInit(glm::vec3 pos);
+
 
 	// playback control
 	inline void play() { playing = true; }
@@ -68,7 +72,7 @@ public:
 	void update(float dt);
 
 	// Draws particles to screen
-	void draw(glm::mat4 cameraTransform, glm::mat4 cameraProjection);
+	void draw(glm::mat4 cameraTransform, glm::mat4 cameraProjection, ShaderProgram* shader);
 
 	void freeMemory();
 
@@ -82,15 +86,16 @@ public:
 	glm::vec3 initialForceMin;
 	glm::vec3 initialForceMax;
 
-
 	VertexBufferObject vbo;
 
 	bool playing;	// false is update is paused
 
+
 	Texture texture;
 
-	ShaderProgram* shader;
+	//ShaderProgram* shader;
 private:
 	unsigned int numParticles; // Number of particles passed into initialize()
 	bool allocated; // false if memory not allocated
+	int sentinel = 0;
 };

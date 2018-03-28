@@ -15,6 +15,7 @@
 #include "SoundEffect.h"
 #include "FullScreenQuad.h"
 #include "ParticleEmitterSoA.h"
+#include "Camera.h"
 
 #define FRAMES_PER_SECOND 60
 
@@ -39,6 +40,8 @@ public:
 
 	void doBrightPass();
 	void doBlurPass();
+
+	void initializeParticles(ParticleEmitterSoA * emitter, glm::vec3 pos);
 
 	float deltaTime;
 	glm::vec3 cameraTranslation;
@@ -84,8 +87,6 @@ private:
 	enum enemyType { basic, circle, orbit };
 	unsigned int currentEnemy = 0;
 
-	void initializeParticles();
-	
 	struct enemyNode
 	{
 		enemyNode(float time, glm::vec2 loc, enemyType nmy) : spawnTime(time), location(loc), type(nmy){}
@@ -126,4 +127,7 @@ private:
 	Foreground foreground;
 	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom;
 	ParticleEmitterSoA emitter;
+	std::vector<ParticleEmitterSoA*> emitters;
+
+	Camera camera;
 };

@@ -5,6 +5,7 @@
 #include "Enemy.h"
 #include "SoundEngine.h"
 #include "SoundEffect.h"
+#include "ParticleEmitterSoA.h"
 
 
 class Player : public GameObject
@@ -17,7 +18,8 @@ public:
 	//Getting input from the controller
 	void xin(Player* otherPlayer);
 	void shoot();
-	void update(std::vector<Enemy*>* enemies, Player* otherPlayer);
+	void update(Player* otherPlayer);
+	void updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer, std::vector<ParticleEmitterSoA*>* emitters);
 
 	bool hasShot;
 	bool hasShotShotgun;

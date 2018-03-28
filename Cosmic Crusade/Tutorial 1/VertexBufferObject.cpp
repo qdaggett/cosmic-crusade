@@ -76,13 +76,13 @@ void VertexBufferObject::createVBO(GLenum vboUsage)
 	glBindVertexArray(0);
 }
 
-void VertexBufferObject::draw()
+void VertexBufferObject::draw(GLenum primType)
 {
 	if (vaoHandle)
 	{
 		glBindVertexArray(vaoHandle);
 		// better way would be to just store the num of vertices
-		glDrawArrays(GL_TRIANGLES, 0,
+		glDrawArrays(primType, 0,
 			attributeDescriptors[0].numElements / attributeDescriptors[0].numElementsPerAttrib);
 
 		glBindVertexArray(0);

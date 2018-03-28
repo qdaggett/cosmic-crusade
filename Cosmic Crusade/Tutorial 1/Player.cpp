@@ -2,6 +2,7 @@
 #include <math.h>
 #include "Player.h"
 
+
 Player::Player()
 {
 	updateTimer = new Timer();
@@ -17,11 +18,10 @@ Player::~Player()
 	}
 }
 
-void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
+void Player::update(Player* otherPlayer)
 {
 	updateTimer->tick();
 	xin(otherPlayer);
-	std::vector<Enemy*> derefEnemies = *enemies;
 
 	if ((isTransformed && otherPlayer->isTransformed) && progress >= 0.0f)
 	{
@@ -37,17 +37,21 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 		isTransformed = false;
 		otherPlayer->isTransformed = false;
 	}
+}
 
+void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer, std::vector<ParticleEmitterSoA*>* emitters)
+{
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);
 
 		if (projectiles[i]->isOffscreen())
 		{
-			deleteProjectile(i);
+			projectiles.erase(projectiles.begin() + i);
 			break;
 		}
 
+		std::vector<Enemy*> derefEnemies = *enemies;
 		//Iterate through each enemy, check if current projectile is intersecting with it
 		for (int j = 0; j < enemies->size(); j++)
 		{
@@ -60,13 +64,13 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 				hasHit = true;
 				score += 10;
 				hits++;
-				if(progress < transformMax)
+
+				if (progress < transformMax)
 				{
 					progress++;
 					otherPlayer->progress++;
 
 					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
-					std::cout << 1.0f - (progress / transformMax) << std::endl;
 					blackBar.move(0, 0);
 
 					otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
@@ -75,18 +79,31 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
+					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+
+					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+					exp->texture = derefEnemies[j]->projectile.mat.diffuse;
+					
+					emitters->push_back(exp);
+
 					enemies->erase(enemies->begin() + j);
-					break;
 				}
 
 				else
 				{
 					//Erase projectile, Erase enemy
 					deleteProjectile(i);
-				
+
+					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+
+					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+					exp->texture = derefEnemies[j]->projectile.mat.diffuse;
+
+					emitters->push_back(exp);
+
 					enemies->erase(enemies->begin() + j);
-					break;
 				}
+				break;
 			}
 		}
 	}
@@ -97,7 +114,7 @@ void Player::xin(Player* otherPlayer)
 {
 	//Used for shooting delay
 	localTime += updateTimer->getElapsedTimeS();
-
+	
 	//poll controllers
 	controller.DownloadPackets(2);
 	controller.GetSticks(playerNum, lStick, rStick);
@@ -308,14 +325,13 @@ void Player::shoot()
 		projectiles.push_back(temp);
 		projectiles.push_back(temp2);
 		projectiles.push_back(temp3);
-	}
+	}			   
 }
 
 void Player::deleteProjectile(int index)
 {
 	//delete projectiles[index];
 	projectiles.erase(projectiles.begin() + index);
-	std::cout << "Deleted projectile : " << index << std::endl;
 }
 
 bool Player::isAlive()
