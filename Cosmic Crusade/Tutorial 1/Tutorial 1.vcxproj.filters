@@ -123,6 +123,9 @@
     <ClCompile Include="Time.cpp">
       <Filter>Source Files\PowerUps</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleEmitterSoA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -211,6 +214,9 @@
     </ClInclude>
     <ClInclude Include="Time.h">
       <Filter>Header Files\PowerUps</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEmitterSoA.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -25,6 +25,13 @@ void KeyboardUpCallbackFunction(unsigned char key, int x, int y)
 
 void TimerCallbackFunction(int value)
 {
+	static int elapsedTimeAtLastTick = 0;
+	int totalElapsedTime = glutGet(GLUT_ELAPSED_TIME);
+
+	game->deltaTime = float(totalElapsedTime - elapsedTimeAtLastTick);
+	game->deltaTime /= 1000.0f;
+	elapsedTimeAtLastTick = totalElapsedTime;
+
 	game->update();
 
 	glutPostRedisplay();
@@ -60,8 +67,6 @@ int main(int argc, char **argv)
 	}
 
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-
-	//XBox::XBoxInput xin;
 
 	//setup callback functions
 	glutDisplayFunc(DisplayCallbackFunction);

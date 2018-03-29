@@ -266,6 +266,7 @@ void EnemyManager::UpdateEnemyProjectile()
 		if ((players[0]->collider->Collide(*temp.collider)) && (players[0]->getState() == Player::state::alive))
 		{
 			players[0]->setDead();
+			playerDied = true;
 			enemyProjectiles.erase(enemyProjectiles.begin() + i);
 			if (players[0]->getIsTransformed())
 				Player::progress -= 1.f;
@@ -278,6 +279,7 @@ void EnemyManager::UpdateEnemyProjectile()
 		if (players[1]->collider->Collide(*temp.collider) && (players[1]->getState() == Player::state::alive))
 		{
 			players[1]->setDead();
+			playerDied = true;
 			if (players[1]->getIsTransformed())
 				Player::progress -= 1.f;
 			else

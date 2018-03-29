@@ -16,6 +16,8 @@
 #include "EnemyManager.h"
 #include "SoundEffect.h"
 #include "FullScreenQuad.h"
+#include "ParticleEmitterSoA.h"
+//#include "Camera.h"
 #include "PowerUp.h"
 #include "Ammo.h"
 #include "Fuel.h"
@@ -45,6 +47,11 @@ public:
 	void doBrightPass();
 	void doBlurPass();
 
+	void initializeParticles(ParticleEmitterSoA * emitter, glm::vec3 pos);
+
+	float deltaTime;
+	glm::vec3 cameraTranslation;
+
 	// FMOD Sound handler
 	SoundEffect gameSounds;
 
@@ -71,7 +78,7 @@ public:
 	Time timePowerUp;
 
 	//Shaders
-	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader;
+	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader, particleShader;
 
 	ShaderProgram phongColorSides;
 	glm::mat4 cameraTransform;
@@ -109,6 +116,8 @@ private:
 
 	Foreground foreground;
 	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom;
+	ParticleEmitterSoA emitter;
+	std::vector<ParticleEmitterSoA*> emitters;
 
 	EnemyManager enemyManager;
 };

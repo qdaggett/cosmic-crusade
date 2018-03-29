@@ -29,7 +29,9 @@ public:
 	FMOD::Sound *playerHit;
 	FMOD::Sound *enemyShot;
 	FMOD::Sound *monologue;
-	FMOD::Channel *channel1, *channel2, *channel3, *channel4, *channel5, *channel6, *channel7, *channel8, *channel9 = 0;
+	FMOD::Sound *speedUp;
+	FMOD::Sound *speedDown;
+	FMOD::Channel *channel1, *channel2, *channel3, *channel4, *channel5, *channel6, *channel7, *channel8, *channel9, *speedUp, *speedDown = 0;
 	FMOD_VECTOR soundPos = { 0.0f, 0.0f, 0.0f };
 	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
 	FMOD_RESULT result;

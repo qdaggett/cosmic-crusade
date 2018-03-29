@@ -5,6 +5,7 @@
 #include "Enemy.h"
 #include "SoundEngine.h"
 #include "SoundEffect.h"
+#include "ParticleEmitterSoA.h"
 
 // 15/3/2018
 
@@ -21,6 +22,8 @@ public:
 	void shoot();
 
 	// Shotgun functions
+	void update(Player* otherPlayer);
+	void updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer, std::vector<ParticleEmitterSoA*>* emitters);
 	void shootShotgun();
 	int getAmmo();
 	void addAmmo(int ammo);
@@ -29,11 +32,11 @@ public:
 	int getSpeedUp();
 	void addSpeedUp(int fuel);
 
-	void update(std::vector<Enemy*>* enemies, Player* otherPlayer);
 
 	bool hasShot;
 	bool hasShotShotgun;
 	bool hasHit;
+	
 
 	XBox::Stick getLStick(); 
 	XBox::Stick getRStick();

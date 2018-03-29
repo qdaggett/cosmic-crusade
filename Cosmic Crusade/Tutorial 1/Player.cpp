@@ -2,11 +2,10 @@
 #include <math.h>
 #include "Player.h"
 
-// 15/3/2018
-
 float Player::progress = 0.0f;
 float const Player::transformMax = 15.0f;
 
+// 15/3/2018
 Player::Player()
 {
 	updateTimer = new Timer();
@@ -24,29 +23,31 @@ Player::~Player()
 	}
 }
 
-void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
+void Player::update(Player* otherPlayer)
 {
 	updateTimer->tick();
 	collider->ColliderUpdate(glm::vec3(location, 0));
 	xin(otherPlayer);
-	std::vector<Enemy*> derefEnemies = *enemies;
-
-	blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), 2.1f, .3f));
-	yellowBar.scale = glm::scale(yellowBar.ogScale, glm::vec3(.3f, 2.1f, .3f));
-	blackBar.move(0, 0);
 
 	if ((isTransformed && otherPlayer->isTransformed) && progress >= 0.0f)
 	{
 		progress -= updateTimer->getElapsedTimeS() * 0.5f;
+		progress -= updateTimer->getElapsedTimeS();
+		blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3((transformMax - progress) / transformMax, .3f, .3f));
+		blackBar.move(0.0f, 0.0f);
 	}
 
 	if (progress <= 0.0f)
 	{
+		progress = 0.0f;
+		otherPlayer->progress = 0.0f;
 		isTransformed = false;
 		otherPlayer->isTransformed = false;
-		progress = 0.0f;
 	}
+}
 
+void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer, std::vector<ParticleEmitterSoA*>* emitters)
+{
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		//projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);
@@ -55,10 +56,11 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 
 		if (projectiles[i]->isOffscreen())
 		{
-			deleteProjectile(i);
+			projectiles.erase(projectiles.begin() + i);
 			break;
 		}
 
+		std::vector<Enemy*> derefEnemies = *enemies;
 		//Iterate through each enemy, check if current projectile is intersecting with it
 		for (int j = 0; j < enemies->size(); j++)
 		{
@@ -67,11 +69,7 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
-			if (derefEnemies[j]->hitPoints == 0)
-				enemies->erase(enemies->begin() + j);
-
-
-			if (projectiles[i]->collider->Collide(*temp.collider))//if(projectiles[i]->collider->Collide(*temp.collider))//if (projectiles[i]->collider.Collide(temp.collider))
+			if (projectiles[i]->collide(temp))
 			{
 				hasHit = true;
 				score += 10;
@@ -82,19 +80,42 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 				if (progress < transformMax)
 				{
 					progress++;
+					otherPlayer->progress++;
+
+					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
+					blackBar.move(0, 0);
+
+					otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
+					otherPlayer->blackBar.move(0, 0);
+
+					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
-					//enemies->erase(enemies->begin() + j);
-					break;
+					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+
+					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+					exp->texture = derefEnemies[j]->projectile.mat.diffuse;
+					
+					emitters->push_back(exp);
+
+					enemies->erase(enemies->begin() + j);
 				}
 
 				else
 				{
 					//Erase projectile, Erase enemy
 					deleteProjectile(i);
-					//enemies->erase(enemies->begin() + j);
-					break;
+
+					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+
+					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+					exp->texture = derefEnemies[j]->projectile.mat.diffuse;
+
+					emitters->push_back(exp);
+
+					enemies->erase(enemies->begin() + j);
 				}
+				break;
 			}
 		}
 	}
@@ -105,7 +126,7 @@ void Player::xin(Player* otherPlayer)
 {
 	//Used for shooting delay
 	localTime += updateTimer->getElapsedTimeS();
-
+	
 	shotgunTime += updateTimer->getElapsedTimeS();
 
 	speedDelayTime += updateTimer->getElapsedTimeS();
@@ -207,7 +228,7 @@ void Player::xin(Player* otherPlayer)
 	if (controller.GetButton(playerNum, XBox::LB) && (progress == transformMax))
 	{
 		isTransformed = true;
-		std::cout << playerNum << ", " << isTransformed << std::endl;
+		std::cout << isTransformed << std::endl;
 	}
 }
 
@@ -319,7 +340,6 @@ void Player::deleteProjectile(int index)
 {
 	//delete projectiles[index];
 	projectiles.erase(projectiles.begin() + index);
-	std::cout << "Deleted projectile : " << index << std::endl;
 }
 
 bool Player::isAlive()

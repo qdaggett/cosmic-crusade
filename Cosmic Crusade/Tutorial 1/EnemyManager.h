@@ -36,6 +36,8 @@ public:
 	std::vector<Enemy*> enemyList;
 	std::vector<EnemyNode*> spawnList;
 
+	bool playerDied;
+
 	int count = 0;
 private:
 
