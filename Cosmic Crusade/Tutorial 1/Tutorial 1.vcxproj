@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ammo.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BasicEnemy.cpp" />
     <ClCompile Include="CircleEnemy.cpp" />
@@ -133,6 +134,7 @@
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Foreground.cpp" />
     <ClCompile Include="FrameBufferObject.cpp" />
+    <ClCompile Include="Fuel.cpp" />
     <ClCompile Include="FullScreenQuad.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -141,16 +143,19 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="OrbitEnemy.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="SoundEffect.cpp" />
     <ClCompile Include="SoundEngine.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Time.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="VertexBufferObject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ammo.h" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="BasicEnemy.h" />
     <ClInclude Include="CircleEnemy.h" />
@@ -161,6 +166,7 @@
     <ClInclude Include="Font.h" />
     <ClInclude Include="Foreground.h" />
     <ClInclude Include="FrameBufferObject.h" />
+    <ClInclude Include="Fuel.h" />
     <ClInclude Include="FullScreenQuad.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
@@ -169,11 +175,13 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="OrbitEnemy.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PowerUp.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="SoundEngine.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Time.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="VertexBufferObject.h" />
   </ItemGroup>

@@ -124,6 +124,8 @@ void Game::initializeGame()
 
 	player2.mesh = basicPlayer.mesh;
 
+	//ammoPowerUp.mesh = powerup.mesh;
+
 	if (!bullet.mesh.loadFromFile("meshes/bullet1.obj"))
 	{
 		std::cout << "Projectile model failed to load." << std::endl;
@@ -243,6 +245,15 @@ void Game::initializeGame()
 	foreground.Intialize();
 	enemyManager.Intialize(players);
 
+	ammoPowerUp.initializePowerUp();
+	ammoPowerUp.mat = green;
+
+	fuelPowerUp.initializePowerUp();
+	fuelPowerUp.mat = blue;
+
+	timePowerUp.initializePowerUp();
+	timePowerUp.loadTexture(Diffuse, "Textures/Hourglass.png");
+
 	gameSounds.initializeSounds();
 
 	float blurAmount = 16.0f;
@@ -335,8 +346,22 @@ void Game::update()
 		updateTimer->tick();
 		delay += updateTimer->getElapsedTimeS();
 
+		float deltaTime = updateTimer->getTotalTime();
+
+		// Updates the starry space background
 		background.update();
+
+		// Updates the enemy manager
 		enemyManager.Update(updateTimer->getElapsedTimeS());
+
+		// Updates the ammo powerup
+		ammoPowerUp.updatePowerUp(players, updateTimer->getElapsedTimeS());
+
+		// Updates the fuel powerup
+		fuelPowerUp.updatePowerUp(players, updateTimer->getElapsedTimeS());
+
+		// Updates the time powerup
+		timePowerUp.updatePowerUp(players, updateTimer->getElapsedTimeS());
 
 		pauseTime += updateTimer->getElapsedTimeS();
 		empty = false;
@@ -369,6 +394,25 @@ void Game::update()
 		{
 			gameSounds.playSound(gameSounds.shoot, &gameSounds.channel2);
 			player.hasShot = false;
+		}
+
+		if (player2.hasShot == true)
+		{
+			gameSounds.playSound(gameSounds.shoot, &gameSounds.channel2);
+			player2.hasShot = false;
+		}
+
+		// For the shotgun sound
+		if (player.hasShotShotgun == true)
+		{
+			gameSounds.playSound(gameSounds.shoot2, &gameSounds.channel9);
+			player.hasShotShotgun = false;
+		}
+
+		if (player2.hasShotShotgun == true)
+		{
+			gameSounds.playSound(gameSounds.shoot2, &gameSounds.channel9);
+			player2.hasShotShotgun = false;
 		}
 
 		// Plays hit sound when player hits an enemy ship
@@ -404,7 +448,7 @@ void Game::update()
 				if ((players[i]->spawnTime >= 2.0f) && (players[i]->numLives > 0))
 				{
 					std::cout << "ReSpawned" << std::endl;
-					players[i]->setLocation(players[i]->location.x, players[i]->location.y);
+					players[i]->setLocation(0, 0);
 					players[i]->playerState = player.state::alive;
 					players[i]->spawnTime = 0.0f;
 					players[i]->numLives--;
@@ -424,10 +468,12 @@ void Game::update()
 				players[i]->setLocation(players[i]->location.x, -16);
 		}
 
-		if ((player.numLives == 0) && (player2.numLives == 0) || enemyManager.count == enemyManager.spawnList.size() - 1 && enemyManager.enemyList.empty())
+		if ((player.numLives == 0) && (player2.numLives == 0))
 			state = gameOver;
 
 	}
+	// TODO: Win state
+	//enemyManager.count == enemyManager.spawnList.size() - 1 && enemyManager.enemyList.empty()
 
 	if (state == gameOver)
 	{
@@ -476,6 +522,10 @@ void Game::draw()
 		text.RenderText(textShader, cameraOrtho, "Lives: " + std::to_string(player.numLives), -9.5, -7, .01f, glm::vec3(0, 0, 1));
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player2.score), 7, -8, .01f, glm::vec3(1, 1, 0));
 		text.RenderText(textShader, cameraOrtho, "Lives: " + std::to_string(player2.numLives), 7, -7, .01f, glm::vec3(1, 1, 0));
+		text.RenderText(textShader, cameraOrtho, "Ammunition: " + std::to_string(player2.getAmmo()), -9.5, -9, .01f, glm::vec3(0, 0, 1));
+		text.RenderText(textShader, cameraOrtho, "Ammunition: " + std::to_string(player.getAmmo()), 7, -9, .01f, glm::vec3(1, 1, 0));
+		text.RenderText(textShader, cameraOrtho, "Fuel: " + std::to_string(player2.getSpeedUp()), -9.5, -10, .01f, glm::vec3(0, 0, 1));
+		text.RenderText(textShader, cameraOrtho, "Fuel: " + std::to_string(player.getSpeedUp()), 7, -10, .01f, glm::vec3(1, 1, 0));
 
 		if (delay < 5)
 		{
@@ -510,7 +560,7 @@ void Game::draw()
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 	}
 
-	if (state == monologue)
+	else if (state == monologue)
 	{
 
 	}
@@ -528,6 +578,12 @@ void Game::draw()
 		//def.bindFrameBufferForDrawing();
 		enemyManager.Draw(phong, cameraTransform, cameraProjection, pointLights);
 		//def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
+		ammoPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
+
+		fuelPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
+
+		timePowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
 
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
@@ -557,8 +613,9 @@ void Game::draw()
 		player.yellowBar.draw(phong, cameraTransform, cameraOrtho, pointLights);
 
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
-		foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
+		//foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
 	}
 
 	phong.unbind();

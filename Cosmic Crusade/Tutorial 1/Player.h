@@ -19,9 +19,20 @@ public:
 	//Getting input from the controller
 	void xin(Player* otherPlayer);
 	void shoot();
+
+	// Shotgun functions
+	void shootShotgun();
+	int getAmmo();
+	void addAmmo(int ammo);
+	
+	// Speedup functions
+	int getSpeedUp();
+	void addSpeedUp(int fuel);
+
 	void update(std::vector<Enemy*>* enemies, Player* otherPlayer);
 
 	bool hasShot;
+	bool hasShotShotgun;
 	bool hasHit;
 
 	XBox::Stick getLStick(); 
@@ -81,11 +92,21 @@ private:
 	XBox::Stick rStick;
 	int playerNum;
 
-	float delay = 0.1f;
+	float delay = 0.25f;
 	float localTime = 0.0f;
 	float spawnTime = 0.0f;
 	bool isTransformed = false;
 	float dt;
+
+	// Shotgun data members
+	float shotgunDelay = 1.50f;
+	float shotgunTime = 0.0f;
+	int ammoCount = 3;
+
+	float speedDelay = 0.25f;
+	float speedDelayTime = 0.0f;
+	int speedUp = 100;
+
 
 	Material baseMat;
 	Material transformMat;

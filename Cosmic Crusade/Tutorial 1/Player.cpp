@@ -67,8 +67,9 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
-			if(derefEnemies[j]->hitPoints == 0)
+			if (derefEnemies[j]->hitPoints == 0)
 				enemies->erase(enemies->begin() + j);
+
 
 			if (projectiles[i]->collider->Collide(*temp.collider))//if(projectiles[i]->collider->Collide(*temp.collider))//if (projectiles[i]->collider.Collide(temp.collider))
 			{
@@ -105,17 +106,21 @@ void Player::xin(Player* otherPlayer)
 	//Used for shooting delay
 	localTime += updateTimer->getElapsedTimeS();
 
+	shotgunTime += updateTimer->getElapsedTimeS();
+
+	speedDelayTime += updateTimer->getElapsedTimeS();
+
 	//poll controllers
 	controller.DownloadPackets(2);
 	controller.GetSticks(playerNum, lStick, rStick);
 
 	//Move the controller in the x axis based on the left stick's x axis, and they y likewise
-	if (playerNum == 1)
+	if (playerNum == 1 && (isTransformed && otherPlayer->getTransform()))
 	{
-		if (!isTransformed || !otherPlayer->getTransform())
-			move(lStick.xAxis * 0.25f, lStick.yAxis * 0.25f);
+		//if (!isTransformed || !otherPlayer->getTransform())
+			//move(lStick.xAxis * 0.25f, lStick.yAxis * 0.25f);
 
-		else
+		//else
 		{
 			setLocation(otherPlayer->location.x, otherPlayer->location.y);
 
@@ -149,8 +154,23 @@ void Player::xin(Player* otherPlayer)
 		}
 	}
 
+	if (speedDelayTime > speedDelay && otherPlayer->getSpeedUp() < 100)
+	{
+		speedDelayTime = 0;
+		otherPlayer->addSpeedUp(1);
+	}
+
+	if (controller.GetButton(playerNum, XBox::RB) && (otherPlayer->getSpeedUp() > 0))
+	{
+		move(lStick.xAxis * 0.55f, lStick.yAxis * 0.55f);
+		otherPlayer->addSpeedUp(-1);
+
+	}
 	else
-		move(lStick.xAxis * 0.25f, lStick.yAxis * 0.25f);
+	{
+		move(lStick.xAxis * 0.35f, lStick.yAxis * 0.35f);
+	}
+
 
 	//Checking if the right stick is tilted more than a certain amount. tilted will be true if the right stick is being tilted.
 	bool tilted = std::abs(rStick.xAxis) > 0.25f || std::abs(rStick.yAxis) > 0.25f ? true : false;
@@ -161,6 +181,22 @@ void Player::xin(Player* otherPlayer)
 		localTime = 0;
 
 		shoot();
+	}
+
+	if (controller.GetButton(playerNum, XBox::LB) && (shotgunTime > shotgunDelay))
+	{
+		if (otherPlayer->getAmmo() > 0)
+		{
+			shotgunTime = 0;
+			shootShotgun();
+			otherPlayer->addAmmo(-1);
+		}
+
+		else
+		{
+			std::cout << "Click! Out of ammo!" << std::endl;
+		}
+
 	}
 
 	if (controller.GetButton(playerNum, XBox::LB))
@@ -241,6 +277,44 @@ void Player::shoot()
 	projectiles.push_back(temp);
 }
 
+void Player::shootShotgun()
+{
+	hasShotShotgun = true;
+	float increment = 0.27f / 4.0f;
+
+	for (float i = 0; i < 12; i++)
+	{
+		Projectile* temp = new Projectile();
+		temp->mesh = projectile.mesh;
+		temp->mat = projectile.mat;
+		temp->collider = new Collider(Collider::SPHERE, 0.5f);
+
+		temp->location = glm::vec2(0.0f, 0.0f);
+		temp->move(location.x, location.y);
+
+		glm::vec2 dir = glm::vec2(cos(increment * i - 5.0), sin(increment * i - 5.0));
+		float length = sqrt((dir.x * dir.x) + (dir.y * dir.y));
+		dir.x /= length;
+		dir.y /= length;
+
+		if (dir.x <= 0.0f)
+		{
+			temp->rotate = glm::rotate(temp->rotate, acos(dir.y), glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+
+		else
+		{
+			temp->rotate = glm::rotate(temp->rotate, -acos(dir.y), glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+
+		temp->velocity = glm::vec2(0.4 * dir.x, 0.4 * dir.y);
+
+		projectiles.push_back(temp);
+
+	}
+
+}
+
 void Player::deleteProjectile(int index)
 {
 	//delete projectiles[index];
@@ -254,4 +328,26 @@ bool Player::isAlive()
 		return true;
 
 	return false;
+}
+
+int Player::getAmmo()
+{
+	return ammoCount;
+
+}
+
+void Player::addAmmo(int ammo)
+{
+	ammoCount += ammo;
+
+}
+
+int Player::getSpeedUp()
+{
+	return speedUp;
+}
+
+void Player::addSpeedUp(int fuel)
+{
+	speedUp += fuel;
 }

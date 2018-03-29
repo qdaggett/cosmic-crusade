@@ -16,6 +16,10 @@
 #include "EnemyManager.h"
 #include "SoundEffect.h"
 #include "FullScreenQuad.h"
+#include "PowerUp.h"
+#include "Ammo.h"
+#include "Fuel.h"
+#include "Time.h"
 
 #define FRAMES_PER_SECOND 60
 
@@ -36,7 +40,7 @@ public:
 	void mouseMoved(int x, int y);
 
 	void emptyGame();
-	void initializeLevel();
+	//void initializeLevel();
 
 	void doBrightPass();
 	void doBlurPass();
@@ -62,6 +66,9 @@ public:
 
 	GameObject basicPlayer;
 	GameObject combinedPlayer;
+	Ammo ammoPowerUp;
+	Fuel fuelPowerUp;
+	Time timePowerUp;
 
 	//Shaders
 	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader;

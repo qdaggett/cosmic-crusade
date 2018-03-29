@@ -29,7 +29,7 @@ void BasicEnemy::Intialize()
 	velocity = glm::vec2(0.1f, -0.025f);
 	delay = 0.7f;
 
-	collider = new Collider(Collider::SPHERE, 0.2f);
+	collider = new Collider(Collider::SPHERE, 0.4f);
 }
 
 BasicEnemy::~BasicEnemy()
