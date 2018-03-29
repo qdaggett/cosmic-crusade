@@ -104,4 +104,8 @@ private:
 	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom;
 
 	EnemyManager enemyManager;
+
+	glm::vec3 bossCameraPosition = glm::vec3(0, 0, -30);
+
+	float cameraFloat = 0;
 };

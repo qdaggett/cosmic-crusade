@@ -35,6 +35,21 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 		system("pause");
 		exit(0);
 	}
+
+	if (!laserEnemy.mesh.loadFromFile("meshes/Laser.obj"))
+	{
+		std::cout << "Laser enemy model failed to load." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
+	if (!boss.mesh.loadFromFile("meshes/Boss.obj"))
+	{
+		std::cout << "Boss model failed to load." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
 	//Load bullets
 	if (!enemyBullet.mesh.loadFromFile("meshes/sphere.obj"))
 	{
@@ -42,6 +57,7 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 		system("pause");
 		exit(0);
 	}
+
 
 	enemyBullet.scale = glm::scale(enemyBullet.scale, glm::vec3(0.25f));
 
@@ -51,6 +67,8 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 	circleEnemy.projectile.mesh = enemyBullet.mesh;
 
 	orbitEnemy.projectile.mesh = enemyBullet.mesh;
+
+	boss.projectile.mesh = enemyBullet.mesh;
 
 	//Load the textures for enemies
 
@@ -76,6 +94,13 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 	orbitEnemy.defaultMaterial = orbitEnemy.mat;
 	orbitEnemy.projectile.mat = purple;
 
+	laserEnemy.mat = red;
+	laserEnemy.defaultMaterial = laserEnemy.mat;
+
+	boss.mat = red;
+	boss.defaultMaterial = boss.mat;
+	boss.projectile.mat = purple;
+
 	LoadLevel();
 }
 
@@ -86,7 +111,7 @@ void EnemyManager::Update(float dt)
 	for (int i = 0; i < enemyList.size(); i++)
 	{
 		if (enemyList[i]->gotDamaged && enemyList[i]->damagedTimer <= damagedTimer)
-		{	
+		{
 			enemyList[i]->mat = damaged;
 			enemyList[i]->damagedTimer += dt;
 		}
@@ -105,7 +130,7 @@ void EnemyManager::Update(float dt)
 			break;
 		}
 
-		if (enemyList[i]->location.x > 35 || enemyList[i]->location.x < -35 || enemyList[i]->location.y > 30 || enemyList[i]->location.y < -30)
+		if (enemyList[i]->location.x > 35 || enemyList[i]->location.x < -35 || enemyList[i]->location.y > 35 || enemyList[i]->location.y < -35)
 		{
 			enemyList.erase(enemyList.begin() + i);
 			break;
@@ -192,6 +217,40 @@ void EnemyManager::SpawnEnemy()
 
 			enemyList.push_back(temp);
 		}
+
+		if (spawnList[count]->type == Laser)
+		{
+			LaserEnemy* temp = new LaserEnemy();
+			temp->mesh = laserEnemy.mesh;
+			temp->mat = laserEnemy.mat;
+			temp->defaultMaterial = laserEnemy.mat;
+			temp->projectile.mesh = laserEnemy.projectile.mesh;
+			temp->projectile.mat = laserEnemy.projectile.mat;
+
+			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
+
+			//temp->laserObject.mesh = orbitEnemy.mesh;
+			temp->Intialize(true);
+
+			enemyList.push_back(temp);
+		}
+
+		if (spawnList[count]->type == BOSS)
+		{
+			Boss* temp = new Boss();
+
+			temp->mesh = boss.mesh;
+			temp->mat = boss.mat;
+			temp->defaultMaterial = boss.mat;
+			temp->projectile.mesh = boss.projectile.mesh;
+			temp->projectile.mat = boss.projectile.mat;
+
+			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
+
+			bossSpawn = true;
+
+			enemyList.push_back(temp);
+		}
 		count++;
 	}
 
@@ -200,8 +259,8 @@ void EnemyManager::SpawnEnemy()
 void EnemyManager::LoadLevel()
 {
 	//spawnList.push_back(new EnemyNode(5, glm::vec2(0, 20), Circle));
-	spawnList.push_back(new EnemyNode(5.1f, glm::vec2(-30, 0), Basic));
-	spawnList.push_back(new EnemyNode(5.2f, glm::vec2(30, 0), Circle));
+	spawnList.push_back(new EnemyNode(1.f, glm::vec2(0, 0), BOSS));
+	//spawnList.push_back(new EnemyNode(5.2f, glm::vec2(30, 0), Circle));
 	//spawnList.push_back(new EnemyNode(2, glm::vec2(-10, 20), Orbit));
 
 	//spawnList.push_back(new EnemyNode(12, glm::vec2(-30, -10), BasicMove));
@@ -263,11 +322,11 @@ void EnemyManager::UpdateEnemyProjectile()
 		temp.collider = enemyProjectiles[i]->collider;
 		temp.scale = enemyProjectiles[i]->scale;
 
-		if ((players[0]->collider->Collide(*temp.collider)) && (players[0]->getState() == Player::state::alive))
+		if ((players[0]->collider->Collide(*temp.collider)) && (players[0]->getState() == Player::state::alive) && !players[0]->isInvulnerable())
 		{
 			players[0]->setDead();
 			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-			if (players[0]->getIsTransformed())
+			if (players[0]->getTransform())
 				Player::progress -= 1.f;
 			else
 				Player::progress -= 5.f;
@@ -275,10 +334,10 @@ void EnemyManager::UpdateEnemyProjectile()
 		}
 
 
-		if (players[1]->collider->Collide(*temp.collider) && (players[1]->getState() == Player::state::alive))
+		if (players[1]->collider->Collide(*temp.collider) && (players[1]->getState() == Player::state::alive) && !players[1]->isInvulnerable())
 		{
 			players[1]->setDead();
-			if (players[1]->getIsTransformed())
+			if (players[1]->getTransform())
 				Player::progress -= 1.f;
 			else
 				Player::progress -= 5.f;

@@ -29,6 +29,20 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 	updateTimer->tick();
 	collider->ColliderUpdate(glm::vec3(location, 0));
 	xin(otherPlayer);
+
+	if (invulnerable && invulnerableTimer < invulnerableTime)
+	{
+		invulnerableTimer += updateTimer->getElapsedTimeS();
+		std::cout << invulnerableTimer << std::endl;
+		shield.setLocation(location.x, location.y, -0.5f);
+		//shield.rotate = glm::rotate(shield.ogRotate, 90.f, glm::vec3(0, 0, 0));
+	}
+	else
+	{
+		invulnerable = false;
+		invulnerableTimer = 0.f;
+	}
+
 	std::vector<Enemy*> derefEnemies = *enemies;
 
 	blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), 2.1f, .3f));
@@ -46,6 +60,14 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 		otherPlayer->isTransformed = false;
 		progress = 0.0f;
 	}
+
+	
+}
+
+void Player::UpdateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer)
+{
+	std::vector<Enemy*> derefEnemies = *enemies;
+
 
 	for (int i = 0; i < projectiles.size(); i++)
 	{
@@ -67,7 +89,7 @@ void Player::update(std::vector<Enemy*>* enemies, Player* otherPlayer)
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
-			if(derefEnemies[j]->hitPoints == 0)
+			if (derefEnemies[j]->hitPoints == 0)
 				enemies->erase(enemies->begin() + j);
 
 			if (projectiles[i]->collider->Collide(*temp.collider))//if(projectiles[i]->collider->Collide(*temp.collider))//if (projectiles[i]->collider.Collide(temp.collider))
@@ -104,7 +126,7 @@ void Player::xin(Player* otherPlayer)
 {
 	//Used for shooting delay
 	localTime += updateTimer->getElapsedTimeS();
-
+										
 	//poll controllers
 	controller.DownloadPackets(2);
 	controller.GetSticks(playerNum, lStick, rStick);
@@ -252,6 +274,7 @@ bool Player::isAlive()
 {
 	if (playerState == state::alive)
 		return true;
+
 
 	return false;
 }

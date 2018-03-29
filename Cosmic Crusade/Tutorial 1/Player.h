@@ -21,6 +21,8 @@ public:
 	void shoot();
 	void update(std::vector<Enemy*>* enemies, Player* otherPlayer);
 
+	void UpdateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer);
+
 	bool hasShot;
 	bool hasHit;
 
@@ -37,10 +39,12 @@ public:
 	enum state { alive, dead };
 	bool isAlive();
 	void setDead() { playerState = dead; }
-	void setAlive() { playerState = alive; }
+	void setAlive() { playerState = alive; invulnerable = true; }
 
-	bool getIsTransformed() { return isTransformed;  }
-
+	bool isInvulnerable()
+	{
+		return invulnerable;
+	}
 	
 
 	state getState()
@@ -85,6 +89,11 @@ private:
 	float localTime = 0.0f;
 	float spawnTime = 0.0f;
 	bool isTransformed = false;
+
+	bool invulnerable;
+	float invulnerableTime = 3.75f;
+	float invulnerableTimer;
+
 	float dt;
 
 	Material baseMat;

@@ -12,7 +12,14 @@
 
 GameObject bullet;
 
+glm::mat4 newPosition = glm::translate(newPosition, glm::vec3(0,0,-35));
 
+glm::vec3 lerp(glm::vec3 x, glm::vec3 y, float dt)
+{
+	glm::vec3 pos = glm::vec3(((1 - dt) * x.x) + (dt * y.x), ((1 - dt) * x.y) + (dt * y.y), ((1 - dt) * x.z) + (dt * y.z));
+	std::cout << pos.x << ", " << pos.y << ", " << pos.z << endl;
+	return pos;
+}
 
 Game::Game()
 {
@@ -44,6 +51,8 @@ Game::~Game()
 void Game::initializeGame()
 {
 	state = title;
+
+	state = main; updateTimer = new Timer();
 
 	std::srand(time(NULL));
 
@@ -185,7 +194,13 @@ void Game::initializeGame()
 	cameraOrtho = glm::ortho(-10.f, 10.f, -10.f, 10.f, -30.f, 1000.f);
 
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
+	player.shield.mesh = player2.shield.mesh;
+
+	player.loadTexture(Diffuse, "Textures/Shield.png");
+	player2.shield.mat = player.shield.mat;	
+
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
+	
 
 	red.loadTexture(Diffuse, "Textures/red.png");
 	blue.loadTexture(Diffuse, "Textures/blue.png");
@@ -336,12 +351,20 @@ void Game::update()
 		delay += updateTimer->getElapsedTimeS();
 
 		background.update();
+
 		enemyManager.Update(updateTimer->getElapsedTimeS());
+
+		if (enemyManager.bossSpawn)
+		{
+			cameraFloat += updateTimer->getElapsedTimeS();;
+			//if (cameraFloat < 1)
+			//	cameraTransform = glm::lerp<glm::mat4, float>(cameraTransform, newPosition, cameraFloat);
+		}
 
 		pauseTime += updateTimer->getElapsedTimeS();
 		empty = false;
 
-		if (Player::progress > Player::transformMax)
+		if (Player::progress > Player::transformMax)											 
 			Player::progress = Player::transformMax;
 
 		// Game music
@@ -394,6 +417,7 @@ void Game::update()
 		// For updating the player ships
 		for (int i = 0; i < players.size(); i++)
 		{
+			players[i]->UpdateProjectiles(&enemyManager.enemyList, players[(i + 1) % 2]);
 			if (players[i]->isAlive())
 				players[i]->update(&enemyManager.enemyList, players[(i + 1) % 2]);
 			else
@@ -405,7 +429,7 @@ void Game::update()
 				{
 					std::cout << "ReSpawned" << std::endl;
 					players[i]->setLocation(players[i]->location.x, players[i]->location.y);
-					players[i]->playerState = player.state::alive;
+					players[i]->setAlive();
 					players[i]->spawnTime = 0.0f;
 					players[i]->numLives--;
 				}
@@ -424,7 +448,7 @@ void Game::update()
 				players[i]->setLocation(players[i]->location.x, -16);
 		}
 
-		if ((player.numLives == 0) && (player2.numLives == 0) || enemyManager.count == enemyManager.spawnList.size() - 1 && enemyManager.enemyList.empty())
+		if ((player.numLives == 0) && (player2.numLives == 0) || enemyManager.count == enemyManager.spawnList.size()+1 && enemyManager.enemyList.empty())
 			state = gameOver;
 
 	}
@@ -522,9 +546,11 @@ void Game::draw()
 
 	else
 	{
+
+
+
 		if (player.isTransformed && player2.isTransformed)
 			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
-
 		//def.bindFrameBufferForDrawing();
 		enemyManager.Draw(phong, cameraTransform, cameraProjection, pointLights);
 		//def.unbindFrameBuffer(def.getWidth(), def.getHeight());
@@ -535,20 +561,24 @@ void Game::draw()
 		{
 			if (players[i]->isAlive())
 			{
+				if (players[i]->isInvulnerable())
+				{
+					players[i]->shield.draw(phong, cameraTransform, cameraProjection, pointLights);
+				}
 				def.bindFrameBufferForDrawing();
 				players[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
 				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+			}
 
-				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
-				{
-					def.bindFrameBufferForDrawing();
-					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+			for (int j = 0; j < players[i]->getProjectiles().size(); j++)
+			{
+				def.bindFrameBufferForDrawing();
+				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
-					toBloom.bindFrameBufferForDrawing();
-					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-					toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
-				}
+				toBloom.bindFrameBufferForDrawing();
+				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+				toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
 			}
 		}
 
@@ -557,7 +587,7 @@ void Game::draw()
 		player.yellowBar.draw(phong, cameraTransform, cameraOrtho, pointLights);
 
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
-		foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
+	//	foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 	}
 
@@ -616,6 +646,9 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 		paused = !paused;
 		pauseTime = 0.0f;
 		break;
+	case 'b':
+	case 'B':
+		players[0]->setDead();//enemyManager.bossSpawn = true;
 	default:
 		break;
 	}
