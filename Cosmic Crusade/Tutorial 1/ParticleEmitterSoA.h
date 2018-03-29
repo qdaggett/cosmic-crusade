@@ -6,7 +6,6 @@
 #include "ShaderProgram.h"
 #include <math.h>
 #include "Texture.h"
-#include "Camera.h"
 
 class ParticleEmitterSoA
 {

@@ -15,7 +15,6 @@
 #include "SoundEffect.h"
 #include "FullScreenQuad.h"
 #include "ParticleEmitterSoA.h"
-#include "Camera.h"
 
 #define FRAMES_PER_SECOND 60
 
@@ -40,8 +39,6 @@ public:
 
 	void doBrightPass();
 	void doBlurPass();
-
-	void initializeParticles(ParticleEmitterSoA * emitter, glm::vec3 pos);
 
 	float deltaTime;
 	glm::vec3 cameraTranslation;
@@ -75,7 +72,7 @@ public:
 	GameObject combinedPlayer;
 
 	//Shaders
-	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader, particleShader;
+	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader, particleShader, orComposite;
 
 	glm::mat4 cameraTransform;
 	glm::mat4 cameraProjection;
@@ -125,9 +122,8 @@ private:
 	Font text;
 
 	Foreground foreground;
-	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom;
+	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom, text_fbo;
+	std::vector<FrameBufferObject*> fbos;
 	ParticleEmitterSoA emitter;
 	std::vector<ParticleEmitterSoA*> emitters;
-
-	Camera camera;
 };
