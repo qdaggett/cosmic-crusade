@@ -47,8 +47,6 @@ public:
 	void doBrightPass();
 	void doBlurPass();
 
-	void initializeParticles(ParticleEmitterSoA * emitter, glm::vec3 pos);
-
 	float deltaTime;
 	glm::vec3 cameraTranslation;
 
@@ -78,7 +76,7 @@ public:
 	Time timePowerUp;
 
 	//Shaders
-	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader, particleShader;
+	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader, particleShader, orComposite;
 
 	ShaderProgram phongColorSides;
 	glm::mat4 cameraTransform;
@@ -115,9 +113,9 @@ private:
 	Font text;
 
 	Foreground foreground;
-	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom;
+	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom, text_fbo;
+	std::vector<FrameBufferObject*> fbos;
 	ParticleEmitterSoA emitter;
 	std::vector<ParticleEmitterSoA*> emitters;
-
 	EnemyManager enemyManager;
 };

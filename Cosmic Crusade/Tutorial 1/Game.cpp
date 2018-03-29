@@ -108,6 +108,13 @@ void Game::initializeGame()
 		exit(0);
 	}
 
+	if (!orComposite.load("shaders/unlit.vert", "shaders/orComp.frag"))
+	{
+		std::cout << "orComp shaders failed to initialize." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
 	if (!textShader.load("shaders/text.vert", "shaders/text.frag"))
 	{
 		std::cout << "Shaders failed to initialize." << std::endl;
@@ -199,7 +206,6 @@ void Game::initializeGame()
 	//camera = Camera();
 	//camera.cameraPosition = cameraTranslation;
 	//camera.projMatrix = glm::perspective(45.0f, ((float)GetSystemMetrics(SM_CXSCREEN) / (float)GetSystemMetrics(SM_CYSCREEN)), 0.1f, 10000.0f);
-
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
 
@@ -278,9 +284,17 @@ void Game::initializeGame()
 	blur_b.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
 	lowRes.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
 	toBloom.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
+	text_fbo.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
 	fullscreenQuad.create();
 
-	//initializeParticles(&emitter);
+	fbos.push_back(&def);
+	fbos.push_back(&bright);
+	fbos.push_back(&blur_a);
+	fbos.push_back(&blur_b);
+	fbos.push_back(&lowRes);
+	fbos.push_back(&toBloom);
+	fbos.push_back(&text_fbo);
+
 }
 
 //Happens once per frame, used to update state of the game
@@ -545,18 +559,26 @@ void Game::draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	//toBloom.bindFrameBufferForDrawing();
+	//toBloom.clearFrameBuffer(glm::vec4(0.0f));
+	//toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+	//
+	//def.bindFrameBufferForDrawing();
+	//def.clearFrameBuffer(glm::vec4(0.0f));
+	//def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
-	toBloom.bindFrameBufferForDrawing();
-	toBloom.clearFrameBuffer(glm::vec4(0.0f));
-	toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+	for (int i = 0; i < fbos.size(); i++)
+	{
+		fbos[i]->bindFrameBufferForDrawing();
+		fbos[i]->clearFrameBuffer(glm::vec4(0.0f));
+		fbos[i]->unbindFrameBuffer(fbos[i]->getWidth(), fbos[i]->getHeight());
+	}
 
-	def.bindFrameBufferForDrawing();
-	def.clearFrameBuffer(glm::vec4(0.0f));
-
-	textShader.bind();
+	//textShader.bind();
 
 	if (state == main)
 	{
+		text_fbo.bindFrameBufferForDrawing();
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player.score), -9.5, -8, .01f, glm::vec3(0, 0, 1));
 		text.RenderText(textShader, cameraOrtho, "Lives: " + std::to_string(player.numLives), -9.5, -7, .01f, glm::vec3(0, 0, 1));
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player2.score), 7, -8, .01f, glm::vec3(1, 1, 0));
@@ -577,10 +599,14 @@ void Game::draw()
 
 		if (paused == true)
 			text.RenderText(textShader, cameraOrtho, "Game Paused", -7.0f, 0.0f, 0.05f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+		text_fbo.unbindFrameBuffer(def.getWidth(), def.getHeight());
 	}
 
 	if (state == gameOver)
 	{
+		text_fbo.bindFrameBufferForDrawing();
+
 		text.RenderText(textShader, cameraOrtho, "Player 1 Score: ", -9.5, -6, .01f, glm::vec3(0, 0, 1));
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player.score), -9.5, -7, .01f, glm::vec3(0, 0, 1));
 		text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(player.getAccuracy()) + "%", -9.5, -8, .01f, glm::vec3(0, 0, 1));
@@ -588,22 +614,22 @@ void Game::draw()
 		text.RenderText(textShader, cameraOrtho, "Player 2 Score: ", 5.5f, -6, .01f, glm::vec3(1, 1, 0));
 		text.RenderText(textShader, cameraOrtho, "Score: " + std::to_string(player2.score), 5.5f, -7, .01f, glm::vec3(1, 1, 0));
 		text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(player2.getAccuracy()) + "%", 5.5f, -8, .01f, glm::vec3(1, 1, 0));
+
+		text_fbo.unbindFrameBuffer(def.getWidth(), def.getHeight());
 	}
 
-	textShader.unbind();
-	def.unbindFrameBuffer(def.getWidth(), def.getHeight());
-
+	//textShader.unbind();
 	if (state == title)
 	{
 		def.bindFrameBufferForDrawing();
-		phong.bind();
 
+		phong.bind();
 		playButton.draw(phong, cameraTransform, cameraProjection, pointLights);
 		quitButton.draw(phong, cameraTransform, cameraProjection, pointLights);
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
+		phong.unbind();
 
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
-		phong.unbind();
 	}
 
 	else if (state == monologue)
@@ -613,8 +639,11 @@ void Game::draw()
 
 	else if (state == gameOver)
 	{
+		def.bindFrameBufferForDrawing();
 		phong.bind();
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
+		phong.unbind();
+		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 	}
 
 	else
@@ -637,9 +666,12 @@ void Game::draw()
 
 		phong.bind();
 
+		def.bindFrameBufferForDrawing();
+
 		if (player.isTransformed && player2.isTransformed)
 			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
 
+		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 		def.bindFrameBufferForDrawing();
 		enemyManager.Draw(phong, cameraTransform, cameraProjection, pointLights);
 
@@ -688,18 +720,35 @@ void Game::draw()
 
 	bloomShader.bind();
 
+	bright.bindFrameBufferForDrawing();
+	bright.clearFrameBuffer(glm::vec4(0));
+
 	blur_a.bindTextureForSampling(0, GL_TEXTURE0);
 	def.bindTextureForSampling(0, GL_TEXTURE1);
-
-	FrameBufferObject::unbindFrameBuffer(def.getWidth(), def.getHeight());
-	FrameBufferObject::clearFrameBuffer(glm::vec4(0));
 
 	fullscreenQuad.draw(bloomShader);
 
 	def.unbindTexture(GL_TEXTURE1);
 	blur_a.unbindTexture(GL_TEXTURE0);
 
+	bright.unbindFrameBuffer(bright.getWidth(), bright.getHeight());
+
 	bloomShader.unbind();
+
+	orComposite.bind();
+
+	bright.bindTextureForSampling(0, GL_TEXTURE1);
+	text_fbo.bindTextureForSampling(0, GL_TEXTURE0);
+
+	FrameBufferObject::unbindFrameBuffer(def.getWidth(), def.getHeight());
+	FrameBufferObject::clearFrameBuffer(glm::vec4(0));
+
+	fullscreenQuad.draw(orComposite);
+
+	bright.unbindTexture(GL_TEXTURE1);
+	text_fbo.unbindTexture(GL_TEXTURE0);
+
+	orComposite.unbind();
 
 	glutSwapBuffers();
 }
