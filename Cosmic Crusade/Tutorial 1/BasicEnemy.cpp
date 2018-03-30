@@ -56,16 +56,17 @@ void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 
 	if (moveSideways)
 	{
-		if (moveUpDown)
-		{
-			if ((location.y >= 15.0f) || (location.y <= -15.0f))
-				velocity.y = -velocity.y;
-		}
-		else
-		{
-			if ((location.x >= 20.0f) || (location.x <= -20.0f))
-				velocity.x = -velocity.x;
-		}
+		if (location.y >= 15.0f)
+			velocity.y = -abs(velocity.y);
+
+		if (location.y <= -15.0f)
+			velocity.y = abs(velocity.y);
+
+		if (location.x >= 20.0f)
+			velocity.x = -abs(velocity.x);
+
+		if(location.x <= -20.0f)
+			velocity.x = abs(velocity.x);
 	}
 	else
 	{

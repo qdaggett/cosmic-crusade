@@ -3,6 +3,8 @@
 #include "BasicEnemy.h"
 #include "CircleEnemy.h"
 #include "OrbitEnemy.h"
+#include "ParticleEmitterSoA.h"
+
 class EnemyManager
 {
 public:
@@ -12,7 +14,7 @@ public:
 	void Draw(ShaderProgram &shader, glm::mat4 camera, glm::mat4 projection, std::vector<Light> point);
 	void SpawnEnemy();
 	void LoadLevel();
-	void Intialize(std::vector<Player*> player);
+	void Intialize(std::vector<Player*> player, std::vector<ParticleEmitterSoA*>* emitter);
 	void UpdateEnemyProjectile();
 	void Unload();
 	std::vector<Enemy*> getEnemyList()
@@ -53,6 +55,7 @@ private:
 
 
 	std::vector<Projectile*> enemyProjectiles;
+	std::vector<ParticleEmitterSoA*>* emitters;
 
 	std::vector<Player*> players;
 

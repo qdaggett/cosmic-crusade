@@ -8,7 +8,7 @@ EnemyManager::~EnemyManager()
 {
 }
 
-void EnemyManager::Intialize(std::vector<Player*> players)
+void EnemyManager::Intialize(std::vector<Player*> players, std::vector<ParticleEmitterSoA*>* emitter)
 {
 	timer = 0;
 
@@ -67,14 +67,19 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 	//Set their material
 	basicEnemy.defaultMaterial = basicEnemy.mat;
 	basicEnemy.projectile.mat = purple;
+	basicEnemy.deathColour = red;
 
 	circleEnemy.mat = red;
 	circleEnemy.defaultMaterial = circleEnemy.mat;
 	circleEnemy.projectile.mat = purple;
+	circleEnemy.deathColour = red;
 
 	orbitEnemy.mat = red;
 	orbitEnemy.defaultMaterial = orbitEnemy.mat;
 	orbitEnemy.projectile.mat = purple;
+	orbitEnemy.deathColour = red;
+
+	emitters = emitter;
 
 	LoadLevel();
 }
@@ -141,6 +146,7 @@ void EnemyManager::SpawnEnemy()
 			BasicEnemy* temp = new BasicEnemy();
 			temp->mesh = basicEnemy.mesh;
 			temp->mat = basicEnemy.mat;
+			temp->deathColour = basicEnemy.deathColour;
 			temp->defaultMaterial = basicEnemy.mat;
 			temp->projectile.mesh = basicEnemy.projectile.mesh;
 			temp->projectile.mat = basicEnemy.projectile.mat;
@@ -157,6 +163,7 @@ void EnemyManager::SpawnEnemy()
 			temp->mesh = basicEnemy.mesh;
 			temp->mat = basicEnemy.mat;
 			temp->defaultMaterial = basicEnemy.mat;
+			temp->deathColour = basicEnemy.deathColour;
 			temp->projectile.mesh = basicEnemy.projectile.mesh;
 			temp->projectile.mat = basicEnemy.projectile.mat;
 			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
@@ -170,6 +177,7 @@ void EnemyManager::SpawnEnemy()
 			CircleEnemy* temp = new CircleEnemy();
 			temp->mesh = circleEnemy.mesh;
 			temp->mat = circleEnemy.mat;
+			temp->deathColour = circleEnemy.deathColour;
 			temp->defaultMaterial = circleEnemy.mat;
 			temp->projectile.mesh = circleEnemy.projectile.mesh;
 			temp->projectile.mat = circleEnemy.projectile.mat;
@@ -184,6 +192,7 @@ void EnemyManager::SpawnEnemy()
 			OrbitEnemy* temp = new OrbitEnemy();
 			temp->mesh = orbitEnemy.mesh;
 			temp->mat = orbitEnemy.mat;
+			temp->deathColour = orbitEnemy.deathColour;
 			temp->defaultMaterial = orbitEnemy.mat;
 			temp->projectile.mesh = orbitEnemy.projectile.mesh;
 			temp->projectile.mat = orbitEnemy.projectile.mat;
@@ -199,15 +208,11 @@ void EnemyManager::SpawnEnemy()
 
 void EnemyManager::LoadLevel()
 {
-	//spawnList.push_back(new EnemyNode(5, glm::vec2(0, 20), Circle));
 	spawnList.push_back(new EnemyNode(5.1f, glm::vec2(-15, 30), Basic));
 	spawnList.push_back(new EnemyNode(5.2f, glm::vec2(15, 30), Basic));
-	//spawnList.push_back(new EnemyNode(2, glm::vec2(-10, 20), Orbit));
 
 	spawnList.push_back(new EnemyNode(12, glm::vec2(-30, -10), BasicMove));
-	//spawnList.push_back(new EnemyNode(12.1f, glm::vec2(30, 10), BasicMove));
-	
-	//spawnList.push_back(new EnemyNode(20, glm::vec2(-30, 20), BasicMove));
+
 	spawnList.push_back(new EnemyNode(20.5f, glm::vec2(20, -10), BasicMove));
 	//spawnList.push_back(new EnemyNode(21, glm::vec2(0, 20), BasicMove));
 	//
@@ -267,6 +272,12 @@ void EnemyManager::UpdateEnemyProjectile()
 		{
 			players[0]->setDead();
 			playerDied = true;
+
+			ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+			exp->explosionInit(glm::vec3(-players[0]->location.x, players[0]->location.y, 1.0f));
+			exp->texture = players[0]->projectile.mat.diffuse;
+			emitters->push_back(exp);
+
 			enemyProjectiles.erase(enemyProjectiles.begin() + i);
 			if (players[0]->getIsTransformed())
 				Player::progress -= 1.f;
@@ -280,6 +291,12 @@ void EnemyManager::UpdateEnemyProjectile()
 		{
 			players[1]->setDead();
 			playerDied = true;
+
+			ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+			exp->explosionInit(glm::vec3(-players[1]->location.x, players[1]->location.y, 1.0f));
+			exp->texture = players[1]->projectile.mat.diffuse;
+			emitters->push_back(exp);
+
 			if (players[1]->getIsTransformed())
 				Player::progress -= 1.f;
 			else

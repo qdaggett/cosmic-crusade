@@ -13,17 +13,19 @@ void Background::Initialize()
 {
 	if (!back1.mesh.loadFromFile("meshes/plane.obj"))
 	{
-		//std::cout << "Player model failed to load." << std::endl;
+		std::cout << "background model failed to load." << std::endl;
 		system("pause");
 		exit(0);
 	}
 
 	if (!back2.mesh.loadFromFile("meshes/plane.obj"))
 	{
-		//std::cout << "Player model failed to load." << std::endl;
+		std::cout << "background model failed to load." << std::endl;
 		system("pause");
 		exit(0);
 	}
+
+	loading.loadTexture(TextureType::Diffuse, "Textures/Loading.png");
 
 	game.loadTexture(TextureType::Diffuse, "Textures/background.jpg");
 	//material2.loadTexture(TextureType::Diffuse, "Textures/background.png");
@@ -34,11 +36,11 @@ void Background::Initialize()
 
 	back1.scale = glm::scale(back1.scale, glm::vec3(scaleY, 1, scaleY));
 	back1.rotate = glm::rotate(back1.rotate, angle, glm::vec3(1, 0, 0));
-	back1.move(0, -7, -3);
+	back1.setLocation(0, -7, -3);
 
 	back2.rotate = glm::rotate(back2.rotate, angle, glm::vec3(1, 0, 0));
 	back2.scale = glm::scale(back2.scale, glm::vec3(scaleY, 1, scaleY));
-	back2.move(0, 68, -3);
+	back2.setLocation(0, 68, -3);
 
 	back1.mat = title;
 	back2.mat = title;
