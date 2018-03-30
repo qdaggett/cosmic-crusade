@@ -32,6 +32,7 @@ public:
 	bool gotDamaged = false;
 	float damagedTimer = 0.0f;
 	Material defaultMaterial;
+	Material deathColour;
 private:
 
 

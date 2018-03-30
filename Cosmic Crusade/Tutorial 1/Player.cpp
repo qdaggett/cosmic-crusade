@@ -44,6 +44,10 @@ void Player::update(Player* otherPlayer)
 		isTransformed = false;
 		otherPlayer->isTransformed = false;
 	}
+
+	turret.setLocation(location.x, location.y);
+	blackBar.setLocation(location.x, location.y - 3.0f);
+	yellowBar.setLocation(location.x, location.y - 3.0f);
 }
 
 void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer, std::vector<ParticleEmitterSoA*>* emitters)
@@ -94,7 +98,7 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
 
 					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
-					exp->texture = derefEnemies[j]->projectile.mat.diffuse;
+					exp->texture = derefEnemies[j]->deathColour.diffuse;
 					
 					emitters->push_back(exp);
 
@@ -109,7 +113,7 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
 
 					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
-					exp->texture = derefEnemies[j]->projectile.mat.diffuse;
+					exp->texture = derefEnemies[j]->deathColour.diffuse;
 
 					emitters->push_back(exp);
 
@@ -153,6 +157,7 @@ void Player::xin(Player* otherPlayer)
 			shield.setLocation(location.x, location.y);
 
 			bool tilted = std::abs(lStick.xAxis) > 0.25f || std::abs(lStick.yAxis) > 0.25f ? true : false;
+
 			if (tilted)
 			{
 				shield.collider->boxCollider.size = glm::vec3(1, 0.5f, 0);
@@ -192,16 +197,40 @@ void Player::xin(Player* otherPlayer)
 		move(lStick.xAxis * 0.35f, lStick.yAxis * 0.35f);
 	}
 
+	rotate = glm::rotate(ogRotate, lStick.xAxis * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	//Checking if the right stick is tilted more than a certain amount. tilted will be true if the right stick is being tilted.
 	bool tilted = std::abs(rStick.xAxis) > 0.25f || std::abs(rStick.yAxis) > 0.25f ? true : false;
 
 	//Shoot after they delay, and reset delay
-	if (tilted && (localTime > delay))
+	if (tilted)
 	{
-		localTime = 0;
+		if (localTime > delay)
+		{
+			shoot();
+			localTime = 0;
+		}
 
-		shoot();
+		glm::vec2 normalVel = glm::vec2(rStick.xAxis, rStick.yAxis);
+		float length = sqrt((normalVel.x * normalVel.x) + (normalVel.y * normalVel.y));
+		normalVel.x /= length;
+		normalVel.y /= length;
+
+		//Essentially finding and rotating by the dot product with the unit y vector (0, 1)... It will just return normalVel.y
+		//Rotation value will always be between 0 and 180, so we need to just check which x direction the projectile is going to fix rotation
+		if (normalVel.x <= 0.0f)
+		{
+			reticle.rotate = glm::rotate(reticle.ogRotate, acos(normalVel.y), glm::vec3(0.0f, 0.0f, 1.0f));
+			turret.rotate = glm::rotate(turret.ogRotate, acos(normalVel.y), glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+
+		else
+		{
+			reticle.rotate = glm::rotate(reticle.ogRotate, -acos(normalVel.y), glm::vec3(0.0f, 0.0f, 1.0f));
+			turret.rotate = glm::rotate(turret.ogRotate, -acos(normalVel.y), glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+
+		reticle.setLocation(location.x + (3.0f * normalVel.x), location.y + (3.0f * normalVel.y));
 	}
 
 	if (controller.GetButton(playerNum, XBox::LB) && (shotgunTime > shotgunDelay))
@@ -348,6 +377,11 @@ bool Player::isAlive()
 		return true;
 
 	return false;
+}
+
+bool Player::getTilted()
+{
+	return std::abs(rStick.xAxis) > 0.25f || std::abs(rStick.yAxis) > 0.25f ? true : false;
 }
 
 int Player::getAmmo()

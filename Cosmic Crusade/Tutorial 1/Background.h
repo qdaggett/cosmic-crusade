@@ -16,7 +16,7 @@ public:
 
 private:
 	GameObject back1, back2;
-	Material title, game, end;
+	Material loading, title, game, end;
 	const float angle = -55.0f;
 	const float scaleY = 2.0f;
 };

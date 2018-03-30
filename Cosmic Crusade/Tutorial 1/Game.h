@@ -113,7 +113,7 @@ private:
 	Font text;
 
 	Foreground foreground;
-	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom, text_fbo;
+	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom, text_fbo, background_fbo;
 	std::vector<FrameBufferObject*> fbos;
 	ParticleEmitterSoA emitter;
 	std::vector<ParticleEmitterSoA*> emitters;

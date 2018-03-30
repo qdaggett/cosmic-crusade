@@ -35,10 +35,10 @@ Game::~Game()
 	enemyManager.Unload();
 
 	for (int i = 0; i < players.size(); i++)
-	{
 		players.erase(players.begin() + i);
-	}
 
+	for (int i = 0; i < fbos.size(); i++)
+		fbos.erase(fbos.begin() + i);
 }
 
 
@@ -72,6 +72,8 @@ void Game::initializeGame()
 		system("pause");
 		exit(0);
 	}
+
+
 
 	if (!particleShader.load("shaders/passThru.vert", "shaders/particles.geom", "shaders/unlitTextureP.frag"))
 	{
@@ -136,6 +138,15 @@ void Game::initializeGame()
 		exit(0);
 	}
 
+	if (!player.turret.mesh.loadFromFile("meshes/turret.obj"))
+	{
+		std::cout << "Player model failed to load." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
+	player2.turret.mesh = player.turret.mesh;
+
 	player.mesh = basicPlayer.mesh;
 
 	player2.mesh = basicPlayer.mesh;
@@ -155,31 +166,35 @@ void Game::initializeGame()
 
 	if (!player.blackBar.mesh.loadFromFile("meshes/bar.obj"))
 	{
-		std::cout << "Player model failed to load." << std::endl;
+		std::cout << "Bar model failed to load." << std::endl;
 		system("pause");
 		exit(0);
 	}
 
-	if (!player.yellowBar.mesh.loadFromFile("meshes/bar.obj"))
-	{
-		std::cout << "Player model failed to load." << std::endl;
-		system("pause");
-		exit(0);
-	}
+	player.yellowBar.mesh = player.blackBar.mesh;
 
 	if (!player2.shield.mesh.loadFromFile("meshes/shield.obj"))
 	{
-		std::cout << "Player model failed to load." << std::endl;
+		std::cout << "Shield model failed to load." << std::endl;
 		system("pause");
 		exit(0);
 	}
 
 	if (!playButton.mesh.loadFromFile("meshes/button.obj"))
 	{
-		std::cout << "Player model failed to load." << std::endl;
+		std::cout << "Button model failed to load." << std::endl;
 		system("pause");
 		exit(0);
 	}
+
+	if (!player.reticle.mesh.loadFromFile("meshes/reticle.obj"))
+	{
+		std::cout << "reticle model failed to load." << std::endl;
+		system("pause");
+		exit(0);
+	}
+
+	player2.reticle.mesh = player.reticle.mesh;
 
 	//if (!fullscreenQuad.mesh.loadFromFile("meshes/plane.obj"))
 	//{
@@ -203,9 +218,6 @@ void Game::initializeGame()
 	cameraProjection = glm::perspective(45.0f, ((float)GetSystemMetrics(SM_CXSCREEN) / (float)GetSystemMetrics(SM_CYSCREEN)), 0.1f, 10000.0f);
 	cameraOrtho = glm::ortho(-10.f, 10.f, -10.f, 10.f, -30.f, 1000.f);
 
-	//camera = Camera();
-	//camera.cameraPosition = cameraTranslation;
-	//camera.projMatrix = glm::perspective(45.0f, ((float)GetSystemMetrics(SM_CXSCREEN) / (float)GetSystemMetrics(SM_CYSCREEN)), 0.1f, 10000.0f);
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
 
@@ -219,14 +231,24 @@ void Game::initializeGame()
 	quit.loadTexture(Diffuse, "Textures/Quit.png");
 	quit_un.loadTexture(Diffuse, "Textures/Quit_Un.png");
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	phong.bind();
+	background.Initialize();
+	background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
+	phong.unbind();
+	glutSwapBuffers();
+
 	playButton.mat = play;
 	quitButton.mat = quit_un;
 
 	player.mat = player.baseMat;
 	player.projectile.mat = blue;
+	player.turret.mat.loadTexture(Diffuse, "Textures/Turret_blue_diffuse.png");
 
 	player2.mat = player2.baseMat;
 	player2.projectile.mat = yellow;
+	player2.turret.mat.loadTexture(Diffuse, "Textures/Turret_yellow_diffuse.png");
+
 
 	player.setNum(0);
 	player2.setNum(1);
@@ -240,6 +262,9 @@ void Game::initializeGame()
 	player.blackBar.scale = glm::scale(player.blackBar.scale, glm::vec3(.3f));
 	player.yellowBar.move(0, -8.0f);
 	player.blackBar.move(0, -8.0f);
+
+	player.reticle.mat = blue;
+	player2.reticle.mat = yellow;
 
 	player2.shield.loadTexture(Diffuse, "Textures/cyan.png");
 
@@ -256,14 +281,12 @@ void Game::initializeGame()
 	playButton.move(0, 0);
 	quitButton.move(0, 0);
 
-	background.Initialize();
-
 	std::cout << player.radius << std::endl;
 
 	text.Intialize("Square.ttf");
 
 	foreground.Intialize();
-	enemyManager.Intialize(players);
+	enemyManager.Intialize(players, &emitters);
 
 	ammoPowerUp.initializePowerUp();
 	ammoPowerUp.mat = green;
@@ -285,6 +308,7 @@ void Game::initializeGame()
 	lowRes.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
 	toBloom.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
 	text_fbo.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
+	background_fbo.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
 	fullscreenQuad.create();
 
 	fbos.push_back(&def);
@@ -294,7 +318,9 @@ void Game::initializeGame()
 	fbos.push_back(&lowRes);
 	fbos.push_back(&toBloom);
 	fbos.push_back(&text_fbo);
+	fbos.push_back(&background_fbo);
 
+	background.mainMenu();
 }
 
 //Happens once per frame, used to update state of the game
@@ -320,7 +346,6 @@ void Game::update()
 
 	if (state == title)
 	{
-
 		if (selected == none)
 		{
 			playButton.mat = play_un;
@@ -559,14 +584,6 @@ void Game::draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//toBloom.bindFrameBufferForDrawing();
-	//toBloom.clearFrameBuffer(glm::vec4(0.0f));
-	//toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
-	//
-	//def.bindFrameBufferForDrawing();
-	//def.clearFrameBuffer(glm::vec4(0.0f));
-	//def.unbindFrameBuffer(def.getWidth(), def.getHeight());
-
 	for (int i = 0; i < fbos.size(); i++)
 	{
 		fbos[i]->bindFrameBufferForDrawing();
@@ -672,6 +689,7 @@ void Game::draw()
 			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
 
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
 		def.bindFrameBufferForDrawing();
 		enemyManager.Draw(phong, cameraTransform, cameraProjection, pointLights);
 
@@ -699,19 +717,23 @@ void Game::draw()
 			{
 				def.bindFrameBufferForDrawing();
 				players[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
+				players[i]->turret.draw(phong, cameraTransform, cameraProjection, pointLights);
+
+				if (players[i]->getTilted())
+					players[i]->reticle.draw(phong, cameraTransform, cameraProjection, pointLights);
+
 				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 			}
 		}
 
 		def.bindFrameBufferForDrawing();
-		player.blackBar.draw(phong, cameraTransform, cameraOrtho, pointLights);
-		player.yellowBar.draw(phong, cameraTransform, cameraOrtho, pointLights);
-
-		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
-		//foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
-
+		player.blackBar.draw(phong, cameraTransform, cameraProjection, pointLights);
+		player.yellowBar.draw(phong, cameraTransform, cameraProjection, pointLights);
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
+		background_fbo.bindFrameBufferForDrawing();
+		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
+		background_fbo.unbindFrameBuffer(background_fbo.getWidth(), background_fbo.getHeight());
 	}
 
 	phong.unbind();
@@ -736,18 +758,32 @@ void Game::draw()
 	bloomShader.unbind();
 
 	orComposite.bind();
+	orComposite.sendUniform("u_alpha", true);
+
+	def.bindFrameBufferForDrawing();
 
 	bright.bindTextureForSampling(0, GL_TEXTURE1);
 	text_fbo.bindTextureForSampling(0, GL_TEXTURE0);
-
-	FrameBufferObject::unbindFrameBuffer(def.getWidth(), def.getHeight());
-	FrameBufferObject::clearFrameBuffer(glm::vec4(0));
 
 	fullscreenQuad.draw(orComposite);
 
 	bright.unbindTexture(GL_TEXTURE1);
 	text_fbo.unbindTexture(GL_TEXTURE0);
+	def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
+	orComposite.unbind();
+	orComposite.bind();
+	orComposite.sendUniform("u_alpha", false);
+
+	def.bindTextureForSampling(0, GL_TEXTURE0);
+	background_fbo.bindTextureForSampling(0, GL_TEXTURE1);
+
+	FrameBufferObject::clearFrameBuffer(glm::vec4(0));
+	FrameBufferObject::unbindFrameBuffer(def.getWidth(), def.getHeight());
+	fullscreenQuad.draw(orComposite);
+
+	def.unbindTexture(GL_TEXTURE0);
+	background_fbo.unbindTexture(GL_TEXTURE1);
 	orComposite.unbind();
 
 	glutSwapBuffers();

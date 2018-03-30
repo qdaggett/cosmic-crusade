@@ -247,5 +247,8 @@
     <None Include="shaders\bright.frag">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="shaders\orComp.frag">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

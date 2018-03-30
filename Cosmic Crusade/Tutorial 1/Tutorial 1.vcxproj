@@ -191,6 +191,7 @@
     <None Include="shaders\bloom.frag" />
     <None Include="shaders\blur.frag" />
     <None Include="shaders\bright.frag" />
+    <None Include="shaders\orComp.frag" />
     <None Include="shaders\phong.frag" />
     <None Include="shaders\phong.vert" />
     <None Include="shaders\text.frag" />

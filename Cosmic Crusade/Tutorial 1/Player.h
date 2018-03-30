@@ -54,7 +54,7 @@ public:
 	void setAlive() { playerState = alive; }
 
 	bool getIsTransformed() { return isTransformed;  }
-
+	bool getTilted();
 	
 
 	state getState()
@@ -70,10 +70,7 @@ public:
 		return trunc((hits / totalShots) * 100);
 	}
 
-	GameObject blackBar;
-	GameObject yellowBar;
-
-	GameObject shield;
+	GameObject blackBar, yellowBar, shield, turret, reticle;
 
 	unsigned int score = 0;
 
