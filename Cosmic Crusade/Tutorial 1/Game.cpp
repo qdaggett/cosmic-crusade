@@ -375,6 +375,7 @@ void Game::update()
 			if (selected == _play)
 			{
 				updateTimer = new Timer();
+				background.updateTimer = new Timer();
 				state = monologue;
 				background.restart();
 			}

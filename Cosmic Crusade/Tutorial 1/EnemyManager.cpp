@@ -208,7 +208,7 @@ void EnemyManager::SpawnEnemy()
 
 void EnemyManager::LoadLevel()
 {
-	spawnList.push_back(new EnemyNode(5.1f, glm::vec2(-15, 30), Orbit));
+	spawnList.push_back(new EnemyNode(5.1f, glm::vec2(-15, 30), Circle));
 	spawnList.push_back(new EnemyNode(5.2f, glm::vec2(15, 30), Basic));
 
 	spawnList.push_back(new EnemyNode(12, glm::vec2(-30, -10), BasicMove));
