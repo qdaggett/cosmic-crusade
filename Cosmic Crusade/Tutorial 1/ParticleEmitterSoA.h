@@ -85,6 +85,7 @@ public:
 	glm::vec3 lifeRange;
 	glm::vec3 initialForceMin;
 	glm::vec3 initialForceMax;
+	float boxSize = 0.0f;
 
 	VertexBufferObject vbo;
 

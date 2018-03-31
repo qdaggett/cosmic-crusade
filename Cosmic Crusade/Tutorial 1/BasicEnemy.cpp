@@ -49,7 +49,8 @@ void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 	{
 		localTime = 0;
 
-		shoot(players, gameProjectiles);
+		if ((location.y <= 15.0f) && (location.y >= -15.0f) && (location.x <= 20.0f) && (location.x >= -20.0f))
+			shoot(players, gameProjectiles);
 	}
 
 	move(velocity.x, velocity.y);

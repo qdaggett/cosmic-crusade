@@ -53,9 +53,9 @@ void Background::mainMenu()
 	back1.mat = title;
 	back2.mat = title;
 
-	back1.setLocation(0, -7, -3);
+	back1.setLocation(0, -7, 0);
 
-	back2.setLocation(0, 68, -3);
+	back2.setLocation(0, 68, 0);
 }
 
 void Background::gameOver()
@@ -65,10 +65,10 @@ void Background::gameOver()
 	back2.mat = end;
 
 	if(back1.location != glm::vec2(0, 0))
-		back1.setLocation(0, -7, -3);
+		back1.setLocation(0, -7, 0);
 
 	if(back2.location != glm::vec2(0, 75))
-		back2.setLocation(0, 68, -3);
+		back2.setLocation(0, 68, 0);
 
 }
 
@@ -81,17 +81,17 @@ void Background::restart()
 
 void Background::update()
 {
-	back1.move(0, -0.3f, 0);
-	back2.move(0, -0.3f, 0);
+	back1.move(0, -0.15f, 0);
+	back2.move(0, -0.15f, 0);
 
 	if (back1.location.y <= -75)
 	{
-		back1.setLocation(0, 75, -3);
+		back1.setLocation(0, 75, 0);
 	}
 
 	if (back2.location.y <= -75)
 	{
-		back2.setLocation(0, 75, -3);
+		back2.setLocation(0, 75, 0);
 	}
 }
 

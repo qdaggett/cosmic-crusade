@@ -22,14 +22,14 @@ void EnemyManager::Intialize(std::vector<Player*> players, std::vector<ParticleE
 		exit(0);
 	}
 
-	if (!circleEnemy.mesh.loadFromFile("meshes/sphere.obj"))
+	if (!circleEnemy.mesh.loadFromFile("meshes/Circle_Enemy.obj"))
 	{
 		std::cout << "Player model failed to load." << std::endl;
 		system("pause");
 		exit(0);
 	}
 
-	if (!orbitEnemy.mesh.loadFromFile("meshes/sphere.obj"))
+	if (!orbitEnemy.mesh.loadFromFile("meshes/UFO.obj"))
 	{
 		std::cout << "Player model failed to load." << std::endl;
 		system("pause");
@@ -55,6 +55,8 @@ void EnemyManager::Intialize(std::vector<Player*> players, std::vector<ParticleE
 	//Load the textures for enemies
 
 	basicEnemy.loadTexture(Diffuse, "Textures/Basic_Enemy.png");
+	circleEnemy.loadTexture(Diffuse, "Textures/Circle_Enemy.png");
+	orbitEnemy.loadTexture(Diffuse, "Textures/UFO.png");
 
 	red.loadTexture(Diffuse, "Textures/red.png");
 
@@ -69,12 +71,10 @@ void EnemyManager::Intialize(std::vector<Player*> players, std::vector<ParticleE
 	basicEnemy.projectile.mat = purple;
 	basicEnemy.deathColour = red;
 
-	circleEnemy.mat = red;
 	circleEnemy.defaultMaterial = circleEnemy.mat;
 	circleEnemy.projectile.mat = purple;
 	circleEnemy.deathColour = red;
 
-	orbitEnemy.mat = red;
 	orbitEnemy.defaultMaterial = orbitEnemy.mat;
 	orbitEnemy.projectile.mat = purple;
 	orbitEnemy.deathColour = red;
@@ -208,12 +208,12 @@ void EnemyManager::SpawnEnemy()
 
 void EnemyManager::LoadLevel()
 {
-	spawnList.push_back(new EnemyNode(5.1f, glm::vec2(-15, 30), Basic));
+	spawnList.push_back(new EnemyNode(5.1f, glm::vec2(-15, 30), Orbit));
 	spawnList.push_back(new EnemyNode(5.2f, glm::vec2(15, 30), Basic));
 
 	spawnList.push_back(new EnemyNode(12, glm::vec2(-30, -10), BasicMove));
 
-	spawnList.push_back(new EnemyNode(20.5f, glm::vec2(20, -10), BasicMove));
+	spawnList.push_back(new EnemyNode(20.5f, glm::vec2(20, -10), Circle));
 	//spawnList.push_back(new EnemyNode(21, glm::vec2(0, 20), BasicMove));
 	//
 	//spawnList.push_back(new EnemyNode(29, glm::vec2(-30, 0), BasicMove));

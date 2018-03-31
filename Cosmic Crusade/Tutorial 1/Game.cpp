@@ -530,18 +530,6 @@ void Game::update()
 					players[i]->numLives--;
 				}
 			}
-
-			if (players[i]->location.x >= 29)
-				players[i]->setLocation(29, players[i]->location.y);
-
-			if (players[i]->location.x <= -29)
-				players[i]->setLocation(-29, players[i]->location.y);
-
-			if (players[i]->location.y >= 16)
-				players[i]->setLocation(players[i]->location.x, 16);
-
-			if (players[i]->location.y <= -16)
-				players[i]->setLocation(players[i]->location.x, -16);
 		}
 
 		if ((player.numLives == 0) && (player2.numLives == 0))

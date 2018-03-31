@@ -194,10 +194,21 @@ void Player::xin(Player* otherPlayer)
 	}
 	else
 	{
-		move(lStick.xAxis * 0.35f, lStick.yAxis * 0.35f);
+		if ((location.x <= 27) && (lStick.xAxis >= 0))
+			move(lStick.xAxis * 0.35f, 0.0f);
+
+		if (location.x >= -27 && (lStick.xAxis <= 0))
+			move(lStick.xAxis * 0.35f, 0.0f);
+
+		if ((location.y <= 16) && (lStick.yAxis >= 0))
+			move(0.0f, lStick.yAxis * 0.35f);
+		
+		if ((location.y >= -16) && (lStick.yAxis <= 0))
+			move(0.0f, lStick.yAxis * 0.35f);
 	}
 
 	rotate = glm::rotate(ogRotate, lStick.xAxis * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+	turret.rotate = glm::rotate(turret.ogRotate, lStick.xAxis * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	//Checking if the right stick is tilted more than a certain amount. tilted will be true if the right stick is being tilted.
 	bool tilted = std::abs(rStick.xAxis) > 0.25f || std::abs(rStick.yAxis) > 0.25f ? true : false;
