@@ -14,6 +14,9 @@ void SoundEffect::initializeSounds()
 	se.system->createSound("sounds/enemyShoot.wav", FMOD_3D, 0, &enemyShot);
 	se.system->createSound("sounds/shotgun.wav", FMOD_3D, 0, &shoot2);
 	se.system->createSound("sounds/introDialogue.wav", FMOD_3D, 0, &monologue);
+	se.system->createSound("sounds/ammoUp.wav", FMOD_3D, 0, &ammoUp);
+	se.system->createSound("sounds/fuelUp.wav", FMOD_3D, 0, &fuelUp);
+	se.system->createSound("sounds/timeUp.wav", FMOD_3D, 0, &timeUp);
 	failsound->set3DMinMaxDistance(0.5f, 300.0f);
 
 	// Setting looping (or lack thereof) for sounds
@@ -25,6 +28,9 @@ void SoundEffect::initializeSounds()
 	enemyShot->setMode(FMOD_LOOP_OFF);
 	shoot2->setMode(FMOD_LOOP_OFF);
 	monologue->setMode(FMOD_LOOP_OFF);
+	ammoUp->setMode(FMOD_LOOP_OFF);
+	fuelUp->setMode(FMOD_LOOP_OFF);
+	timeUp->setMode(FMOD_LOOP_OFF);
 
 	// DSP initialization
 	se.system->createDSPByType(FMOD_DSP_TYPE_PITCHSHIFT, &pitchShift);

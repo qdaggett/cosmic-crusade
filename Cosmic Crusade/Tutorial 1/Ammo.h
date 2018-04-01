@@ -13,5 +13,6 @@ public:
 	void spawnPowerUp(glm::vec2 position);
 	void initializePowerUp();
 
+	bool collected = false;
 
 };

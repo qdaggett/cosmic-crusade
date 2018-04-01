@@ -31,12 +31,19 @@ public:
 	FMOD::Sound *monologue;
 	FMOD::Sound *speedUp;
 	FMOD::Sound *speedDown;
-	FMOD::Channel *channel1, *channel2, *channel3, *channel4, *channel5, *channel6, *channel7, *channel8, *channel9, *speedUpChannel, *speedDownChannel = 0;
+	FMOD::Sound *ammoUp;
+	FMOD::Sound *timeUp;
+	FMOD::Sound *fuelUp;
+	FMOD::Channel *channel1, *channel2, *channel3, *channel4, *channel5, *channel6, *channel7, *channel8, *channel9, *speedUpChannel, *speedDownChannel, *ammoUpChannel, *timeUpChannel, *fuelUpChannel = 0;
 	FMOD_VECTOR soundPos = { 0.0f, 0.0f, 0.0f };
 	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
 	FMOD_RESULT result;
 
 	// DSP effects
 	FMOD::DSP *pitchShift;
+	FMOD::DSP *lowPass;
+	FMOD::DSP *echo;
+	FMOD::DSP *highPass;
+	FMOD::DSP *distort;
 
 };

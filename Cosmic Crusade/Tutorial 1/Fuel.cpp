@@ -39,6 +39,7 @@ void Fuel::updatePowerUp(std::vector<Player*> players, float time)
 
 	if (this->collider->Collide(*players[0]->collider))
 	{
+		collected = true;
 		players[1]->addSpeedUp(20);
 		setLocation(999, 999);
 		localTime = 0.0f;
@@ -47,6 +48,7 @@ void Fuel::updatePowerUp(std::vector<Player*> players, float time)
 
 	if (this->collider->Collide(*players[1]->collider))
 	{
+		collected = true;
 		players[0]->addSpeedUp(20);
 		setLocation(999, 999);
 		localTime = 0.0f;

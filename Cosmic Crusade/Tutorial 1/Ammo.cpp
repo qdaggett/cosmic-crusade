@@ -39,7 +39,7 @@ void Ammo::updatePowerUp(std::vector<Player*> players, float time)
 
 	if (this->collider->Collide(*players[0]->collider))
 	{
-		std::cout << "Colliding!" << std::endl;
+		collected = true;
 		players[1]->addAmmo(3);
 		setLocation(999, 999);
 		localTime = 0.0f;
@@ -48,7 +48,7 @@ void Ammo::updatePowerUp(std::vector<Player*> players, float time)
 
 	if (this->collider->Collide(*players[1]->collider))
 	{
-		std::cout << "Colliding!" << std::endl;
+		collected = true;
 		players[0]->addAmmo(3);
 		setLocation(999, 999);
 		localTime = 0.0f;

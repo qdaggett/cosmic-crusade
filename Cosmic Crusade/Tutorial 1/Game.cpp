@@ -495,6 +495,27 @@ void Game::update()
 			enemyManager.playerDied = false;
 		}
 
+		// Plays when a player collects an ammo powerup
+		if (ammoPowerUp.collected == true)
+		{
+			gameSounds.playSound(gameSounds.ammoUp, &gameSounds.ammoUpChannel);
+			ammoPowerUp.collected = false;
+		}
+
+		// Plays when a player collects a fuel powerup
+		if (fuelPowerUp.collected == true)
+		{
+			gameSounds.playSound(gameSounds.fuelUp, &gameSounds.fuelUpChannel);
+			fuelPowerUp.collected = false;
+		}
+
+		// Plays when a player collects a time powerup
+		if (timePowerUp.collected == true)
+		{
+			gameSounds.playSound(gameSounds.timeUp, &gameSounds.timeUpChannel);
+			timePowerUp.collected = false;
+		}
+
 
 		if (!player.isTransformed && Player::progress <= 1.0f)
 		{

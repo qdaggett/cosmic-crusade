@@ -39,6 +39,7 @@ void Time::updatePowerUp(std::vector<Player*> players, float time)
 
 	if (this->collider->Collide(*players[0]->collider))
 	{
+		collected = true;
 		players[1]->progress += 5;
 		setLocation(999, 999);
 		localTime = 0.0f;
@@ -47,6 +48,7 @@ void Time::updatePowerUp(std::vector<Player*> players, float time)
 
 	if (this->collider->Collide(*players[1]->collider))
 	{
+		collected = true;
 		players[0]->progress += 5;
 		setLocation(999, 999);
 		localTime = 0.0f;
