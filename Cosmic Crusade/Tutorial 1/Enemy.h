@@ -14,6 +14,8 @@ public:
 	virtual void shoot(std::vector<Player*> players, std::vector<Projectile*>*) = 0;
 	virtual void Intialize() = 0;
 
+	void lerp(float x, float y, float dt);
+
 	std::vector<Projectile*> getProjectiles();
 	std::vector<Projectile*> projectiles;
 	glm::vec2 velocity;

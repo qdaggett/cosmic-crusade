@@ -76,7 +76,7 @@ public:
 	Time timePowerUp;
 
 	//Shaders
-	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader, particleShader, orComposite;
+	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader, particleShader, orComposite, rimShader;
 
 	ShaderProgram phongColorSides;
 	glm::mat4 cameraTransform;
@@ -113,9 +113,13 @@ private:
 	Font text;
 
 	Foreground foreground;
-	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom, text_fbo, background_fbo;
+	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom, text_fbo, background_fbo, rimBuffer;
 	std::vector<FrameBufferObject*> fbos;
 	ParticleEmitterSoA emitter;
 	std::vector<ParticleEmitterSoA*> emitters;
 	EnemyManager enemyManager;
+
+	glm::vec3 bossCameraPosition = glm::vec3(0, 0, -30);
+
+	float cameraFloat = 0;
 };

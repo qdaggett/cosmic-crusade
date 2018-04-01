@@ -13,7 +13,14 @@
 
 GameObject bullet;
 
+glm::mat4 newPosition = glm::translate(newPosition, glm::vec3(0, 0, -35));
 
+glm::vec3 lerp(glm::vec3 x, glm::vec3 y, float dt)
+{
+	glm::vec3 pos = glm::vec3(((1 - dt) * x.x) + (dt * y.x), ((1 - dt) * x.y) + (dt * y.y), ((1 - dt) * x.z) + (dt * y.z));
+	std::cout << pos.x << ", " << pos.y << ", " << pos.z << endl;
+	return pos;
+}
 
 Game::Game()
 {
@@ -46,6 +53,8 @@ Game::~Game()
 void Game::initializeGame()
 {
 	state = title;
+
+//	state = main; updateTimer = new Timer();
 
 	std::srand(time(NULL));
 
@@ -123,6 +132,14 @@ void Game::initializeGame()
 		system("pause");
 		exit(0);
 	}
+
+//	if (!rimShader.load("shaders/unlit.vert", "shaders/rimLight.frag"))
+//	{
+//		std::cout << "Rim Shaders failed to initialize." << std::endl;
+//		system("pause");
+//		exit(0);
+//	}
+
 
 	if (!basicPlayer.mesh.loadFromFile("meshes/Player_Ship.obj"))
 	{
@@ -219,7 +236,13 @@ void Game::initializeGame()
 	cameraOrtho = glm::ortho(-10.f, 10.f, -10.f, 10.f, -30.f, 1000.f);
 
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
+	player.shield.mesh = player2.shield.mesh;
+
+	player.loadTexture(Diffuse, "Textures/Shield.png");
+	player2.shield.mat = player.shield.mat;
+
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
+
 
 	red.loadTexture(Diffuse, "Textures/red.png");
 	blue.loadTexture(Diffuse, "Textures/blue.png");
@@ -315,6 +338,7 @@ void Game::initializeGame()
 	lowRes.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
 	toBloom.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
 	text_fbo.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
+	rimBuffer.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
 	background_fbo.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
 	fullscreenQuad.create();
 
@@ -428,6 +452,13 @@ void Game::update()
 		// Updates the enemy manager
 		enemyManager.Update(updateTimer->getElapsedTimeS());
 
+		if (enemyManager.bossSpawn)
+		{
+			cameraFloat += updateTimer->getElapsedTimeS();;
+			//if (cameraFloat < 1)
+			//	cameraTransform = glm::lerp<glm::mat4, float>(cameraTransform, newPosition, cameraFloat);
+		}
+
 		// Updates the ammo powerup
 		ammoPowerUp.updatePowerUp(players, updateTimer->getElapsedTimeS());
 
@@ -533,7 +564,7 @@ void Game::update()
 				{
 					std::cout << "ReSpawned" << std::endl;
 					players[i]->setLocation(0, 0);
-					players[i]->playerState = player.state::alive;
+					players[i]->setAlive();
 					players[i]->spawnTime = 0.0f;
 					players[i]->numLives--;
 				}
@@ -610,7 +641,6 @@ void Game::draw()
 		fbos[i]->clearFrameBuffer(glm::vec4(0.0f));
 		fbos[i]->unbindFrameBuffer(fbos[i]->getWidth(), fbos[i]->getHeight());
 	}
-
 	//textShader.bind();
 
 	if (state == main)
@@ -696,7 +726,6 @@ void Game::draw()
 	{
 		particleShader.bind();
 		glm::mat4 viewMatrix = glm::lookAt(cameraTranslation, cameraTranslation + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
 		for (int i = 0; i < emitters.size(); i++)
 		{
 			toBloom.bindFrameBufferForDrawing();
@@ -738,9 +767,14 @@ void Game::draw()
 			{
 				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
 				{
+				if (players[i]->isInvulnerable())
+				{
+					players[i]->shield.draw(phong, cameraTransform, cameraProjection, pointLights);
+				}
 					def.bindFrameBufferForDrawing();
 					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
 					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+			}
 
 					toBloom.bindFrameBufferForDrawing();
 					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
@@ -767,16 +801,16 @@ void Game::draw()
 		{
 			for (int i = 0; i < players.size(); i++)
 			{
-				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
-				{
-					def.bindFrameBufferForDrawing();
-					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+			for (int j = 0; j < players[i]->getProjectiles().size(); j++)
+			{
+				def.bindFrameBufferForDrawing();
+				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
-					toBloom.bindFrameBufferForDrawing();
-					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-					toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
-				}
+				toBloom.bindFrameBufferForDrawing();
+				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+				toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+			}
 				if (players[i]->isAlive())
 				{
 					def.bindFrameBufferForDrawing();
@@ -791,7 +825,6 @@ void Game::draw()
 
 					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 				}
-			}
 		}
 
 		background_fbo.bindFrameBufferForDrawing();
@@ -885,6 +918,9 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 		paused = !paused;
 		pauseTime = 0.0f;
 		break;
+	case 'b':
+	case 'B':
+		players[0]->setDead();//enemyManager.bossSpawn = true;
 	default:
 		break;
 	}

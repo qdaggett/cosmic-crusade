@@ -25,7 +25,6 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 	if (!players[0]->isAlive() && players[1]->isAlive())
 	{
 		targetPosition = glm::vec2();
-		//std::cout << "See ya" << std::endl;
 	}
 	else
 	{

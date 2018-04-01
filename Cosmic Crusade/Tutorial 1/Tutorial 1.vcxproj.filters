@@ -25,12 +25,6 @@
     <Filter Include="SoundEngine">
       <UniqueIdentifier>{ccb218cc-6a1e-4527-95ab-cb63990b283d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\PowerUps">
-      <UniqueIdentifier>{9b6ef2f3-c483-4179-ac3b-8dd0417b0e12}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\PowerUps">
-      <UniqueIdentifier>{1ca42059-3083-4fcc-8774-c6c1763c0cfb}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -111,20 +105,11 @@
     <ClCompile Include="EnemyManager.cpp">
       <Filter>Source Files\Enemies</Filter>
     </ClCompile>
-    <ClCompile Include="PowerUp.cpp">
-      <Filter>Source Files\PowerUps</Filter>
-    </ClCompile>
-    <ClCompile Include="Ammo.cpp">
-      <Filter>Source Files\PowerUps</Filter>
-    </ClCompile>
-    <ClCompile Include="Fuel.cpp">
-      <Filter>Source Files\PowerUps</Filter>
-    </ClCompile>
-    <ClCompile Include="Time.cpp">
-      <Filter>Source Files\PowerUps</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEmitterSoA.cpp">
+    <ClCompile Include="LaserEnemy.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Boss.cpp">
+      <Filter>Source Files\Enemies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,20 +188,11 @@
     <ClInclude Include="EnemyManager.h">
       <Filter>Header Files\Enemies</Filter>
     </ClInclude>
-    <ClInclude Include="PowerUp.h">
-      <Filter>Header Files\PowerUps</Filter>
+    <ClInclude Include="LaserEnemy.h">
+      <Filter>Header Files\Enemies</Filter>
     </ClInclude>
-    <ClInclude Include="Ammo.h">
-      <Filter>Header Files\PowerUps</Filter>
-    </ClInclude>
-    <ClInclude Include="Fuel.h">
-      <Filter>Header Files\PowerUps</Filter>
-    </ClInclude>
-    <ClInclude Include="Time.h">
-      <Filter>Header Files\PowerUps</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEmitterSoA.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Boss.h">
+      <Filter>Header Files\Enemies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -247,7 +223,7 @@
     <None Include="shaders\bright.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="shaders\orComp.frag">
+    <None Include="shaders\rimLight.frag">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

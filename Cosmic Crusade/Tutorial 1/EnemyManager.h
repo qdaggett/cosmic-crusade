@@ -3,6 +3,8 @@
 #include "BasicEnemy.h"
 #include "CircleEnemy.h"
 #include "OrbitEnemy.h"
+#include "LaserEnemy.h"
+#include "Boss.h"
 #include "ParticleEmitterSoA.h"
 
 class EnemyManager
@@ -27,7 +29,8 @@ public:
 		Circle,
 		Orbit,
 		Laser, 
-		BasicMove
+		BasicMove, 
+		BOSS
 	};
 	struct EnemyNode {
 		EnemyNode(float time, glm::vec2 pos, EnemyType type) : spawnTime(time), position(pos), type(type) {}
@@ -38,7 +41,9 @@ public:
 	std::vector<Enemy*> enemyList;
 	std::vector<EnemyNode*> spawnList;
 
+	bool bossSpawn = false;
 	bool playerDied;
+
 
 	int count = 0;
 private:
@@ -46,6 +51,8 @@ private:
 	CircleEnemy circleEnemy;
 	BasicEnemy basicEnemy;
 	OrbitEnemy orbitEnemy;
+	LaserEnemy laserEnemy;
+	Boss boss;
 
 	GameObject enemyBullet;
 

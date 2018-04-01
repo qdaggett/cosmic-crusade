@@ -126,6 +126,7 @@
     <ClCompile Include="Ammo.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BasicEnemy.cpp" />
+    <ClCompile Include="Boss.cpp" />
     <ClCompile Include="CircleEnemy.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="controller.cpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="FullScreenQuad.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="LaserEnemy.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -159,6 +161,7 @@
     <ClInclude Include="Ammo.h" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="BasicEnemy.h" />
+    <ClInclude Include="Boss.h" />
     <ClInclude Include="CircleEnemy.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="controller.h" />
@@ -171,6 +174,7 @@
     <ClInclude Include="FullScreenQuad.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="LaserEnemy.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
@@ -194,6 +198,7 @@
     <None Include="shaders\orComp.frag" />
     <None Include="shaders\phong.frag" />
     <None Include="shaders\phong.vert" />
+    <None Include="shaders\rimLight.frag" />
     <None Include="shaders\text.frag" />
     <None Include="shaders\text.vert" />
     <None Include="shaders\unlit.frag" />

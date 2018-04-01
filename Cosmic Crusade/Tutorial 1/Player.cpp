@@ -29,6 +29,20 @@ void Player::update(Player* otherPlayer)
 	collider->ColliderUpdate(glm::vec3(location, 0));
 	xin(otherPlayer);
 
+	if (invulnerable && invulnerableTimer < invulnerableTime)
+	{
+		invulnerableTimer += updateTimer->getElapsedTimeS();
+		std::cout << invulnerableTimer << std::endl;
+		shield.setLocation(location.x, location.y, -0.5f);
+		//shield.rotate = glm::rotate(shield.ogRotate, 90.f, glm::vec3(0, 0, 0));
+	}
+	else
+	{
+		invulnerable = false;
+		invulnerableTimer = 0.f;
+	}
+
+
 	if ((isTransformed && otherPlayer->isTransformed) && progress >= 0.0f)
 	{
 		Player::progress -= updateTimer->getElapsedTimeS() * 0.2f;
@@ -53,6 +67,7 @@ void Player::update(Player* otherPlayer)
 
 void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer, std::vector<ParticleEmitterSoA*>* emitters)
 {
+
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		//projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);
@@ -74,7 +89,7 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
-			if (projectiles[i]->collide(temp))
+			if (derefEnemies[j]->hitPoints == 0)
 			{
 				hasHit = true;
 				score += 10;
@@ -388,6 +403,7 @@ bool Player::isAlive()
 {
 	if (playerState == state::alive)
 		return true;
+
 
 	return false;
 }

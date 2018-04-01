@@ -19,3 +19,10 @@ std::vector<Projectile*> Enemy::getProjectiles()
 {
 	return projectiles;
 }
+
+void Enemy::lerp(float x, float y, float dt)
+{
+	glm::vec2 pos = glm::vec2(((1 - dt) * location.x) + (dt * x), ((1 - dt) * location.y) + (dt * y));
+
+	setLocation(pos.x, pos.y);
+}
