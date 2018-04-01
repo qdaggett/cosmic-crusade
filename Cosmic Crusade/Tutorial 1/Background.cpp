@@ -25,22 +25,24 @@ void Background::Initialize()
 		exit(0);
 	}
 
-	loading.loadTexture(TextureType::Diffuse, "Textures/Loading.png");
+	loading.loadTexture(Diffuse, "Textures/Loading.png");
 
-	game.loadTexture(TextureType::Diffuse, "Textures/background.jpg");
-	//material2.loadTexture(TextureType::Diffuse, "Textures/background.png");
+	game.loadTexture(Diffuse, "Textures/background.jpg");
 
-	end.loadTexture(TextureType::Diffuse, "Textures/End_Screen.jpg");
+	end.loadTexture(Diffuse, "Textures/End_Screen.jpg");
 
-	title.loadTexture(TextureType::Diffuse, "Textures/Title.png");
+	title.loadTexture(Diffuse, "Textures/Title.png");
+	win.loadTexture(Diffuse, "Textures/WinScreen.png");
 
 	back1.scale = glm::scale(back1.scale, glm::vec3(scaleY, 1, scaleY));
 	back1.rotate = glm::rotate(back1.rotate, angle, glm::vec3(1, 0, 0));
 	back1.setLocation(0, -7, -3);
+	back1.ogLoc = back1.location;
 
 	back2.rotate = glm::rotate(back2.rotate, angle, glm::vec3(1, 0, 0));
 	back2.scale = glm::scale(back2.scale, glm::vec3(scaleY, 1, scaleY));
 	back2.setLocation(0, 68, -3);
+	back2.ogLoc = back2.location;
 
 	back1.mat = title;
 	back2.mat = title;
@@ -53,9 +55,11 @@ void Background::mainMenu()
 	back1.mat = title;
 	back2.mat = title;
 
-	back1.setLocation(0, -7, -3);
+	back1.setLocation(0, -7, 0);
+	back1.ogLoc = back1.location;
 
-	back2.setLocation(0, 68, -3);
+	back2.setLocation(0, 68, 0);
+	back2.ogLoc = back2.location;
 }
 
 void Background::gameOver()
@@ -65,33 +69,55 @@ void Background::gameOver()
 	back2.mat = end;
 
 	if(back1.location != glm::vec2(0, 0))
-		back1.setLocation(0, -7, -3);
+		back1.setLocation(0, -7, 0);
 
 	if(back2.location != glm::vec2(0, 75))
-		back2.setLocation(0, 68, -3);
+		back2.setLocation(0, 68, 0);
 
+}
+
+void Background::winScreen()
+{
+
+	back1.mat = win;
+	back2.mat = win;
+
+	if (back1.location != glm::vec2(0, 0))
+		back1.setLocation(0, -7, 0);
+
+	if (back2.location != glm::vec2(0, 75))
+		back2.setLocation(0, 68, 0);
 }
 
 void Background::restart()
 {
-
 	back1.mat = game;
 	back2.mat = game;
 }
 
 void Background::update()
 {
-	back1.move(0, -0.3f, 0);
-	back2.move(0, -0.3f, 0);
+	updateTimer->tick();
+	localTime += updateTimer->getElapsedTimeS();
 
-	if (back1.location.y <= -75)
+	if (localTime >= 1.0f)
 	{
-		back1.setLocation(0, 75, -3);
+		localTime = 0.0f;
+		back1.ogLoc = back1.location;
+		back2.ogLoc = back2.location;
 	}
 
-	if (back2.location.y <= -75)
+	back1.lerp(0, back1.ogLoc.y - 5.0f, localTime);
+	back2.lerp(0, back2.ogLoc.y - 5.0f, localTime);
+
+	if (back1.location.y <= -68)
 	{
-		back2.setLocation(0, 75, -3);
+		back1.setLocation(0, 68, 0);
+	}
+	
+	if (back2.location.y <= -68)
+	{
+		back2.setLocation(0, 68, 0);
 	}
 }
 

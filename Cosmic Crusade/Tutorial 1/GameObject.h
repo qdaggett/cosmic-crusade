@@ -23,11 +23,13 @@ public:
 
 	//Will hold the object's location. vec2 because z axis doesn't matter
 	glm::vec2 location = glm::vec2(0.0f, 0.0f);
+	glm::vec2 ogLoc;
 
 	bool collide(GameObject other);
 	void draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat4 cameraProjection, std::vector<Light> pointLights);
 	void draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat4 cameraProjection, Light pointLight);
 	void loadTexture(TextureType type, const std::string &texFile);
+	void lerp(float x, float y, float dt);
 
 	void lookAt(glm::vec3 &position, glm::vec3 &target, glm::vec3 up);
 

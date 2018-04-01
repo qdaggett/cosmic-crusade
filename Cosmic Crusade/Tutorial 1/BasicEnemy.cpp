@@ -27,7 +27,6 @@ void BasicEnemy::Intialize()
 	}
 
 	velocity = glm::vec2(0.1f, -0.025f);
-	delay = 0.7f;
 
 	collider = new Collider(Collider::SPHERE, 0.4f);
 }
@@ -49,7 +48,8 @@ void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 	{
 		localTime = 0;
 
-		shoot(players, gameProjectiles);
+		if ((location.y <= 15.0f) && (location.y >= -15.0f) && (location.x <= 20.0f) && (location.x >= -20.0f))
+			shoot(players, gameProjectiles);
 	}
 
 	move(velocity.x, velocity.y);
@@ -80,7 +80,7 @@ void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 	}
 
 	//Normalize the projectile's velocity vector so that projectiles will fire at the same speed regardless of the amount of tilt amount
-	glm::vec2 enemyToPlayer = glm::vec2(players[target]->location.x - location.x, players[target]->location.y - location.y);
+	glm::vec2 enemyToPlayer = glm::vec2(location.x - players[target]->location.x, location.y - players[target]->location.y);
 
 	float length = sqrt((enemyToPlayer.x * enemyToPlayer.x) + (enemyToPlayer.y * enemyToPlayer.y));
 	enemyToPlayer.x /= length;
@@ -88,12 +88,12 @@ void BasicEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 
 	if (enemyToPlayer.x <= 0.0f)
 	{
-		rotate = glm::rotate(ogRotate, acos(enemyToPlayer.y), glm::vec3(0.0f, 0.0f, -1.0f));
+		rotate = glm::rotate(ogRotate, acos(enemyToPlayer.y), glm::vec3(0.0f, 0.0f, 1.0f));
 	}
 
 	else
 	{
-		rotate = glm::rotate(ogRotate, -acos(enemyToPlayer.y), glm::vec3(0.0f, 0.0f, -1.0f));
+		rotate = glm::rotate(ogRotate, -acos(enemyToPlayer.y), glm::vec3(0.0f, 0.0f, 1.0f));
 	}
 }
 

@@ -28,9 +28,9 @@ void CircleEnemy::update(std::vector<Player*> players, std::vector<Projectile*>*
 		localTime = 0;
 
 		target.x = (rand() % 40) - 20;
-		target.y = (rand() % 40) - 20;
+		target.y = (rand() % 34) - 17;
 
-		//	shoot(players, gameProjectiles);
+		shoot(players, gameProjectiles);
 	}
 
 	//std::cout << localTime << std::endl;

@@ -10,6 +10,7 @@
 GameObject::GameObject(glm::vec2 loc, float rad) : radius(rad)
 {
 	move(loc.x, loc.y);
+	ogLoc = location;
 	collider = new Collider();
 }
 
@@ -188,5 +189,11 @@ void GameObject::lookAt(glm::vec3 & position, glm::vec3 & target, glm::vec3 up)
 		right.y, up.y, direction.y, position.y,
 		right.z, up.z, direction.z, position.z,
 		0, 0, 0, 1);
+}
+
+void GameObject::lerp(float x, float y, float dt)
+{
+	glm::vec2 pos = glm::vec2(((1 - dt) * ogLoc.x) + (dt * x), ((1 - dt) * ogLoc.y) + (dt * y));
+	setLocation(pos.x, pos.y);
 }
 

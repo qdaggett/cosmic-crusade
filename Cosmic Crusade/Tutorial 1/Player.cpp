@@ -31,16 +31,17 @@ void Player::update(Player* otherPlayer)
 
 	if ((isTransformed && otherPlayer->isTransformed) && progress >= 0.0f)
 	{
-		progress -= updateTimer->getElapsedTimeS() * 0.5f;
-		progress -= updateTimer->getElapsedTimeS();
+		Player::progress -= updateTimer->getElapsedTimeS() * 0.2f;
+		//progress -= updateTimer->getElapsedTimeS() * 0.5f;
+		Player::progress -= updateTimer->getElapsedTimeS();
 		blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3((transformMax - progress) / transformMax, .3f, .3f));
 		blackBar.move(0.0f, 0.0f);
 	}
 
-	if (progress <= 0.0f)
+	if (Player::progress <= 0.0f)
 	{
-		progress = 0.0f;
-		otherPlayer->progress = 0.0f;
+		Player::progress = 0.0f;
+		//otherPlayer->progress = 0.0f;
 		isTransformed = false;
 		otherPlayer->isTransformed = false;
 	}
@@ -81,15 +82,15 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 				derefEnemies[j]->hitPoints--;
 				derefEnemies[j]->gotDamaged = true;
 
-				if (progress < transformMax)
+				if (Player::progress < transformMax)
 				{
-					progress++;
-					otherPlayer->progress++;
+					Player::progress++;
+					//otherPlayer->progress++;
 
-					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
+					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(1.0f - (.3f * (Player::progress / Player::transformMax)), 1.0f, 1.0f));
 					blackBar.move(0, 0);
 
-					otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(.3f - (.3f * (progress / transformMax)), .3f, .3f));
+					otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(1.0f - (.3f *(Player::progress / Player::transformMax)), 1.0f, 1.0f));
 					otherPlayer->blackBar.move(0, 0);
 
 					//Erase projectile, Erase enemy
@@ -175,8 +176,6 @@ void Player::xin(Player* otherPlayer)
 			}
 			else
 				shield.collider->boxCollider.size = glm::vec3();
-
-
 		}
 	}
 
@@ -192,12 +191,27 @@ void Player::xin(Player* otherPlayer)
 		otherPlayer->addSpeedUp(-1);
 
 	}
+
 	else
 	{
-		move(lStick.xAxis * 0.35f, lStick.yAxis * 0.35f);
+		if ((location.x <= 27) && (lStick.xAxis >= 0))
+			move(lStick.xAxis * 0.35f, 0.0f);
+
+		if (location.x >= -27 && (lStick.xAxis <= 0))
+			move(lStick.xAxis * 0.35f, 0.0f);
+
+		if ((location.y <= 16) && (lStick.yAxis >= 0))
+			move(0.0f, lStick.yAxis * 0.35f);
+		
+		if ((location.y >= -16) && (lStick.yAxis <= 0))
+			move(0.0f, lStick.yAxis * 0.35f);
 	}
 
-	rotate = glm::rotate(ogRotate, lStick.xAxis * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+	if (!isTransformed)
+	{
+		rotate = glm::rotate(ogRotate, lStick.xAxis * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+		turret.rotate = glm::rotate(turret.ogRotate, lStick.xAxis * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+	}
 
 	//Checking if the right stick is tilted more than a certain amount. tilted will be true if the right stick is being tilted.
 	bool tilted = std::abs(rStick.xAxis) > 0.25f || std::abs(rStick.yAxis) > 0.25f ? true : false;
@@ -246,7 +260,6 @@ void Player::xin(Player* otherPlayer)
 		{
 			std::cout << "Click! Out of ammo!" << std::endl;
 		}
-
 	}
 
 	if (controller.GetButton(playerNum, XBox::LB))
@@ -332,7 +345,7 @@ void Player::shootShotgun()
 	hasShotShotgun = true;
 	float increment = 0.27f / 4.0f;
 
-	for (float i = 0; i < 12; i++)
+	for (float i = 0; i < 8; i++)
 	{
 		Projectile* temp = new Projectile();
 		temp->mesh = projectile.mesh;

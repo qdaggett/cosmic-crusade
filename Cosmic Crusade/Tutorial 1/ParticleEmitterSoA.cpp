@@ -76,9 +76,13 @@ void ParticleEmitterSoA::explosionInit(glm::vec3 pos)
 
 void ParticleEmitterSoA::update(float dt)
 {
+
+
 	// Make sure particle memory is initialized
 	if (allocated && playing)
 	{
+
+
 		// loop through each particle
 		for (int i = 0; i < numParticles; i++)
 		{
@@ -98,11 +102,15 @@ void ParticleEmitterSoA::update(float dt)
 				{
 					*pos = glm::vec3(3000);
 					sentinel++;
+
+					if (sentinel == numParticles)
+						playing = false;
 				}
 
 				else
 				{
 					*created = true;
+
 					// if dead respawn
 					// could put additional logic here...
 					*pos = initialPosition;
@@ -124,8 +132,7 @@ void ParticleEmitterSoA::update(float dt)
 		}
 	}
 
-	if (sentinel == numParticles)
-		playing = false;
+
 }
 
 void ParticleEmitterSoA::draw(glm::mat4 cameraTransform, glm::mat4 cameraProjection, ShaderProgram* shader)
