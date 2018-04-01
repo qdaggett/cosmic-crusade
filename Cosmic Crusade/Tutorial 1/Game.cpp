@@ -260,6 +260,13 @@ void Game::initializeGame()
 	player.blackBar.rotate = glm::rotate(player.blackBar.rotate, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	player.yellowBar.scale = glm::scale(player.yellowBar.scale, glm::vec3(.3f));
 	player.blackBar.scale = glm::scale(player.blackBar.scale, glm::vec3(.3f));
+	player.yellowBar.ogScale = player.yellowBar.scale;
+	player.blackBar.ogScale = player.blackBar.scale;
+	//player2.yellowBar.scale = glm::scale(player.yellowBar.scale, glm::vec3(0.5, 5.0f, 1.0f));
+	//player2.blackBar.scale = glm::scale(player.blackBar.scale, glm::vec3(0.5f, 5.0f, 1.0f));
+	player2.yellowBar = player.yellowBar;
+	player2.blackBar = player.blackBar;
+
 	player.yellowBar.move(0, -8.0f);
 	player.blackBar.move(0, -8.0f);
 
@@ -536,9 +543,23 @@ void Game::update()
 		if ((player.numLives == 0) && (player2.numLives == 0))
 			state = gameOver;
 
+		if ((enemyManager.count == enemyManager.spawnList.size()) && (enemyManager.enemyList.size() == 0))
+		{
+			//if(!emitters[emitters.size() - 1]->playing)
+			bool temp = false;
+
+			for (int i = 0; i < emitters.size(); i++)
+			{
+				if (emitters[i]->playing)
+					temp = true;
+			}
+
+			if(!temp)
+				state = win;
+		}
+
 	}
 	// TODO: Win state
-	//enemyManager.count == enemyManager.spawnList.size() - 1 && enemyManager.enemyList.empty()
 
 	if (state == gameOver)
 	{
@@ -565,7 +586,17 @@ void Game::update()
 			}
 		}
 	}
-	draw();
+
+	if (state == win)
+	{
+		gameSounds.stopSound(&gameSounds.channel1);
+		gameSounds.playSound(gameSounds.failsound, &gameSounds.channel5);
+
+		emptyGame();
+		background.winScreen();
+	}
+	
+	//draw();
 }
 
 
@@ -601,7 +632,7 @@ void Game::draw()
 		}
 
 		if (Player::progress == Player::transformMax)
-			text.RenderText(textShader, cameraOrtho, "Press LB to transform", -2.5f, -7, .01f, glm::vec3(1));
+			text.RenderText(textShader, cameraOrtho, "Press LB to combine", -2.5f, -7, .01f, glm::vec3(1));
 
 		if (paused == true)
 			text.RenderText(textShader, cameraOrtho, "Game Paused", -7.0f, 0.0f, 0.05f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -652,6 +683,15 @@ void Game::draw()
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 	}
 
+	else if (state == win)
+	{
+		def.bindFrameBufferForDrawing();
+		phong.bind();
+		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
+		phong.unbind();
+		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+	}
+
 	else
 	{
 		particleShader.bind();
@@ -674,51 +714,85 @@ void Game::draw()
 
 		def.bindFrameBufferForDrawing();
 
-		if (player.isTransformed && player2.isTransformed)
-			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
+
+
 
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
 		def.bindFrameBufferForDrawing();
 		enemyManager.Draw(phong, cameraTransform, cameraProjection, pointLights);
 
-		ammoPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
-
-		fuelPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
-
-		timePowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
+		//ammoPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
+		//
+		//fuelPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
+		//
+		//timePowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
 
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
-		for (int i = 0; i < players.size(); i++)
+		if (player.isTransformed && player2.isTransformed)
 		{
-			for (int j = 0; j < players[i]->getProjectiles().size(); j++)
-			{
-				def.bindFrameBufferForDrawing();
-				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
 
-				toBloom.bindFrameBufferForDrawing();
-				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-				toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
-			}
-			if (players[i]->isAlive())
+			for (int i = 0; i < players.size(); i++)
 			{
+				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
+				{
+					def.bindFrameBufferForDrawing();
+					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
+					toBloom.bindFrameBufferForDrawing();
+					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+				}
+
 				def.bindFrameBufferForDrawing();
-				players[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
-				players[i]->turret.draw(phong, cameraTransform, cameraProjection, pointLights);
+				player.draw(phong, cameraTransform, cameraProjection, pointLights);
+				player.turret.draw(phong, cameraTransform, cameraProjection, pointLights);
+				player2.turret.draw(phong, cameraTransform, cameraProjection, pointLights);
+
+				players[i]->blackBar.draw(phong, cameraTransform, cameraProjection, pointLights);
+				players[i]->yellowBar.draw(phong, cameraTransform, cameraProjection, pointLights);
 
 				if (players[i]->getTilted())
 					players[i]->reticle.draw(phong, cameraTransform, cameraProjection, pointLights);
 
 				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+				
 			}
 		}
 
-		def.bindFrameBufferForDrawing();
-		player.blackBar.draw(phong, cameraTransform, cameraProjection, pointLights);
-		player.yellowBar.draw(phong, cameraTransform, cameraProjection, pointLights);
-		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+		else
+		{
+			for (int i = 0; i < players.size(); i++)
+			{
+				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
+				{
+					def.bindFrameBufferForDrawing();
+					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
+					toBloom.bindFrameBufferForDrawing();
+					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+				}
+				if (players[i]->isAlive())
+				{
+					def.bindFrameBufferForDrawing();
+					players[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					players[i]->turret.draw(phong, cameraTransform, cameraProjection, pointLights);
+
+					players[i]->blackBar.draw(phong, cameraTransform, cameraProjection, pointLights);
+					players[i]->yellowBar.draw(phong, cameraTransform, cameraProjection, pointLights);
+
+					if (players[i]->getTilted())
+						players[i]->reticle.draw(phong, cameraTransform, cameraProjection, pointLights);
+
+					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+				}
+			}
+		}
 
 		background_fbo.bindFrameBufferForDrawing();
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);

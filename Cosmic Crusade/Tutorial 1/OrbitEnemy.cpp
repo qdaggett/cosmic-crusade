@@ -25,7 +25,7 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 	if (!players[0]->isAlive() && players[1]->isAlive())
 	{
 		targetPosition = glm::vec2();
-		std::cout << "See ya" << std::endl;
+		//std::cout << "See ya" << std::endl;
 	}
 	else
 	{
@@ -45,8 +45,6 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 		shoot(players, gameProjectiles);
 	}
 
-
-
 	if (glm::distance(location, targetPosition) <= distanceToPlayer)
 	{
 		orbit = true;
@@ -59,6 +57,23 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 		velocity = glm::vec2(normal.y, -normal.x);
 	}
 
+	//Normalize the projectile's velocity vector so that projectiles will fire at the same speed regardless of the amount of tilt amount
+	glm::vec2 enemyToPlayer = glm::vec2(players[target]->location.x - location.x, players[target]->location.y - location.y);
+
+	float length = sqrt((enemyToPlayer.x * enemyToPlayer.x) + (enemyToPlayer.y * enemyToPlayer.y));
+	enemyToPlayer.x /= length;
+	enemyToPlayer.y /= length;
+
+	if (enemyToPlayer.x <= 0.0f)
+	{
+		rotate = glm::rotate(ogRotate, acos(enemyToPlayer.y), glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+
+	else
+	{
+		rotate = glm::rotate(ogRotate, -acos(enemyToPlayer.y), glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+
 	//if (location.y < distanceToPlayer)
 	//	boundary = true;
 
@@ -69,21 +84,21 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 		else
 			target = 0;
 
-		std::cout << "Switching target to " << target << std::endl;
+		//std::cout << "Switching target to " << target << std::endl;
 	}
 
 
 	//int target = rand() % (2);
 	//if (boundary)
 	//{
-	//	if (location.x >= 20)
-	//		setLocation(20, location.y);
-	//	if (location.x <= -20)
-	//		setLocation(-20, location.y);
-	//	if (location.y >= 15)
-	//		setLocation(location.x, 15);
-	//	if (location.y <= -15)
-	//		setLocation(location.x, -15);		
+		if (location.x >= 20)
+			setLocation(20, location.y);
+		if (location.x <= -20)
+			setLocation(-20, location.y);
+		if (location.y >= 15)
+			setLocation(location.x, 15);
+		if (location.y <= -15)
+			setLocation(location.x, -15);		
 	//	
 	//}
 

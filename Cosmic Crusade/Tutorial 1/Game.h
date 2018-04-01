@@ -93,7 +93,7 @@ private:
 	float pauseTime = 0.0f;
 
 	bool shouldLightsSpin = false;
-	enum gameStates { main, gameOver, title, monologue };
+	enum gameStates { main, gameOver, title, monologue, win };
 	gameStates state = title;
 	float delay;
 
