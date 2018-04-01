@@ -54,6 +54,7 @@ void Boss::shoot(std::vector<Player*> players, std::vector<Projectile*>* gamePro
 	Projectile* temp = new Projectile();
 	temp->mesh = projectile.mesh;
 	temp->mat = projectile.mat;
+	temp->collider = new Collider(Collider::SPHERE, 0.5f);
 
 	temp->location = glm::vec3(0.0f, 0.0f, 0.0f);
 	temp->move(location.x, location.y);
@@ -91,6 +92,8 @@ void Boss::shootBasic(std::vector<Player*> players, std::vector<Projectile*>* ga
 	temp->mesh = projectile.mesh;
 
 	temp->mat = projectile.mat;
+
+	temp->collider = new Collider(Collider::SPHERE, 0.5f);
 
 	//Make the new projectile's starting location equal to the player's 
 	temp->setLocation(location.x, location.y);
@@ -142,6 +145,8 @@ void Boss::shootCircle(std::vector<Player*> players, std::vector<Projectile*>* g
 		Projectile* temp = new Projectile();
 		temp->mesh = projectile.mesh;
 		temp->mat = projectile.mat;
+
+		temp->collider = new Collider(Collider::SPHERE, 0.5f);
 
 		temp->location = glm::vec3(0.0f, 0.0f, 0.0f);
 		temp->move(location.x, location.y);

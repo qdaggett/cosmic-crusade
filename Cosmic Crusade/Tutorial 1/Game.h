@@ -64,7 +64,7 @@ public:
 	GameObject combinedPlayer;
 
 	//Shaders
-	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader;
+	ShaderProgram phong, textShader, unlitShader, brightPass, blurShader, bloomShader, rimShader;
 
 	ShaderProgram phongColorSides;
 	glm::mat4 cameraTransform;
@@ -101,7 +101,7 @@ private:
 	Font text;
 
 	Foreground foreground;
-	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom;
+	FrameBufferObject def, bright, blur_a, blur_b, lowRes, toBloom, rimBuffer;
 
 	EnemyManager enemyManager;
 

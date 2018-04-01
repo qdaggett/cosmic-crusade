@@ -59,7 +59,7 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 	}
 
 
-	enemyBullet.scale = glm::scale(enemyBullet.scale, glm::vec3(0.25f));
+	//enemyBullet.scale = glm::scale(enemyBullet.ogScale, glm::vec3(0.25f));
 
 	//Set the enemy meshes 
 	basicEnemy.projectile.mesh = enemyBullet.mesh;
@@ -107,6 +107,7 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 void EnemyManager::Update(float dt)
 {
 	timer += dt;
+	//std::cout << timer << std::endl;
 
 	for (int i = 0; i < enemyList.size(); i++)
 	{
@@ -242,8 +243,8 @@ void EnemyManager::SpawnEnemy()
 			temp->mesh = boss.mesh;
 			temp->mat = boss.mat;
 			temp->defaultMaterial = boss.mat;
-			temp->projectile.mesh = boss.projectile.mesh;
-			temp->projectile.mat = boss.projectile.mat;
+			temp->projectile.mesh = orbitEnemy.projectile.mesh;
+			temp->projectile.mat = orbitEnemy.projectile.mat;
 
 			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
 

@@ -12,7 +12,7 @@
 
 GameObject bullet;
 
-glm::mat4 newPosition = glm::translate(newPosition, glm::vec3(0,0,-35));
+glm::mat4 newPosition = glm::translate(newPosition, glm::vec3(0, 0, -35));
 
 glm::vec3 lerp(glm::vec3 x, glm::vec3 y, float dt)
 {
@@ -52,7 +52,7 @@ void Game::initializeGame()
 {
 	state = title;
 
-	state = main; updateTimer = new Timer();
+//	state = main; updateTimer = new Timer();
 
 	std::srand(time(NULL));
 
@@ -114,6 +114,14 @@ void Game::initializeGame()
 		system("pause");
 		exit(0);
 	}
+
+//	if (!rimShader.load("shaders/unlit.vert", "shaders/rimLight.frag"))
+//	{
+//		std::cout << "Rim Shaders failed to initialize." << std::endl;
+//		system("pause");
+//		exit(0);
+//	}
+
 
 	if (!basicPlayer.mesh.loadFromFile("meshes/Player_Ship.obj"))
 	{
@@ -197,10 +205,10 @@ void Game::initializeGame()
 	player.shield.mesh = player2.shield.mesh;
 
 	player.loadTexture(Diffuse, "Textures/Shield.png");
-	player2.shield.mat = player.shield.mat;	
+	player2.shield.mat = player.shield.mat;
 
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
-	
+
 
 	red.loadTexture(Diffuse, "Textures/red.png");
 	blue.loadTexture(Diffuse, "Textures/blue.png");
@@ -268,6 +276,7 @@ void Game::initializeGame()
 	blur_b.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 1, true);
 	lowRes.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 1, true);
 	toBloom.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
+	rimBuffer.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
 	fullscreenQuad.create();
 }
 
@@ -364,7 +373,7 @@ void Game::update()
 		pauseTime += updateTimer->getElapsedTimeS();
 		empty = false;
 
-		if (Player::progress > Player::transformMax)											 
+		if (Player::progress > Player::transformMax)
 			Player::progress = Player::transformMax;
 
 		// Game music
@@ -448,7 +457,7 @@ void Game::update()
 				players[i]->setLocation(players[i]->location.x, -16);
 		}
 
-		if ((player.numLives == 0) && (player2.numLives == 0) || enemyManager.count == enemyManager.spawnList.size()+1 && enemyManager.enemyList.empty())
+		if ((player.numLives == 0) && (player2.numLives == 0) || enemyManager.count == enemyManager.spawnList.size() + 1 && enemyManager.enemyList.empty())
 			state = gameOver;
 
 	}
@@ -485,7 +494,6 @@ void Game::update()
 void Game::draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 	toBloom.bindFrameBufferForDrawing();
 	toBloom.clearFrameBuffer(glm::vec4(0.0f));
@@ -546,9 +554,6 @@ void Game::draw()
 
 	else
 	{
-
-
-
 		if (player.isTransformed && player2.isTransformed)
 			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
 		//def.bindFrameBufferForDrawing();
@@ -587,7 +592,7 @@ void Game::draw()
 		player.yellowBar.draw(phong, cameraTransform, cameraOrtho, pointLights);
 
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
-	//	foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
+		//foreground.draw(phong, cameraTransform, cameraProjection, pointLights);
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 	}
 

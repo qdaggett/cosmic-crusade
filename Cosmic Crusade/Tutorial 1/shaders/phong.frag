@@ -83,5 +83,11 @@ vec3 calculatePointLight(PointLight light, vec3 norm, vec4 materialDiffuse, vec4
 
 	vec3 specular = light.specular * pow(VdotR, material.specularExponent) * attenuation * materialSpecular.rgb;
 
-	return ambient + diffuse + specular;
+	vec3 N = normalize(norm);
+	vec3 v = normalize(-light.position.xyz);
+	float vDotn = max(dot(v,N), 0.0);
+
+	vec3 rim = vec3(smoothstep(0,.5,vDotn));
+
+	return ambient + diffuse + specular + rim;
 }
