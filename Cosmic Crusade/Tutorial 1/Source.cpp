@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 	glutInitWindowSize(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutCreateWindow("Cosmic Crusade");
-	glutFullScreen();
+	//glutFullScreen();
 
 	glewExperimental = true;
 	if (glewInit() != GLEW_OK)

@@ -38,13 +38,7 @@ void SoundEffect::initializeSounds()
 
 }
 
-// TEMPORARY SOLUTION
-#define min(a,b)            (((a) < (b)) ? (a) : (b));
 
-float Random(float a, float b)
-{
-	return (float(rand()) / float(RAND_MAX)) * abs(b - a) + min(a, b);
-}
 
 void SoundEffect::updateSounds()
 {

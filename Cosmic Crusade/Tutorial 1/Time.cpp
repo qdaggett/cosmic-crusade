@@ -10,10 +10,12 @@ Time::~Time()
 
 }
 
-void Time::initializePowerUp()
+void Time::initializePowerUp(std::vector<ParticleEmitterSoA*>* emitter)
 {
+	//emitters = emitter;
+
 	// Creating collider for ammo powerup
-	collider = new Collider(Collider::SPHERE, 0.5f);
+	collider = new Collider(Collider::SPHERE, 0.8f);
 
 	// Setting mesh
 	if (!mesh.loadFromFile("meshes/Hourglass.obj"))
@@ -30,11 +32,18 @@ void Time::updatePowerUp(std::vector<Player*> players, float time)
 	this->collider->ColliderUpdate(glm::vec3(location, 0));
 	localTime += time;
 	rotationTick += time;
+	//ParticleEmitterSoA* timeParticles = new ParticleEmitterSoA();
+	//timeParticles->explosionInit(glm::vec3(-location.x, location.y, 1.0f));
+	//mat.loadTexture(Diffuse, "Textures/Hourglass.png");
+	//timeParticles->texture = mat.diffuse;
+	//emitters->push_back(timeParticles);
 
-	if (localTime > powerupCoolDown && powerupIsActive == false)
+	if (powerupIsActive == true)
 	{
-		setLocation(0, 5);
+		setLocation(spawnPosition.x, spawnPosition.y);
 		powerupIsActive = true;
+		
+
 	}
 
 	if (this->collider->Collide(*players[0]->collider))
@@ -66,5 +75,6 @@ void Time::drawPowerUp(ShaderProgram &shader, glm::mat4 camera, glm::mat4 projec
 
 void Time::spawnPowerUp(glm::vec2 position)
 {
-
+	spawnPosition = position;
+	powerupIsActive = true;
 }

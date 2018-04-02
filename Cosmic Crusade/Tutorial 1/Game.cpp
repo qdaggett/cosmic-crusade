@@ -13,6 +13,13 @@
 
 GameObject bullet;
 
+#define min(a,b)            (((a) < (b)) ? (a) : (b));
+
+float Random(float a, float b)
+{
+	return (float(rand()) / float(RAND_MAX)) * abs(b - a) + min(a, b);
+}
+
 
 
 Game::Game()
@@ -288,13 +295,13 @@ void Game::initializeGame()
 	foreground.Intialize();
 	enemyManager.Intialize(players, &emitters);
 
-	ammoPowerUp.initializePowerUp();
+	ammoPowerUp.initializePowerUp(&emitters);
 	ammoPowerUp.mat = green;
 
-	fuelPowerUp.initializePowerUp();
+	fuelPowerUp.initializePowerUp(&emitters);
 	fuelPowerUp.mat = blue;
 
-	timePowerUp.initializePowerUp();
+	timePowerUp.initializePowerUp(&emitters);
 	timePowerUp.loadTexture(Diffuse, "Textures/Hourglass.png");
 
 	gameSounds.initializeSounds();
@@ -484,6 +491,17 @@ void Game::update()
 		// Plays hit sound when player hits an enemy ship
 		if (player.hasHit == true)
 		{
+			float randomizer = Random(1, 4);
+			cout << randomizer << endl;
+			if (randomizer > 1 && randomizer < 1.99)
+				ammoPowerUp.spawnPowerUp(player.tempEnemy);
+			else if (randomizer > 2 && randomizer < 2.99)
+				fuelPowerUp.spawnPowerUp(player.tempEnemy);
+			else if (randomizer > 3 && randomizer < 3.99)
+				timePowerUp.spawnPowerUp(player.tempEnemy);
+			else
+				cout << "Failed to spawn in powerup" << endl;
+
 			gameSounds.playSound(gameSounds.enemyHit, &gameSounds.channel3);
 			player.hasHit = false;
 		}

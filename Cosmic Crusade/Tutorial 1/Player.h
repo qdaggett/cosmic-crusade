@@ -32,6 +32,7 @@ public:
 	int getSpeedUp();
 	void addSpeedUp(int fuel);
 
+	glm::vec2 tempEnemy;
 
 	bool hasShot;
 	bool hasShotShotgun;
@@ -106,6 +107,7 @@ private:
 	float speedDelay = 0.25f;
 	float speedDelayTime = 0.0f;
 	int speedUp = 100;
+
 
 
 	Material baseMat;
