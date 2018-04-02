@@ -767,14 +767,15 @@ void Game::draw()
 			{
 				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
 				{
-				if (players[i]->isInvulnerable())
-				{
-					players[i]->shield.draw(phong, cameraTransform, cameraProjection, pointLights);
-				}
+					if (players[i]->isInvulnerable())
+					{
+						players[i]->shield.draw(phong, cameraTransform, cameraProjection, pointLights);
+					}
+
 					def.bindFrameBufferForDrawing();
 					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
 					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
-			}
+			
 
 					toBloom.bindFrameBufferForDrawing();
 					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
@@ -801,16 +802,16 @@ void Game::draw()
 		{
 			for (int i = 0; i < players.size(); i++)
 			{
-			for (int j = 0; j < players[i]->getProjectiles().size(); j++)
-			{
-				def.bindFrameBufferForDrawing();
-				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-				def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
+				{
+					def.bindFrameBufferForDrawing();
+					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
-				toBloom.bindFrameBufferForDrawing();
-				players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
-				toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
-			}
+					toBloom.bindFrameBufferForDrawing();
+					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+				}
 				if (players[i]->isAlive())
 				{
 					def.bindFrameBufferForDrawing();
@@ -825,12 +826,14 @@ void Game::draw()
 
 					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 				}
+			}
 		}
 
 		background_fbo.bindFrameBufferForDrawing();
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 		background_fbo.unbindFrameBuffer(background_fbo.getWidth(), background_fbo.getHeight());
 	}
+
 
 	phong.unbind();
 
