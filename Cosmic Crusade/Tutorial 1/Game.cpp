@@ -131,7 +131,7 @@ void Game::initializeGame()
 		exit(0);
 	}
 
-	if (!combinedPlayer.mesh.loadFromFile("meshes/Combined_Ship.obj"))
+	if (!combinedPlayer.mesh.loadFromFile("meshes/Combined.obj"))
 	{
 		std::cout << "Player model failed to load." << std::endl;
 		system("pause");
@@ -220,6 +220,7 @@ void Game::initializeGame()
 
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
+	combinedPlayer.mat.loadTexture(Diffuse, "Textures/Combined_Ship_diffuse.png");
 
 	red.loadTexture(Diffuse, "Textures/red.png");
 	blue.loadTexture(Diffuse, "Textures/blue.png");
@@ -234,6 +235,7 @@ void Game::initializeGame()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	phong.bind();
 	background.Initialize();
+
 	background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 	phong.unbind();
 	glutSwapBuffers();
@@ -456,11 +458,11 @@ void Game::update()
 			player.mesh = combinedPlayer.mesh;
 			player2.mesh = combinedPlayer.mesh;
 
-			player.mat = green;
-			player.projectile.mat = green;
+			player.mat = combinedPlayer.mat;
+			//player.projectile.mat = green;
 
-			player2.mat = green;
-			player2.projectile.mat = green;
+			player2.mat = combinedPlayer.mat;
+			//player2.projectile.mat = green;
 		}
 
 		// Plays shooting sound when player fires a bullet
