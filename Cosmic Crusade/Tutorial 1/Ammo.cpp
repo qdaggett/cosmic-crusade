@@ -10,10 +10,12 @@ Ammo::~Ammo()
 
 }
 
-void Ammo::initializePowerUp()
+void Ammo::initializePowerUp(std::vector<ParticleEmitterSoA*>* emitter)
 {
+	//emitters = emitter;
+
 	// Creating collider for ammo powerup
-	collider = new Collider(Collider::SPHERE, 0.5f);
+	collider = new Collider(Collider::SPHERE, 0.8f);
 
 	// Setting mesh
 	if (!mesh.loadFromFile("meshes/TwinLaser.obj"))
@@ -30,16 +32,21 @@ void Ammo::updatePowerUp(std::vector<Player*> players, float time)
 	this->collider->ColliderUpdate(glm::vec3(location, 0));
 	localTime += time;
 	rotationTick += time;
+	//ParticleEmitterSoA* ammoParticles = new ParticleEmitterSoA();
+	//ammoParticles->explosionInit(glm::vec3(-location.x, location.y, 1.0f));
+	//mat.loadTexture(Diffuse, "Textures/green.png");
+	//ammoParticles->texture = mat.diffuse;
+	//emitters->push_back(ammoParticles);
 
-	if (localTime > powerupCoolDown && powerupIsActive == false)
+	if (powerupIsActive == true)
 	{
-		setLocation(5, 5);
-		powerupIsActive = true;
+		setLocation(spawnPosition.x, spawnPosition.y);
+		
 	}
 
 	if (this->collider->Collide(*players[0]->collider))
 	{
-		std::cout << "Colliding!" << std::endl;
+		collected = true;
 		players[1]->addAmmo(3);
 		setLocation(999, 999);
 		localTime = 0.0f;
@@ -48,7 +55,7 @@ void Ammo::updatePowerUp(std::vector<Player*> players, float time)
 
 	if (this->collider->Collide(*players[1]->collider))
 	{
-		std::cout << "Colliding!" << std::endl;
+		collected = true;
 		players[0]->addAmmo(3);
 		setLocation(999, 999);
 		localTime = 0.0f;
@@ -68,5 +75,6 @@ void Ammo::drawPowerUp(ShaderProgram &shader, glm::mat4 camera, glm::mat4 projec
 
 void Ammo::spawnPowerUp(glm::vec2 position)
 {
-
+	spawnPosition = position;
+	powerupIsActive = true;
 }

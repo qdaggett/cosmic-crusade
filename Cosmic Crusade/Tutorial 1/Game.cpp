@@ -14,6 +14,13 @@
 GameObject bullet;
 
 glm::mat4 newPosition = glm::translate(newPosition, glm::vec3(0, 0, -35));
+#define min(a,b)            (((a) < (b)) ? (a) : (b));
+
+float Random(float a, float b)
+{
+	return (float(rand()) / float(RAND_MAX)) * abs(b - a) + min(a, b);
+}
+
 
 glm::vec3 lerp(glm::vec3 x, glm::vec3 y, float dt)
 {
@@ -318,13 +325,13 @@ void Game::initializeGame()
 	foreground.Intialize();
 	enemyManager.Intialize(players, &emitters);
 
-	ammoPowerUp.initializePowerUp();
+	ammoPowerUp.initializePowerUp(&emitters);
 	ammoPowerUp.mat = green;
 
-	fuelPowerUp.initializePowerUp();
+	fuelPowerUp.initializePowerUp(&emitters);
 	fuelPowerUp.mat = blue;
 
-	timePowerUp.initializePowerUp();
+	timePowerUp.initializePowerUp(&emitters);
 	timePowerUp.loadTexture(Diffuse, "Textures/Hourglass.png");
 
 	gameSounds.initializeSounds();
@@ -523,6 +530,17 @@ void Game::update()
 		// Plays hit sound when player hits an enemy ship
 		if (player.hasHit == true)
 		{
+			float randomizer = Random(1, 4);
+			cout << randomizer << endl;
+			if (randomizer > 1 && randomizer < 1.99)
+				ammoPowerUp.spawnPowerUp(player.tempEnemy);
+			else if (randomizer > 2 && randomizer < 2.99)
+				fuelPowerUp.spawnPowerUp(player.tempEnemy);
+			else if (randomizer > 3 && randomizer < 3.99)
+				timePowerUp.spawnPowerUp(player.tempEnemy);
+			else
+				cout << "Failed to spawn in powerup" << endl;
+
 			gameSounds.playSound(gameSounds.enemyHit, &gameSounds.channel3);
 			player.hasHit = false;
 		}
@@ -532,6 +550,27 @@ void Game::update()
 		{
 			gameSounds.playSound(gameSounds.playerHit, &gameSounds.channel4);
 			enemyManager.playerDied = false;
+		}
+
+		// Plays when a player collects an ammo powerup
+		if (ammoPowerUp.collected == true)
+		{
+			gameSounds.playSound(gameSounds.ammoUp, &gameSounds.ammoUpChannel);
+			ammoPowerUp.collected = false;
+		}
+
+		// Plays when a player collects a fuel powerup
+		if (fuelPowerUp.collected == true)
+		{
+			gameSounds.playSound(gameSounds.fuelUp, &gameSounds.fuelUpChannel);
+			fuelPowerUp.collected = false;
+		}
+
+		// Plays when a player collects a time powerup
+		if (timePowerUp.collected == true)
+		{
+			gameSounds.playSound(gameSounds.timeUp, &gameSounds.timeUpChannel);
+			timePowerUp.collected = false;
 		}
 
 

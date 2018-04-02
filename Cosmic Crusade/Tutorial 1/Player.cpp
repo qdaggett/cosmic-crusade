@@ -96,6 +96,7 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 				hits++;
 				derefEnemies[j]->hitPoints--;
 				derefEnemies[j]->gotDamaged = true;
+				tempEnemy = derefEnemies[j]->location;
 
 				if (Player::progress < transformMax)
 				{
@@ -271,10 +272,6 @@ void Player::xin(Player* otherPlayer)
 			otherPlayer->addAmmo(-1);
 		}
 
-		else
-		{
-			std::cout << "Click! Out of ammo!" << std::endl;
-		}
 	}
 
 	if (controller.GetButton(playerNum, XBox::LB))
