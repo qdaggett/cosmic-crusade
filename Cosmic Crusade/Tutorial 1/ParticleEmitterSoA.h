@@ -90,6 +90,7 @@ public:
 	VertexBufferObject vbo;
 
 	bool playing;	// false is update is paused
+	bool loop = false;
 
 
 	Texture texture;
@@ -99,4 +100,5 @@ private:
 	unsigned int numParticles; // Number of particles passed into initialize()
 	bool allocated; // false if memory not allocated
 	int sentinel = 0;
+
 };

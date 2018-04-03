@@ -179,6 +179,7 @@ void EnemyManager::SpawnEnemy()
 			temp->projectile.mat = basicEnemy.projectile.mat;
 			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
 			temp->moveSideways = false;
+			temp->hitPoints = 1;
 			temp->Intialize();
 
 			enemyList.push_back(temp);
@@ -195,6 +196,7 @@ void EnemyManager::SpawnEnemy()
 			temp->projectile.mat = basicEnemy.projectile.mat;
 			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
 			temp->moveSideways = true;
+			temp->hitPoints = 2;
 			temp->Intialize();
 
 			enemyList.push_back(temp);
@@ -208,6 +210,7 @@ void EnemyManager::SpawnEnemy()
 			temp->defaultMaterial = circleEnemy.mat;
 			temp->projectile.mesh = circleEnemy.projectile.mesh;
 			temp->projectile.mat = circleEnemy.projectile.mat;
+			temp->hitPoints = 2;
 
 			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
 
@@ -223,6 +226,7 @@ void EnemyManager::SpawnEnemy()
 			temp->defaultMaterial = orbitEnemy.mat;
 			temp->projectile.mesh = orbitEnemy.projectile.mesh;
 			temp->projectile.mat = orbitEnemy.projectile.mat;
+			temp->hitPoints = 2;
 
 			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
 
@@ -237,6 +241,7 @@ void EnemyManager::SpawnEnemy()
 			temp->defaultMaterial = laserEnemy.mat;
 			temp->projectile.mesh = laserEnemy.projectile.mesh;
 			temp->projectile.mat = laserEnemy.projectile.mat;
+			temp->hitPoints = 1;
 
 			temp->setLocation(spawnList[count]->position.x, spawnList[count]->position.y);
 

@@ -98,7 +98,7 @@ void ParticleEmitterSoA::update(float dt)
 			// check if alive
 			if ((*life <= 0))
 			{
-				if (*created)
+				if (*created && !loop)
 				{
 					*pos = glm::vec3(3000);
 					sentinel++;

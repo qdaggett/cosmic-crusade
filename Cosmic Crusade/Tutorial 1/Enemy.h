@@ -29,7 +29,7 @@ public:
 	float localTime = 0.0f;
 	float delay;
 	int target = 0;
-	int hitPoints = 3;
+	int hitPoints = 1;
 
 	bool gotDamaged = false;
 	float damagedTimer = 0.0f;

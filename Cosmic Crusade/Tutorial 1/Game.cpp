@@ -245,8 +245,7 @@ void Game::initializeGame()
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
 	player.shield.mesh = player2.shield.mesh;
 
-	player.loadTexture(Diffuse, "Textures/Shield.png");
-	player2.shield.mat = player.shield.mat;
+	player2.shield.loadTexture(Diffuse, "Textures/Shield.png");
 
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
 
@@ -303,7 +302,7 @@ void Game::initializeGame()
 	player.reticle.mat = blue;
 	player2.reticle.mat = yellow;
 
-	player2.shield.loadTexture(Diffuse, "Textures/cyan.png");
+	//player2.shield.loadTexture(Diffuse, "Textures/cyan.png");
 
 	player2.shield.collider = new Collider(Collider::BOX, glm::vec3(1.1f, 0.5f, 1));
 
@@ -336,12 +335,12 @@ void Game::initializeGame()
 
 	gameSounds.initializeSounds();
 
-	float blurAmount = 16.0f;
+	float blurAmount = 14.0f;
 
 	def.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
 	bright.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
-	blur_a.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
-	blur_b.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
+	blur_a.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN)/ blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
+	blur_b.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN)/ blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
 	lowRes.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 2, true);
 	toBloom.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
 	text_fbo.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 2, true);
@@ -416,6 +415,7 @@ void Game::update()
 				background.updateTimer = new Timer();
 				state = monologue;
 				background.restart();
+				delay = 0.0f;
 			}
 
 			else if (selected == _quit)
@@ -426,6 +426,9 @@ void Game::update()
 	// Monologue state, this is where my shitty voice acting plays
 	if (state == monologue)
 	{
+		updateTimer->tick();
+		delay += updateTimer->getElapsedTimeS();
+
 		// Making sure the sound plays only once
 		if (gameSounds.introHasPlayed == false)
 		{
@@ -437,6 +440,17 @@ void Game::update()
 		// Pressing B skips the monologue
 		if (player.controller.GetButton(player.playerNum, XBox::B))
 		{
+			updateTimer = new Timer();
+			background.updateTimer = new Timer();
+			state = main;
+			gameSounds.channel8->stop();
+		}
+
+		if (delay >= 28.0f)
+		{
+			delay = 0.0f;
+			updateTimer = new Timer();
+			background.updateTimer = new Timer();
 			state = main;
 			gameSounds.channel8->stop();
 		}
@@ -800,7 +814,9 @@ void Game::draw()
 
 		if (player.isTransformed && player2.isTransformed)
 		{
+			def.bindFrameBufferForDrawing();
 			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
+			def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
 			for (int i = 0; i < players.size(); i++)
 			{
@@ -864,6 +880,12 @@ void Game::draw()
 						players[i]->reticle.draw(phong, cameraTransform, cameraProjection, pointLights);
 
 					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
+
+					//toBloom.bindFrameBufferForDrawing();
+					//players[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
+					//players[i]->turret.draw(phong, cameraTransform, cameraProjection, pointLights);
+					//toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
+					
 				}
 			}
 		}
@@ -1080,34 +1102,34 @@ void Game::doBlurPass()
 	blur_a.unbindFrameBuffer(blur_a.getWidth(), blur_a.getHeight());
 	blurShader.unbind();
 
-	int numBlurs = 5;
+	int numBlurs = 3;
 
-	//for (int i = 0; i < numBlurs; i++)
-	//{
-	//	//Blur Buffer A
-	//	blurShader.bind();
-	//	blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_b.getWidth(), 1 / blur_b.getHeight(), 0.0f, 0.0f));
-	//	blur_b.bindFrameBufferForDrawing();
-	//	blur_b.clearFrameBuffer(glm::vec4());
-	//
-	//	blur_a.bindTextureForSampling(0, GL_TEXTURE0);
-	//	fullscreenQuad.draw(blurShader);
-	//	blur_a.unbindTexture(GL_TEXTURE0);
-	//
-	//	blur_b.unbindFrameBuffer(blur_b.getWidth(), blur_b.getHeight());
-	//	blurShader.unbind();
-	//
-	//	//Blur Buffer B
-	//	blurShader.bind();
-	//	blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_a.getWidth(), 1 / blur_a.getHeight(), 0.0f, 0.0f));
-	//	blur_a.bindFrameBufferForDrawing();
-	//	blur_a.clearFrameBuffer(glm::vec4());
-	//
-	//	blur_b.bindTextureForSampling(0, GL_TEXTURE0);
-	//	fullscreenQuad.draw(blurShader);
-	//	blur_b.unbindTexture(GL_TEXTURE0);
-	//
-	//	blur_a.unbindFrameBuffer(blur_a.getWidth(), blur_a.getHeight());
-	//	blurShader.unbind();
-	//}
+	for (int i = 0; i < numBlurs; i++)
+	{
+		//Blur Buffer A
+		blurShader.bind();
+		blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_b.getWidth(), 1 / blur_b.getHeight(), 0.0f, 0.0f));
+		blur_b.bindFrameBufferForDrawing();
+		blur_b.clearFrameBuffer(glm::vec4());
+	
+		blur_a.bindTextureForSampling(0, GL_TEXTURE0);
+		fullscreenQuad.draw(blurShader);
+		blur_a.unbindTexture(GL_TEXTURE0);
+	
+		blur_b.unbindFrameBuffer(blur_b.getWidth(), blur_b.getHeight());
+		blurShader.unbind();
+	
+		//Blur Buffer B
+		blurShader.bind();
+		blurShader.sendUniform("u_texelSize", glm::vec4(1 / blur_a.getWidth(), 1 / blur_a.getHeight(), 0.0f, 0.0f));
+		blur_a.bindFrameBufferForDrawing();
+		blur_a.clearFrameBuffer(glm::vec4());
+	
+		blur_b.bindTextureForSampling(0, GL_TEXTURE0);
+		fullscreenQuad.draw(blurShader);
+		blur_b.unbindTexture(GL_TEXTURE0);
+	
+		blur_a.unbindFrameBuffer(blur_a.getWidth(), blur_a.getHeight());
+		blurShader.unbind();
+	}
 }

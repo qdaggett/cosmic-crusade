@@ -89,7 +89,7 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
-			if (derefEnemies[j]->hitPoints == 0)
+			if (projectiles[i]->collider->Collide(*temp.collider))
 			{
 				hasHit = true;
 				score += 10;
@@ -100,43 +100,53 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 
 				if (Player::progress < transformMax)
 				{
-					Player::progress++;
-					//otherPlayer->progress++;
-
-					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(1.0f - (.3f * (Player::progress / Player::transformMax)), 1.0f, 1.0f));
-					blackBar.move(0, 0);
-
-					otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(1.0f - (.3f *(Player::progress / Player::transformMax)), 1.0f, 1.0f));
-					otherPlayer->blackBar.move(0, 0);
-
-					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
-					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+					if (derefEnemies[j]->hitPoints <= 0)
+					{
+						Player::progress += 15;
+						//otherPlayer->progress++;
 
-					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
-					exp->texture = derefEnemies[j]->deathColour.diffuse;
-					
-					emitters->push_back(exp);
+						blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(1.0f - (.3f * (Player::progress / Player::transformMax)), 1.0f, 1.0f));
+						blackBar.move(0, 0);
 
-					enemies->erase(enemies->begin() + j);
+						otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(1.0f - (.3f *(Player::progress / Player::transformMax)), 1.0f, 1.0f));
+						otherPlayer->blackBar.move(0, 0);
+
+
+						ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+
+						exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+						exp->texture = derefEnemies[j]->deathColour.diffuse;
+
+						emitters->push_back(exp);
+
+						enemies->erase(enemies->begin() + j);
+						break;
+					}
+
 				}
 
 				else
 				{
-					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
-					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+					if (derefEnemies[j]->hitPoints <= 0)
+					{
+						ParticleEmitterSoA* exp = new ParticleEmitterSoA();
 
-					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
-					exp->texture = derefEnemies[j]->deathColour.diffuse;
+						exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+						exp->texture = derefEnemies[j]->deathColour.diffuse;
 
-					emitters->push_back(exp);
+						emitters->push_back(exp);
 
-					enemies->erase(enemies->begin() + j);
+						enemies->erase(enemies->begin() + j);
+						break;
+					}
+
 				}
-				break;
+
+
 			}
 		}
 	}
