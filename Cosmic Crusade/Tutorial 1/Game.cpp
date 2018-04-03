@@ -269,7 +269,7 @@ void Game::initializeGame()
 	gameSounds.initializeSounds();
 
 	float blurAmount = 16.0f;
-
+	
 	def.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
 	bright.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
 	blur_a.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN) / blurAmount, (float)GetSystemMetrics(SM_CYSCREEN) / blurAmount, 1, true);
@@ -279,6 +279,10 @@ void Game::initializeGame()
 	rimBuffer.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
 	fullscreenQuad.create();
 	LoadScores();
+
+
+	players[0]->score = 8002;
+	players[1]->score = 8001;
 }
 
 //Happens once per frame, used to update state of the game
@@ -499,6 +503,12 @@ void Game::update()
 			setScores = true;
 		}
 
+		if (saving)
+		{
+			SaveScores();
+			exit(1);
+		}
+
 	}
 	draw();
 }
@@ -550,20 +560,20 @@ void Game::draw()
 	{
 		for (int i = 0; i < scoreValues.size(); i++)
 		{
-			if (i == player1Spot)
+			if (i == player1Spot && setPlayerOne)
 			{
 				//string name = name1;
-				text.RenderText(textShader, cameraOrtho, std::string(name1) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 0.2), .02f, glm::vec3(1));
+				text.RenderText(textShader, cameraOrtho, std::string(name1) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 1), .02f, glm::vec3(1));
 			}
 
-			else if (i == player2Spot)
+			else if (i == player2Spot && setPlayerTwo)
 			{
 				//string nameX = name2;
-				text.RenderText(textShader, cameraOrtho, std::string(name2) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 0.2), .02f, glm::vec3(1));
+				text.RenderText(textShader, cameraOrtho, std::string(name2) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 1), .02f, glm::vec3(1));
 			}
 			else
 			{
-				text.RenderText(textShader, cameraOrtho, scoreNames[i] + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 0.2), .02f, glm::vec3(1));
+				text.RenderText(textShader, cameraOrtho, scoreNames[i] + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 1), .02f, glm::vec3(1));
 			}
 		}
 	}
@@ -705,7 +715,7 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 	{
 		if ((key >= 65 && key <= 90) || (key >= 97 && key <= 122) || (key >= 48 && key <= 57))
 		{
-			if (!playerTwoType)
+			if (!playerTwoType && setPlayerOne)
 			{
 				if (itr1 < 3)
 				{
@@ -718,7 +728,7 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 					itr1 = 0;
 				}
 			}
-			else
+			else if(setPlayerTwo)
 			{
 				if (itr2 < 3)
 				{
@@ -727,8 +737,10 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 				}
 				else
 				{
-					SaveScores();
-					exit(1);
+					if (setPlayerOne || setPlayerTwo)
+					{
+						saving = true;
+					}
 				}
 			}
 		}
@@ -974,6 +986,7 @@ void Game::SetScores()
 		//Pop the last value in the sorted list
 		scoreValues.pop_back();
 		scoreNames.pop_back();
+		setPlayerOne = true;
 	}
 
 	//Exact same as above but for player 2
@@ -1011,6 +1024,7 @@ void Game::SetScores()
 		}
 		scoreValues.pop_back();
 		scoreNames.pop_back();
+		setPlayerTwo = true;
 	}
 }
 

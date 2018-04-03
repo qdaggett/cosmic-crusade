@@ -128,6 +128,8 @@ private:
 	char name2[4];
 	int itr1 = 0, itr2 = 0;
 
+	bool setPlayerOne, setPlayerTwo, saving;
+
 	bool setScores, playerTwoType;		//saveScores just checks when
 
 	int player1Spot = 0, player2Spot = 0;
