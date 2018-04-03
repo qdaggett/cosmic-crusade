@@ -24,7 +24,7 @@ glm::vec2 Projectile::getVelocity()
 
 bool Projectile::isOffscreen()
 {
-	if ((location.x >= 30) || (location.y >= 30) || (location.x <= -30) || (location.y <= -30))
+	if ((location.x >= 30) || (location.y >= 19) || (location.x <= -30) || (location.y <= -19))
 		return true;
 
 	return false;

@@ -50,9 +50,9 @@ Game::~Game()
 //Happens once at the beginning of the game
 void Game::initializeGame()
 {
-	state = title;
+	state = score;
 
-//	state = main; updateTimer = new Timer();
+	//	state = main; updateTimer = new Timer();
 
 	std::srand(time(NULL));
 
@@ -115,12 +115,12 @@ void Game::initializeGame()
 		exit(0);
 	}
 
-//	if (!rimShader.load("shaders/unlit.vert", "shaders/rimLight.frag"))
-//	{
-//		std::cout << "Rim Shaders failed to initialize." << std::endl;
-//		system("pause");
-//		exit(0);
-//	}
+	//	if (!rimShader.load("shaders/unlit.vert", "shaders/rimLight.frag"))
+	//	{
+	//		std::cout << "Rim Shaders failed to initialize." << std::endl;
+	//		system("pause");
+	//		exit(0);
+	//	}
 
 
 	if (!basicPlayer.mesh.loadFromFile("meshes/Player_Ship.obj"))
@@ -278,6 +278,7 @@ void Game::initializeGame()
 	toBloom.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
 	rimBuffer.createFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN), 1, true);
 	fullscreenQuad.create();
+	LoadScores();
 }
 
 //Happens once per frame, used to update state of the game
@@ -487,6 +488,18 @@ void Game::update()
 			}
 		}
 	}
+
+	if (state == score)
+	{
+		background.leaderBoard();
+		
+		if (!setScores)
+		{
+			SetScores();
+			setScores = true;
+		}
+
+	}
 	draw();
 }
 
@@ -533,6 +546,28 @@ void Game::draw()
 		text.RenderText(textShader, cameraOrtho, "Acc: " + std::to_string(player2.getAccuracy()) + "%", 5.5f, -8, .01f, glm::vec3(1, 1, 0));
 	}
 
+	if (state == score)
+	{
+		for (int i = 0; i < scoreValues.size(); i++)
+		{
+			if (i == player1Spot)
+			{
+				//string name = name1;
+				text.RenderText(textShader, cameraOrtho, std::string(name1) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 0.2), .02f, glm::vec3(1));
+			}
+
+			else if (i == player2Spot)
+			{
+				//string nameX = name2;
+				text.RenderText(textShader, cameraOrtho, std::string(name2) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 0.2), .02f, glm::vec3(1));
+			}
+			else
+			{
+				text.RenderText(textShader, cameraOrtho, scoreNames[i] + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 0.2), .02f, glm::vec3(1));
+			}
+		}
+	}
+
 	phong.bind();
 
 	if (state == title)
@@ -549,6 +584,13 @@ void Game::draw()
 
 	else if (state == gameOver)
 	{
+		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
+
+	}
+
+	else if (state == score)
+	{
+
 		background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
 	}
 
@@ -622,10 +664,10 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 {
 	switch (key)
 	{
-	case 27:
-	case 'q':
-		exit(1);
-		break;
+		//case 27:
+		//case 'q':
+		//	exit(1);
+		//	break;
 
 	case 't':
 		std::cout << "Total elapsed time: " << updateTimer->getCurrentTime() << std::endl;
@@ -656,6 +698,42 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 		players[0]->setDead();//enemyManager.bossSpawn = true;
 	default:
 		break;
+	}
+
+	//Getting the players inputs for the leaderboards
+	if (state == score)
+	{
+		if ((key >= 65 && key <= 90) || (key >= 97 && key <= 122) || (key >= 48 && key <= 57))
+		{
+			if (!playerTwoType)
+			{
+				if (itr1 < 3)
+				{
+					name1[itr1] = key;
+					itr1++;
+				}
+				else
+				{
+					playerTwoType = true;
+					itr1 = 0;
+				}
+			}
+			else
+			{
+				if (itr2 < 3)
+				{
+					name2[itr2] = key;
+					itr2++;
+				}
+				else
+				{
+					SaveScores();
+					exit(1);
+				}
+			}
+		}
+
+	
 	}
 }
 
@@ -800,5 +878,162 @@ void Game::doBlurPass()
 
 		blur_a.unbindFrameBuffer(blur_a.getWidth(), blur_a.getHeight());
 		blurShader.unbind();
+	}
+}
+
+//Loading the text files and storing the scores and names in the vectors
+void Game::LoadScores()
+{
+	file.open("score.txt", std::fstream::in);
+	if (file.fail())
+	{
+		std::cout << "Failed to load file" << std::endl;
+	}
+	string line;
+	string name = "", scoreText;
+	if (file)
+	{
+		while (!file.eof())
+		{
+			getline(file, line);
+			if (line != "")
+			{
+				name = line.substr(0, 3);
+
+				scoreText = line.substr(3, 7);
+
+				int x = stoi(scoreText);
+
+				scoreNames.push_back(name);
+				scoreValues.push_back(x);
+			}
+		}
+	}
+
+	int j;
+
+	for (int i = 0; i < scoreValues.size(); i++)
+	{
+		j = i;
+		while (j > 0 && scoreValues[j] > scoreValues[j - 1])
+		{
+			int valueTemp = scoreValues[j];
+			string nameTemp = scoreNames[j];
+
+			scoreValues[j] = scoreValues[j - 1];
+			scoreNames[j] = scoreNames[j - 1];
+
+			scoreValues[j - 1] = valueTemp;
+			scoreNames[j - 1] = nameTemp;
+			j--;
+		}
+	}
+
+	file.close();
+}
+
+
+//Setting the scores once on runtime
+void Game::SetScores()
+{
+	//If the players score is high enough, put them on the board
+	if (players[0]->score > scoreValues[scoreValues.size() - 1])
+	{
+		scoreValues.push_back(players[0]->score);
+		scoreNames.push_back("1");				   //Players 1's default name for now
+
+
+		int j;
+		for (int i = 0; i < scoreValues.size(); i++) // Sorting the the list with the new player score entry (insertion sort)
+		{
+			j = i;
+			while (j > 0 && scoreValues[j] > scoreValues[j - 1])
+			{
+				int valueTemp = scoreValues[j];
+				string nameTemp = scoreNames[j];
+
+				scoreValues[j] = scoreValues[j - 1];
+				scoreNames[j] = scoreNames[j - 1];
+
+				scoreValues[j - 1] = valueTemp;
+				scoreNames[j - 1] = nameTemp;
+				j--;
+			}
+		}
+																				 
+		for (int i = 0; i < scoreNames.size(); i++)
+		{
+			//In the draw, we need to know which spot the player is on the list
+			if (scoreNames[i] == "1")
+			{
+				player1Spot = i;
+				break;
+			}
+		}
+
+		//Pop the last value in the sorted list
+		scoreValues.pop_back();
+		scoreNames.pop_back();
+	}
+
+	//Exact same as above but for player 2
+	if (players[1]->score > scoreValues[scoreValues.size() - 1])
+	{
+		scoreValues.push_back(players[1]->score);
+		scoreNames.push_back("2");
+
+		int j;
+		for (int i = 0; i < scoreValues.size(); i++)
+		{
+			j = i;
+			while (j > 0 && scoreValues[j] > scoreValues[j - 1])
+			{
+				int valueTemp = scoreValues[j];
+				string nameTemp = scoreNames[j];
+
+				scoreValues[j] = scoreValues[j - 1];
+				scoreNames[j] = scoreNames[j - 1];
+
+				scoreValues[j - 1] = valueTemp;
+				scoreNames[j - 1] = nameTemp;
+				j--;
+			}
+		}
+
+
+		for (int i = 0; i < scoreNames.size(); i++)
+		{
+			if (scoreNames[i] == "2")
+			{
+				player2Spot = i;
+				break;
+			}
+		}
+		scoreValues.pop_back();
+		scoreNames.pop_back();
+	}
+}
+
+void Game::SaveScores()
+{
+	file.open("score.txt", std::fstream::out);
+	if (file.fail())
+	{
+		std::cout << "Failed to load file" << std::endl;
+	}
+
+	if (file)
+	{
+		for (int i = 0; i < scoreValues.size(); i++)
+		{
+			if (i == player1Spot)
+				file << std::string(name1) << " " << scoreValues[i] << std::endl;
+			else if (i == player2Spot)
+				file << std::string(name2) << " " << scoreValues[i] << std::endl;
+			else
+				file << scoreNames[i] << " " << scoreValues[i] << std::endl;
+		}
+
+		file.close();
 	}
 }

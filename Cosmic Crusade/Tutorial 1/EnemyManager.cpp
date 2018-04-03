@@ -59,7 +59,7 @@ void EnemyManager::Intialize(std::vector<Player*> players)
 	}
 
 
-	//enemyBullet.scale = glm::scale(enemyBullet.ogScale, glm::vec3(0.25f));
+	enemyBullet.scale = glm::scale(enemyBullet.ogScale, glm::vec3(0.25f));
 
 	//Set the enemy meshes 
 	basicEnemy.projectile.mesh = enemyBullet.mesh;
@@ -111,6 +111,12 @@ void EnemyManager::Update(float dt)
 
 	for (int i = 0; i < enemyList.size(); i++)
 	{
+		if (enemyList[i]->hitPoints == 0)
+		{
+			enemyList.erase(enemyList.begin() + i);
+			break;
+		}
+
 		if (enemyList[i]->gotDamaged && enemyList[i]->damagedTimer <= damagedTimer)
 		{
 			enemyList[i]->mat = damaged;
@@ -159,7 +165,6 @@ void EnemyManager::Draw(ShaderProgram &shader, glm::mat4 camera, glm::mat4 proje
 
 void EnemyManager::SpawnEnemy()
 {
-
 	if (count < spawnList.size() && spawnList[count]->spawnTime <= timer)
 	{
 		if (spawnList[count]->type == Basic)
@@ -259,46 +264,48 @@ void EnemyManager::SpawnEnemy()
 
 void EnemyManager::LoadLevel()
 {
-	//spawnList.push_back(new EnemyNode(5, glm::vec2(0, 20), Circle));
-	spawnList.push_back(new EnemyNode(1.f, glm::vec2(0, 0), BOSS));
-	//spawnList.push_back(new EnemyNode(5.2f, glm::vec2(30, 0), Circle));
+	//spawnList.push_back(new EnemyNode(1.f, glm::vec2(0, 0), BOSS));
+
+	spawnList.push_back(new EnemyNode(6, glm::vec2(-30, 10), Basic));
+	
+	spawnList.push_back(new EnemyNode(6.f, glm::vec2(30, 10), Basic));
 	//spawnList.push_back(new EnemyNode(2, glm::vec2(-10, 20), Orbit));
 
-	//spawnList.push_back(new EnemyNode(12, glm::vec2(-30, -10), BasicMove));
-	//spawnList.push_back(new EnemyNode(12, glm::vec2(30, 10), BasicMove));
-	//
-	//spawnList.push_back(new EnemyNode(20, glm::vec2(-30, 20), BasicMove));
-	//spawnList.push_back(new EnemyNode(20.5f, glm::vec2(30, -20), BasicMove));
-	//spawnList.push_back(new EnemyNode(21, glm::vec2(0, 20), BasicMove));
-	//
-	//spawnList.push_back(new EnemyNode(29, glm::vec2(-30, 0), BasicMove));
-	//spawnList.push_back(new EnemyNode(30, glm::vec2(30, 0), BasicMove));
-	//spawnList.push_back(new EnemyNode(31, glm::vec2(0, 20), BasicMove));
-	//spawnList.push_back(new EnemyNode(32, glm::vec2(10, 20), Basic));
-	//
-	//spawnList.push_back(new EnemyNode(40, glm::vec2(30, 10), Basic));
-	//spawnList.push_back(new EnemyNode(41, glm::vec2(-30, -10), Basic));
-	//spawnList.push_back(new EnemyNode(42, glm::vec2(30, -10), Basic));
-	//spawnList.push_back(new EnemyNode(43, glm::vec2(-30, 10), Basic));
-	//spawnList.push_back(new EnemyNode(48, glm::vec2(10, 20), Orbit));
-	//
-	//spawnList.push_back(new EnemyNode(52, glm::vec2(-30, 20), Orbit));
-	//spawnList.push_back(new EnemyNode(55, glm::vec2(30, -20), Orbit));
-	//spawnList.push_back(new EnemyNode(60, glm::vec2(0, 20), BasicMove));
-	//
-	//spawnList.push_back(new EnemyNode(70, glm::vec2(-30, 20), Circle));
-	//spawnList.push_back(new EnemyNode(74, glm::vec2(30, -20), Circle));
-	//
-	//spawnList.push_back(new EnemyNode(84, glm::vec2(-30, 20), Basic));
-	//spawnList.push_back(new EnemyNode(85, glm::vec2(10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(85, glm::vec2(-10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(86, glm::vec2(-30, -15), Basic));
-	//
-	//spawnList.push_back(new EnemyNode(93, glm::vec2(-10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(95, glm::vec2(0, 20), BasicMove));
-	//spawnList.push_back(new EnemyNode(97, glm::vec2(10, 20), Basic));
-	//spawnList.push_back(new EnemyNode(99, glm::vec2(20, 20), Orbit));
-	//spawnList.push_back(new EnemyNode(100, glm::vec2(0, 20), Orbit));
+	spawnList.push_back(new EnemyNode(12, glm::vec2(-30, -10), BasicMove));
+	spawnList.push_back(new EnemyNode(12, glm::vec2(30, 10), BasicMove));
+	
+	spawnList.push_back(new EnemyNode(20, glm::vec2(-30, 20), BasicMove));
+	spawnList.push_back(new EnemyNode(20.5f, glm::vec2(30, -20), BasicMove));
+	spawnList.push_back(new EnemyNode(21, glm::vec2(0, 20), BasicMove));
+	
+	spawnList.push_back(new EnemyNode(29, glm::vec2(-30, 0), BasicMove));
+	spawnList.push_back(new EnemyNode(30, glm::vec2(30, 0), BasicMove));
+	spawnList.push_back(new EnemyNode(31, glm::vec2(0, 20), BasicMove));
+	spawnList.push_back(new EnemyNode(32, glm::vec2(10, 20), Basic));
+	
+	spawnList.push_back(new EnemyNode(40, glm::vec2(30, 10), Basic));
+	spawnList.push_back(new EnemyNode(41, glm::vec2(-30, -10), Basic));
+	spawnList.push_back(new EnemyNode(42, glm::vec2(30, -10), Basic));
+	spawnList.push_back(new EnemyNode(43, glm::vec2(-30, 10), Basic));
+	spawnList.push_back(new EnemyNode(48, glm::vec2(10, 20), Orbit));
+	
+	spawnList.push_back(new EnemyNode(52, glm::vec2(-30, 20), Orbit));
+	spawnList.push_back(new EnemyNode(55, glm::vec2(30, -20), Orbit));
+	spawnList.push_back(new EnemyNode(60, glm::vec2(0, 20), BasicMove));
+	
+	spawnList.push_back(new EnemyNode(70, glm::vec2(-30, 20), Circle));
+	spawnList.push_back(new EnemyNode(74, glm::vec2(30, -20), Circle));
+	
+	spawnList.push_back(new EnemyNode(84, glm::vec2(-30, 20), Basic));
+	spawnList.push_back(new EnemyNode(85, glm::vec2(10, 20), Basic));
+	spawnList.push_back(new EnemyNode(85, glm::vec2(-10, 20), Basic));
+	spawnList.push_back(new EnemyNode(86, glm::vec2(-30, -15), Basic));
+	
+	spawnList.push_back(new EnemyNode(93, glm::vec2(-10, 20), Basic));
+	spawnList.push_back(new EnemyNode(95, glm::vec2(0, 20), BasicMove));
+	spawnList.push_back(new EnemyNode(97, glm::vec2(10, 20), Basic));
+	spawnList.push_back(new EnemyNode(99, glm::vec2(20, 20), Orbit));
+	spawnList.push_back(new EnemyNode(100, glm::vec2(0, 20), Orbit));
 }
 
 void EnemyManager::UpdateEnemyProjectile()
@@ -323,29 +330,29 @@ void EnemyManager::UpdateEnemyProjectile()
 		temp.collider = enemyProjectiles[i]->collider;
 		temp.scale = enemyProjectiles[i]->scale;
 
-		if ((players[0]->collider->Collide(*temp.collider)) && (players[0]->getState() == Player::state::alive) && !players[0]->isInvulnerable())
-		{
-			players[0]->setDead();
-			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-			if (players[0]->getTransform())
-				Player::progress -= 1.f;
-			else
-				Player::progress -= 5.f;
-			break;
-		}
-
-
-		if (players[1]->collider->Collide(*temp.collider) && (players[1]->getState() == Player::state::alive) && !players[1]->isInvulnerable())
-		{
-			players[1]->setDead();
-			if (players[1]->getTransform())
-				Player::progress -= 1.f;
-			else
-				Player::progress -= 5.f;
-
-			enemyProjectiles.erase(enemyProjectiles.begin() + i);
-			break;
-		}
+		//if ((players[0]->collider->Collide(*temp.collider)) && (players[0]->getState() == Player::state::alive) && !players[0]->isInvulnerable())
+		//{
+		//	players[0]->setDead();
+		//	enemyProjectiles.erase(enemyProjectiles.begin() + i);
+		//	if (players[0]->getTransform())
+		//		Player::progress -= 1.f;
+		//	else
+		//		Player::progress -= 5.f;
+		//	break;
+		//}
+		//
+		//
+		//if (players[1]->collider->Collide(*temp.collider) && (players[1]->getState() == Player::state::alive) && !players[1]->isInvulnerable())
+		//{
+		//	players[1]->setDead();
+		//	if (players[1]->getTransform())
+		//		Player::progress -= 1.f;
+		//	else
+		//		Player::progress -= 5.f;
+		//
+		//	enemyProjectiles.erase(enemyProjectiles.begin() + i);
+		//	break;
+		//}
 
 
 		if (enemyProjectiles[i]->isOffscreen())

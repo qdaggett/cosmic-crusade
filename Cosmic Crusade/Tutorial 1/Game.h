@@ -16,6 +16,7 @@
 #include "EnemyManager.h"
 #include "SoundEffect.h"
 #include "FullScreenQuad.h"
+#include <fstream>
 
 #define FRAMES_PER_SECOND 60
 
@@ -37,6 +38,11 @@ public:
 
 	void emptyGame();
 	void initializeLevel();
+
+	void LoadScores();
+	void SetScores(); 
+
+	void SaveScores();
 
 	void doBrightPass();
 	void doBlurPass();
@@ -81,7 +87,7 @@ private:
 	float pauseTime = 0.0f;
 
 	bool shouldLightsSpin = false;
-	enum gameStates { main, gameOver, title, monologue };
+	enum gameStates { main, gameOver, title, monologue, score };
 	gameStates state = title;
 	float delay;
 
@@ -108,4 +114,23 @@ private:
 	glm::vec3 bossCameraPosition = glm::vec3(0, 0, -30);
 
 	float cameraFloat = 0;
+
+
+	//Variables used to save players scores and using .txt file
+	fstream file;
+
+	std::vector<std::string> scoreNames;
+	std::vector<int> scoreValues;
+
+	bool scoreSet;
+
+	char name1[4];
+	char name2[4];
+	int itr1 = 0, itr2 = 0;
+
+	bool setScores, playerTwoType;		//saveScores just checks when
+
+	int player1Spot = 0, player2Spot = 0;
+
+
 };

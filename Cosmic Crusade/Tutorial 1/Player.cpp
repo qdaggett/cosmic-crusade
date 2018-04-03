@@ -68,7 +68,6 @@ void Player::UpdateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 {
 	std::vector<Enemy*> derefEnemies = *enemies;
 
-
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		//projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);
@@ -89,10 +88,10 @@ void Player::UpdateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
-			if (derefEnemies[j]->hitPoints == 0)
-				enemies->erase(enemies->begin() + j);
+			//if (derefEnemies[j]->hitPoints == 0)
+			//	enemies->erase(enemies->begin() + j);
 
-			if (projectiles[i]->collider->Collide(*temp.collider))//if(projectiles[i]->collider->Collide(*temp.collider))//if (projectiles[i]->collider.Collide(temp.collider))
+			if (projectiles[i]->collider->Collide(*temp.collider))
 			{
 				hasHit = true;
 				score += 10;
