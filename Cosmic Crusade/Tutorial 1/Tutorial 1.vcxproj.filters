@@ -111,9 +111,6 @@
     <ClCompile Include="EnemyManager.cpp">
       <Filter>Source Files\Enemies</Filter>
     </ClCompile>
-    <ClCompile Include="LaserEnemy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Boss.cpp">
       <Filter>Source Files\Enemies</Filter>
     </ClCompile>
@@ -131,6 +128,9 @@
     </ClCompile>
     <ClCompile Include="Time.cpp">
       <Filter>Source Files\PowerUps</Filter>
+    </ClCompile>
+    <ClCompile Include="LaserEnemy.cpp">
+      <Filter>Source Files\Enemies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -14,6 +14,9 @@ public:
 	void shoot(std::vector<Player*>, std::vector<Projectile*>*);
 
 	GameObject laserObject;
+	ParticleEmitterSoA* laserEmitter;
+
+	void destroy();
 private:
 	bool moveY;
 

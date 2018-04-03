@@ -75,6 +75,21 @@ void ParticleEmitterSoA::explosionInit(glm::vec3 pos)
 	play();
 }
 
+void ParticleEmitterSoA::laserInit(glm::vec3 pos)
+{
+	// Init particle emitter
+	// Set the emitter properties
+	lifeRange = glm::vec3(0.5f, 1.0f, 0.0f);
+	initialForceMin = glm::vec3(-4.0f, -50.0f, 0.0f);
+	initialForceMax = glm::vec3(4.0f, -60.0f, 0.0f);
+
+	initialPosition = pos;
+	initialize(1000);
+	loop = true;
+	play();
+}
+
+
 // Particle effect 
 void ParticleEmitterSoA::sparkleInit(glm::vec3 pos)
 {
