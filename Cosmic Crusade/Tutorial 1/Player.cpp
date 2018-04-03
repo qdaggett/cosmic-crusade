@@ -68,7 +68,6 @@ void Player::update(Player* otherPlayer)
 
 void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer, std::vector<ParticleEmitterSoA*>* emitters)
 {
-
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		//projectiles[i]->move(projectiles[i]->getVelocity().x, projectiles[i]->getVelocity().y);

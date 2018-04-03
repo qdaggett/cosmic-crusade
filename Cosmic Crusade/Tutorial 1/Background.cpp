@@ -34,6 +34,8 @@ void Background::Initialize()
 	title.loadTexture(Diffuse, "Textures/Title.png");
 	win.loadTexture(Diffuse, "Textures/WinScreen.png");
 
+	board.loadTexture(TextureType::Diffuse, "Textures/leaderboard.png");
+
 	back1.scale = glm::scale(back1.scale, glm::vec3(scaleY, 1, scaleY));
 	back1.rotate = glm::rotate(back1.rotate, angle, glm::vec3(1, 0, 0));
 	back1.setLocation(0, -7, -3);
@@ -78,7 +80,6 @@ void Background::gameOver()
 
 void Background::winScreen()
 {
-
 	back1.mat = win;
 	back2.mat = win;
 
@@ -119,6 +120,14 @@ void Background::update()
 	{
 		back2.setLocation(0, 68, 0);
 	}
+}
+
+void Background::leaderBoard()
+{
+	back1.mat = board;
+	back2.mat = board;
+
+	back1.setLocation(0, 0);
 }
 
 void Background::draw(ShaderProgram &shader, glm::mat4 cameraTransform, glm::mat4 cameraProjection, Light pointLights)
