@@ -103,4 +103,18 @@ bool Collider::SphereSphereCollision(SphereCollider obj1, SphereCollider obj2)
 	return (distance < (obj1.radius + obj2.radius));
 }
 
+void Collider::rotate(float ang)
+{
+	glm::vec3 normals = glm::normalize(boxCollider.extents);
+	glm::vec3 top = glm::vec3(cos(ang), -sin(ang), 0.0f);
+	glm::vec3 mid = glm::vec3(sin(ang), cos(ang), 0.0f);
+	glm::vec3 bot = glm::vec3(0.0f, 0.0f, 1.0f);
+
+	glm::mat3 rotationMatrix = glm::mat3(bot, mid, top);
+
+	normals = rotationMatrix * normals;
+
+	boxCollider.extents = normals * boxCollider.extents;
+}
+
 

@@ -44,6 +44,8 @@ public:
 
 	bool SphereSphereCollision(SphereCollider obj, SphereCollider obj2);
 
+	void rotate(float ang);
+
 	//I couldn't think of any other way atm.
 	//virtual bool Collide(Collider& obj) = 0;
 

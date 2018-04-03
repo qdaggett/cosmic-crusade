@@ -89,7 +89,7 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
-			if (projectiles[i]->collider->Collide(*temp.collider))
+			if (projectiles[i]->collider->Collide(*derefEnemies[j]->collider))
 			{
 				hasHit = true;
 				score += 10;
@@ -100,53 +100,43 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 
 				if (Player::progress < transformMax)
 				{
+					Player::progress++;
+					//otherPlayer->progress++;
+
+					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(1.0f - (.3f * (Player::progress / Player::transformMax)), 1.0f, 1.0f));
+					blackBar.move(0, 0);
+
+					otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(1.0f - (.3f *(Player::progress / Player::transformMax)), 1.0f, 1.0f));
+					otherPlayer->blackBar.move(0, 0);
+
+					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
-					if (derefEnemies[j]->hitPoints <= 0)
-					{
-						Player::progress += 15;
-						//otherPlayer->progress++;
+					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
 
-						blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(1.0f - (.3f * (Player::progress / Player::transformMax)), 1.0f, 1.0f));
-						blackBar.move(0, 0);
+					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+					exp->texture = derefEnemies[j]->deathColour.diffuse;
+					
+					emitters->push_back(exp);
 
-						otherPlayer->blackBar.scale = glm::scale(otherPlayer->blackBar.ogScale, glm::vec3(1.0f - (.3f *(Player::progress / Player::transformMax)), 1.0f, 1.0f));
-						otherPlayer->blackBar.move(0, 0);
-
-
-						ParticleEmitterSoA* exp = new ParticleEmitterSoA();
-
-						exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
-						exp->texture = derefEnemies[j]->deathColour.diffuse;
-
-						emitters->push_back(exp);
-
-						enemies->erase(enemies->begin() + j);
-						break;
-					}
-
+					enemies->erase(enemies->begin() + j);
 				}
 
 				else
 				{
+					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
-					if (derefEnemies[j]->hitPoints <= 0)
-					{
-						ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
 
-						exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
-						exp->texture = derefEnemies[j]->deathColour.diffuse;
+					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+					exp->texture = derefEnemies[j]->deathColour.diffuse;
 
-						emitters->push_back(exp);
+					emitters->push_back(exp);
 
-						enemies->erase(enemies->begin() + j);
-						break;
-					}
-
+					enemies->erase(enemies->begin() + j);
 				}
-
-
+				break;
 			}
 		}
 	}
@@ -327,7 +317,7 @@ void Player::shoot()
 	temp->mesh = projectile.mesh;
 	temp->mat = projectile.mat;
 
-	temp->collider = new Collider(Collider::BOX, glm::vec3(0.5f, 1, 0));
+	temp->collider = new Collider(Collider::SPHERE, 0.5f);
 
 	//Make the new projectile's starting location equal to the player's 
 	//temp->transform = transform;
