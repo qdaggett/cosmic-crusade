@@ -63,6 +63,7 @@ public:
 	void initialize(unsigned int numParticles);
 	void explosionInit(glm::vec3 pos);
 	void sparkleInit(glm::vec3 pos);
+	void laserInit(glm::vec3 pos);
 
 
 	// playback control

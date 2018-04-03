@@ -90,8 +90,11 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
+			//USE THIS WHOLE BLOCL THIS IS THE MOST CORRECT
+			//If collision
 			if (projectiles[i]->collider->Collide(*temp.collider))
 			{
+				//Adjust variables
 				hasHit = true;
 				score += 10;
 				hits++;
@@ -99,6 +102,7 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 				derefEnemies[j]->gotDamaged = true;
 				tempEnemy = projectiles[i]->location;
 
+				//Either do or don't increase progress, but delete projectiles either way
 				if (Player::progress < transformMax)
 				{
 					Player::progress += 15;
@@ -113,14 +117,19 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
-					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+					//IF the enemy has no more health delete it THIS IS IMPORTANT
+					if (derefEnemies[j]->hitPoints <= 0)
+					{
+						ParticleEmitterSoA* exp = new ParticleEmitterSoA();
 
-					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
-					exp->texture = derefEnemies[j]->deathColour.diffuse;
-					
-					emitters->push_back(exp);
+						exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+						exp->texture = derefEnemies[j]->deathColour.diffuse;
 
-					enemies->erase(enemies->begin() + j);
+						emitters->push_back(exp);
+
+						//delete derefEnemies[j];
+						enemies->erase(enemies->begin() + j);
+					}
 				}
 
 				else
@@ -128,14 +137,19 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 					//Erase projectile, Erase enemy
 					deleteProjectile(i);
 
-					ParticleEmitterSoA* exp = new ParticleEmitterSoA();
+					//IF the enemy has no more health delete it THIS IS IMPORTANT
+					if (derefEnemies[j]->hitPoints <= 0)
+					{
+						ParticleEmitterSoA* exp = new ParticleEmitterSoA();
 
-					exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
-					exp->texture = derefEnemies[j]->deathColour.diffuse;
+						exp->explosionInit(glm::vec3(-temp.location.x, temp.location.y, 1.0f));
+						exp->texture = derefEnemies[j]->deathColour.diffuse;
 
-					emitters->push_back(exp);
+						emitters->push_back(exp);
 
-					enemies->erase(enemies->begin() + j);
+						//delete derefEnemies[j];
+						enemies->erase(enemies->begin() + j);
+					}
 				}
 				break;
 			}
