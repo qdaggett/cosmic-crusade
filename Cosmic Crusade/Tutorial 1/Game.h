@@ -132,7 +132,7 @@ private:
 
 	bool setScores, playerTwoType;		//saveScores just checks when
 
-	int player1Spot = 0, player2Spot = 0;
+	int player1Spot = -1, player2Spot = -1;
 
 
 };

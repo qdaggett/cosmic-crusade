@@ -281,8 +281,8 @@ void Game::initializeGame()
 	LoadScores();
 
 
-	players[0]->score = 8002;
-	players[1]->score = 8001;
+	//players[0]->score = 9002;
+	//players[1]->score = 9001;
 }
 
 //Happens once per frame, used to update state of the game
@@ -463,7 +463,9 @@ void Game::update()
 		}
 
 		if ((player.numLives == 0) && (player2.numLives == 0) || enemyManager.count == enemyManager.spawnList.size() + 1 && enemyManager.enemyList.empty())
+		{
 			state = gameOver;
+		}
 
 	}
 
@@ -505,8 +507,29 @@ void Game::update()
 
 		if (saving)
 		{
-			SaveScores();
-			exit(1);
+
+			//exit(1);
+		}
+
+		for (int i = 0; i < players.size(); i++)
+		{
+			players[i]->controller.DownloadPackets(2);
+
+			if (players[i]->controller.GetButton(i, XBox::Start))
+			{
+				setScores = false;
+				saving = false;
+				setPlayerOne = false;
+				setPlayerTwo = false;
+				playerTwoType = false;
+				state = title;
+				background.mainMenu();
+				SaveScores();
+				//state = title;
+				//background.mainMenu();
+				//empty = false;
+				//exit(0);
+			}
 		}
 
 	}
@@ -558,22 +581,23 @@ void Game::draw()
 
 	if (state == score)
 	{
+		text.RenderText(textShader, cameraOrtho, "Leaderboards", -5, 5, .03f, glm::vec3(1));
 		for (int i = 0; i < scoreValues.size(); i++)
 		{
 			if (i == player1Spot && setPlayerOne)
 			{
 				//string name = name1;
-				text.RenderText(textShader, cameraOrtho, std::string(name1) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 1), .02f, glm::vec3(1));
+				text.RenderText(textShader, cameraOrtho, std::string(name1) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i), .02f, glm::vec3(1));
 			}
 
 			else if (i == player2Spot && setPlayerTwo)
 			{
 				//string nameX = name2;
-				text.RenderText(textShader, cameraOrtho, std::string(name2) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 1), .02f, glm::vec3(1));
+				text.RenderText(textShader, cameraOrtho, std::string(name2) + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i), .02f, glm::vec3(1));
 			}
 			else
 			{
-				text.RenderText(textShader, cameraOrtho, scoreNames[i] + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i + 1), .02f, glm::vec3(1));
+				text.RenderText(textShader, cameraOrtho, scoreNames[i] + "    " + std::to_string(scoreValues[i]), -2.5, 3 - (i), .02f, glm::vec3(1));
 			}
 		}
 	}
@@ -744,8 +768,6 @@ void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 				}
 			}
 		}
-
-	
 	}
 }
 
@@ -984,8 +1006,11 @@ void Game::SetScores()
 		}
 
 		//Pop the last value in the sorted list
-		scoreValues.pop_back();
-		scoreNames.pop_back();
+		if (scoreValues.size() > 8)
+		{
+			scoreValues.pop_back();
+			scoreNames.pop_back();
+		}
 		setPlayerOne = true;
 	}
 
@@ -1022,8 +1047,11 @@ void Game::SetScores()
 				break;
 			}
 		}
-		scoreValues.pop_back();
-		scoreNames.pop_back();
+		if (scoreValues.size() > 8)
+		{
+			scoreValues.pop_back();
+			scoreNames.pop_back();
+		}
 		setPlayerTwo = true;
 	}
 }
