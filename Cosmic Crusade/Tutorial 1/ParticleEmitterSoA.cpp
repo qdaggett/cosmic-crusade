@@ -61,6 +61,7 @@ void ParticleEmitterSoA::initialize(unsigned int newNumParticles)
  	}
 }
 
+// Particle effect for ship explosions
 void ParticleEmitterSoA::explosionInit(glm::vec3 pos)
 {
 	// Init particle emitter
@@ -73,6 +74,20 @@ void ParticleEmitterSoA::explosionInit(glm::vec3 pos)
 	initialize(100);
 	play();
 }
+
+// Particle effect 
+void ParticleEmitterSoA::sparkleInit(glm::vec3 pos)
+{
+	lifeRange = glm::vec3(0.2f, 0.5f, 0.0f);
+	initialForceMin = glm::vec3(-7.0f, -7.0f, 0.0f);
+	initialForceMax = glm::vec3(7.0f, 7.0f, 0.0f);
+
+	initialPosition = pos;
+	loop = true;
+	initialize(15);
+	play();
+}
+
 
 void ParticleEmitterSoA::update(float dt)
 {
@@ -98,7 +113,7 @@ void ParticleEmitterSoA::update(float dt)
 			// check if alive
 			if ((*life <= 0))
 			{
-				if (*created)
+				if (*created && !loop)
 				{
 					*pos = glm::vec3(3000);
 					sentinel++;

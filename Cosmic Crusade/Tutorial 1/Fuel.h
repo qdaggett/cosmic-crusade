@@ -14,6 +14,7 @@ public:
 	void spawnPowerUp(glm::vec2 position);
 	void initializePowerUp(std::vector<ParticleEmitterSoA*>* emitter);
 
+	ParticleEmitterSoA* fuel = new ParticleEmitterSoA();
 	bool collected = false;
 
 };

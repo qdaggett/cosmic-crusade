@@ -25,7 +25,7 @@ float Random(float a, float b)
 glm::vec3 lerp(glm::vec3 x, glm::vec3 y, float dt)
 {
 	glm::vec3 pos = glm::vec3(((1 - dt) * x.x) + (dt * y.x), ((1 - dt) * x.y) + (dt * y.y), ((1 - dt) * x.z) + (dt * y.z));
-	std::cout << pos.x << ", " << pos.y << ", " << pos.z << endl;
+	//std::cout << pos.x << ", " << pos.y << ", " << pos.z << endl;
 	return pos;
 }
 
@@ -245,8 +245,8 @@ void Game::initializeGame()
 	player.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_B.png");
 	player.shield.mesh = player2.shield.mesh;
 
-	player.loadTexture(Diffuse, "Textures/Shield.png");
-	player2.shield.mat = player.shield.mat;
+	//player.loadTexture(Diffuse, "Textures/Shield.png");
+	player2.shield.loadTexture(Diffuse, "Textures/Shield.png");
 
 	player2.baseMat.loadTexture(Diffuse, "Textures/Player_Ship_Y.png");
 
@@ -303,9 +303,7 @@ void Game::initializeGame()
 	player.reticle.mat = blue;
 	player2.reticle.mat = yellow;
 
-	player2.shield.loadTexture(Diffuse, "Textures/cyan.png");
-
-	player2.shield.collider = new Collider(Collider::BOX, glm::vec3(1.1f, 0.5f, 1));
+	player2.shield.collider = new Collider(Collider::SPHERE, 0.5f);
 
 	player.move(-10.0f, -5.0f);
 	player2.move(10.0f, -5.0f);
@@ -412,10 +410,7 @@ void Game::update()
 		{
 			if (selected == _play)
 			{
-				updateTimer = new Timer();
-				background.updateTimer = new Timer();
 				state = monologue;
-				background.restart();
 			}
 
 			else if (selected == _quit)
@@ -429,7 +424,7 @@ void Game::update()
 		// Making sure the sound plays only once
 		if (gameSounds.introHasPlayed == false)
 		{
-			gameSounds.playSound(gameSounds.monologue, &gameSounds.channel8);
+			gameSounds.playSound(gameSounds.monologue, &gameSounds.monologueChannel);
 
 			gameSounds.introHasPlayed = true;
 		}
@@ -438,10 +433,20 @@ void Game::update()
 		if (player.controller.GetButton(player.playerNum, XBox::B))
 		{
 			state = main;
-			gameSounds.channel8->stop();
+			gameSounds.monologueChannel->stop();
 		}
 
-		//state = main;
+		bool isPlaying;
+		gameSounds.monologueChannel->isPlaying(&isPlaying);
+
+		if (isPlaying == false)
+		{
+			updateTimer = new Timer();
+			background.updateTimer = new Timer();
+			background.restart();
+			state = main;
+		}
+
 	}
 
 	if (state == main)
@@ -483,7 +488,7 @@ void Game::update()
 
 		// Game music
 		if (gameSounds.hasPlayed == false) {
-			gameSounds.playSound(gameSounds.music, &gameSounds.channel1);
+			gameSounds.playSound(gameSounds.music, &gameSounds.musicChannel);
 
 			gameSounds.hasPlayed = true;
 		}
@@ -504,26 +509,26 @@ void Game::update()
 		// Plays shooting sound when player fires a bullet
 		if (player.hasShot == true)
 		{
-			gameSounds.playSound(gameSounds.shoot, &gameSounds.channel2);
+			gameSounds.playSound(gameSounds.shoot, &gameSounds.playerShootChannel);
 			player.hasShot = false;
 		}
 
 		if (player2.hasShot == true)
 		{
-			gameSounds.playSound(gameSounds.shoot, &gameSounds.channel2);
+			gameSounds.playSound(gameSounds.shoot, &gameSounds.playerShootChannel);
 			player2.hasShot = false;
 		}
 
 		// For the shotgun sound
 		if (player.hasShotShotgun == true)
 		{
-			gameSounds.playSound(gameSounds.shoot2, &gameSounds.channel9);
+			gameSounds.playSound(gameSounds.shoot2, &gameSounds.shotgunShootChannel);
 			player.hasShotShotgun = false;
 		}
 
 		if (player2.hasShotShotgun == true)
 		{
-			gameSounds.playSound(gameSounds.shoot2, &gameSounds.channel9);
+			gameSounds.playSound(gameSounds.shoot2, &gameSounds.shotgunShootChannel);
 			player2.hasShotShotgun = false;
 		}
 
@@ -541,14 +546,31 @@ void Game::update()
 			else
 				cout << "Failed to spawn in powerup" << endl;
 
-			gameSounds.playSound(gameSounds.enemyHit, &gameSounds.channel3);
+			gameSounds.playSound(gameSounds.enemyHit, &gameSounds.enemyHitChannel);
 			player.hasHit = false;
+		}
+
+		if (player2.hasHit == true)
+		{
+			float randomizer = Random(1, 4);
+			cout << randomizer << endl;
+			if (randomizer > 1 && randomizer < 1.99)
+				ammoPowerUp.spawnPowerUp(player.tempEnemy);
+			else if (randomizer > 2 && randomizer < 2.99)
+				fuelPowerUp.spawnPowerUp(player.tempEnemy);
+			else if (randomizer > 3 && randomizer < 3.99)
+				timePowerUp.spawnPowerUp(player.tempEnemy);
+			else
+				cout << "Failed to spawn in powerup" << endl;
+
+			gameSounds.playSound(gameSounds.enemyHit, &gameSounds.enemyHitChannel);
+			player2.hasHit = false;
 		}
 
 		// Plays when a player is hit by an enemy
 		if (enemyManager.playerDied == true)
 		{
-			gameSounds.playSound(gameSounds.playerHit, &gameSounds.channel4);
+			gameSounds.playSound(gameSounds.playerHit, &gameSounds.playerHitChannel);
 			enemyManager.playerDied = false;
 		}
 
@@ -571,6 +593,25 @@ void Game::update()
 		{
 			gameSounds.playSound(gameSounds.timeUp, &gameSounds.timeUpChannel);
 			timePowerUp.collected = false;
+		}
+
+		// Plays sounds for when player activates and deactivates speedboost
+		if (player.hasSpedUp == true)
+		{
+			if (player.hasPlayedSpeedUp == false)
+			{
+				gameSounds.playSound(gameSounds.speedUp, &gameSounds.speedUpChannel);
+				player.hasPlayedSpeedUp = true;
+			}
+		}
+
+		if (player.hasSpedUp == false)
+		{
+			if (player.hasPlayedSpeedDown == false)
+			{
+				gameSounds.playSound(gameSounds.speedDown, &gameSounds.speedDownChannel);
+				player.hasPlayedSpeedDown = true;
+			}
 		}
 
 
@@ -616,20 +657,19 @@ void Game::update()
 		if ((enemyManager.count == enemyManager.spawnList.size()) && (enemyManager.enemyList.size() == 0))
 		{
 			//if(!emitters[emitters.size() - 1]->playing)
-			bool temp = false;
+			//bool temp = false;
+			//
+			//for (int i = 0; i < emitters.size(); i++)
+			//{
+			//	if (emitters[i]->playing)
+			//		temp = true;
+			//}
 
-			for (int i = 0; i < emitters.size(); i++)
-			{
-				if (emitters[i]->playing)
-					temp = true;
-			}
-
-			if(!temp)
-				state = win;
+			//if(!temp)
+				//state = win;
 		}
 
 	}
-	// TODO: Win state
 
 	if (state == gameOver)
 	{
@@ -639,8 +679,8 @@ void Game::update()
 
 			background.gameOver();
 
-			gameSounds.stopSound(&gameSounds.channel1);
-			gameSounds.playSound(gameSounds.failsound, &gameSounds.channel5);
+			gameSounds.stopSound(&gameSounds.musicChannel);
+			gameSounds.playSound(gameSounds.failSound, &gameSounds.failChannel);
 		}
 
 		for (int i = 0; i < players.size(); i++)
@@ -659,14 +699,17 @@ void Game::update()
 
 	if (state == win)
 	{
-		gameSounds.stopSound(&gameSounds.channel1);
-		gameSounds.playSound(gameSounds.failsound, &gameSounds.channel5);
+		if (gameSounds.loseHasPlayed == false)
+		{
+			gameSounds.stopSound(&gameSounds.musicChannel);
+			gameSounds.playSound(gameSounds.winSound, &gameSounds.winChannel);
+			gameSounds.loseHasPlayed = true;
+		}
 
 		emptyGame();
 		background.winScreen();
 	}
 	
-	//draw();
 }
 
 
@@ -790,26 +833,28 @@ void Game::draw()
 		def.bindFrameBufferForDrawing();
 		enemyManager.Draw(phong, cameraTransform, cameraProjection, pointLights);
 
-		//ammoPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
-		//
-		//fuelPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
-		//
-		//timePowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
+		ammoPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
+		
+		fuelPowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
+		
+		timePowerUp.draw(phong, cameraTransform, cameraProjection, pointLights);
 
 		def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
 		if (player.isTransformed && player2.isTransformed)
 		{
+			def.bindFrameBufferForDrawing();
 			player2.shield.draw(phong, cameraTransform, cameraProjection, pointLights);
+			def.unbindFrameBuffer(def.getWidth(), def.getHeight());
 
 			for (int i = 0; i < players.size(); i++)
 			{
 				for (int j = 0; j < players[i]->getProjectiles().size(); j++)
 				{
-					if (players[i]->isInvulnerable())
-					{
-						players[i]->shield.draw(phong, cameraTransform, cameraProjection, pointLights);
-					}
+					//if (players[i]->isInvulnerable())
+					//{
+					//	players[i]->shield.draw(phong, cameraTransform, cameraProjection, pointLights);
+					//}
 
 					def.bindFrameBufferForDrawing();
 					players[i]->getProjectiles()[j]->draw(phong, cameraTransform, cameraProjection, pointLights);

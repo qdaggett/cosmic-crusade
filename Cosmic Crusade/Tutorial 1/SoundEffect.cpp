@@ -6,7 +6,8 @@ void SoundEffect::initializeSounds()
 	se.Init();
 
 	// Loading in sounds from .wav files
-	se.system->createSound("sounds/failsound.wav", FMOD_3D, 0, &failsound);
+	se.system->createSound("sounds/loseSound.wav", FMOD_3D, 0, &failSound);
+	se.system->createSound("sounds/winSound.wav", FMOD_3D, 0, &winSound);
 	se.system->createSound("sounds/music.wav", FMOD_3D, 0, &music);
 	se.system->createSound("sounds/playerShootBasic.wav", FMOD_3D, 0, &shoot);
 	se.system->createSound("sounds/enemyHit.wav", FMOD_3D, 0, &enemyHit);
@@ -17,10 +18,11 @@ void SoundEffect::initializeSounds()
 	se.system->createSound("sounds/ammoUp.wav", FMOD_3D, 0, &ammoUp);
 	se.system->createSound("sounds/fuelUp.wav", FMOD_3D, 0, &fuelUp);
 	se.system->createSound("sounds/timeUp.wav", FMOD_3D, 0, &timeUp);
-	failsound->set3DMinMaxDistance(0.5f, 300.0f);
+	failSound->set3DMinMaxDistance(0.5f, 300.0f);
 
 	// Setting looping (or lack thereof) for sounds
-	failsound->setMode(FMOD_LOOP_OFF);
+	failSound->setMode(FMOD_LOOP_OFF);
+	winSound->setMode(FMOD_LOOP_OFF);
 	music->setMode(FMOD_LOOP_NORMAL);
 	shoot->setMode(FMOD_LOOP_OFF);
 	enemyHit->setMode(FMOD_LOOP_OFF);

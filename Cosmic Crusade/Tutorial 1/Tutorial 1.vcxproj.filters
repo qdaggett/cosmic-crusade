@@ -25,6 +25,12 @@
     <Filter Include="SoundEngine">
       <UniqueIdentifier>{ccb218cc-6a1e-4527-95ab-cb63990b283d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\PowerUps">
+      <UniqueIdentifier>{91d6454e-d191-48ca-818f-fad78bcb3429}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PowerUps">
+      <UniqueIdentifier>{5e22ae30-0fc2-4b2a-ae5b-d18c5bd2f212}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -111,12 +117,24 @@
     <ClCompile Include="Boss.cpp">
       <Filter>Source Files\Enemies</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleEmitterSoA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerUp.cpp">
+      <Filter>Source Files\PowerUps</Filter>
+    </ClCompile>
+    <ClCompile Include="Ammo.cpp">
+      <Filter>Source Files\PowerUps</Filter>
+    </ClCompile>
+    <ClCompile Include="Fuel.cpp">
+      <Filter>Source Files\PowerUps</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>Source Files\PowerUps</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
@@ -194,6 +212,24 @@
     <ClInclude Include="Boss.h">
       <Filter>Header Files\Enemies</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleEmitterSoA.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ammo.h">
+      <Filter>Header Files\PowerUps</Filter>
+    </ClInclude>
+    <ClInclude Include="Fuel.h">
+      <Filter>Header Files\PowerUps</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerUp.h">
+      <Filter>Header Files\PowerUps</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>Header Files\PowerUps</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\phong.vert">
@@ -224,6 +260,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\rimLight.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\orComp.frag">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

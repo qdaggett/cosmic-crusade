@@ -38,6 +38,10 @@ public:
 
 	bool hasShot;
 	bool hasShotShotgun;
+	bool hasSpedUp;
+	bool hasPlayedSpeedUp = false;
+	bool hasPlayedSpeedDown = false;
+	//bool hasSpedDown;
 	bool hasHit;
 	
 

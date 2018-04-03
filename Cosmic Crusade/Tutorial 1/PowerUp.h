@@ -28,6 +28,7 @@ public:
 	float powerupCoolDown = 5.0f;
 	bool powerupIsActive = false;
 	glm::vec2 spawnPosition;
+	bool particleHasPlayed = false;
 
 	std::vector<ParticleEmitterSoA*>* emitters;
 

@@ -12,7 +12,7 @@ Time::~Time()
 
 void Time::initializePowerUp(std::vector<ParticleEmitterSoA*>* emitter)
 {
-	//emitters = emitter;
+	emitters = emitter;
 
 	// Creating collider for ammo powerup
 	collider = new Collider(Collider::SPHERE, 0.8f);
@@ -24,6 +24,7 @@ void Time::initializePowerUp(std::vector<ParticleEmitterSoA*>* emitter)
 		system("pause");
 		exit(0);
 	}
+	mat.loadTexture(Diffuse, "Textures/Hourglass.png");
 }
 
 void Time::updatePowerUp(std::vector<Player*> players, float time)
@@ -32,17 +33,21 @@ void Time::updatePowerUp(std::vector<Player*> players, float time)
 	this->collider->ColliderUpdate(glm::vec3(location, 0));
 	localTime += time;
 	rotationTick += time;
-	//ParticleEmitterSoA* timeParticles = new ParticleEmitterSoA();
-	//timeParticles->explosionInit(glm::vec3(-location.x, location.y, 1.0f));
-	//mat.loadTexture(Diffuse, "Textures/Hourglass.png");
-	//timeParticles->texture = mat.diffuse;
-	//emitters->push_back(timeParticles);
 
 	if (powerupIsActive == true)
 	{
 		setLocation(spawnPosition.x, spawnPosition.y);
-		powerupIsActive = true;
-		
+		if (particleHasPlayed == false)
+		{
+			timeParticles->sparkleInit(glm::vec3(-spawnPosition.x, spawnPosition.y + 1.5, 1.0f));
+			timeParticles->texture = mat.diffuse;
+			emitters->push_back(timeParticles);
+			particleHasPlayed = true;
+		}
+		else
+		{
+			timeParticles->initialPosition = glm::vec3(-spawnPosition.x, spawnPosition.y + 1.5, 1.0f);
+		}
 
 	}
 
@@ -51,6 +56,7 @@ void Time::updatePowerUp(std::vector<Player*> players, float time)
 		collected = true;
 		players[1]->progress += 5;
 		setLocation(999, 999);
+		timeParticles->initialPosition = glm::vec3(999, 999, 1.0f);
 		localTime = 0.0f;
 		powerupIsActive = false;
 	}
@@ -60,6 +66,7 @@ void Time::updatePowerUp(std::vector<Player*> players, float time)
 		collected = true;
 		players[0]->progress += 5;
 		setLocation(999, 999);
+		timeParticles->initialPosition = glm::vec3(999, 999, 1.0f);
 		localTime = 0.0f;
 		powerupIsActive = false;
 	}

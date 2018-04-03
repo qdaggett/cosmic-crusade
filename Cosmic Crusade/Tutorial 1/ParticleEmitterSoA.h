@@ -62,6 +62,7 @@ public:
 	// Initialize memory for particles
 	void initialize(unsigned int numParticles);
 	void explosionInit(glm::vec3 pos);
+	void sparkleInit(glm::vec3 pos);
 
 
 	// playback control
@@ -90,6 +91,8 @@ public:
 	VertexBufferObject vbo;
 
 	bool playing;	// false is update is paused
+
+	bool loop = false;
 
 
 	Texture texture;

@@ -32,8 +32,9 @@ void Player::update(Player* otherPlayer)
 	if (invulnerable && invulnerableTimer < invulnerableTime)
 	{
 		invulnerableTimer += updateTimer->getElapsedTimeS();
-		std::cout << invulnerableTimer << std::endl;
-		shield.setLocation(location.x, location.y, -0.5f);
+		//std::cout << invulnerableTimer << std::endl;
+		shield.setLocation(location.x, location.y, 0.0f);
+		shield.collider->sphereCollider.center = glm::vec3(location.x, location.y, 0.0f);
 		//shield.rotate = glm::rotate(shield.ogRotate, 90.f, glm::vec3(0, 0, 0));
 	}
 	else
@@ -89,18 +90,18 @@ void Player::updateProjectiles(std::vector<Enemy*>* enemies, Player* otherPlayer
 			temp.radius = derefEnemies[j]->radius;
 			temp.collider = derefEnemies[j]->collider;
 
-			if (derefEnemies[j]->hitPoints == 0)
+			if (projectiles[i]->collider->Collide(*temp.collider))
 			{
 				hasHit = true;
 				score += 10;
 				hits++;
 				derefEnemies[j]->hitPoints--;
 				derefEnemies[j]->gotDamaged = true;
-				tempEnemy = derefEnemies[j]->location;
+				tempEnemy = projectiles[i]->location;
 
 				if (Player::progress < transformMax)
 				{
-					Player::progress++;
+					Player::progress += 15;
 					//otherPlayer->progress++;
 
 					blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3(1.0f - (.3f * (Player::progress / Player::transformMax)), 1.0f, 1.0f));
@@ -177,7 +178,8 @@ void Player::xin(Player* otherPlayer)
 
 			if (tilted)
 			{
-				shield.collider->boxCollider.size = glm::vec3(1, 0.5f, 0);
+				shield.collider->sphereCollider.radius = 0.5f;
+				shield.collider->sphereCollider.center = glm::vec3(location.x, location.y, 0.0f);
 				if (normalDir.x <= 0.0f)
 				{
 					shield.rotate = glm::rotate(shield.ogRotate, acos(normalDir.y), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -191,7 +193,7 @@ void Player::xin(Player* otherPlayer)
 				shield.move(normalDir.x * 3.0f, normalDir.y * 3.0f);
 			}
 			else
-				shield.collider->boxCollider.size = glm::vec3();
+				shield.collider->sphereCollider.radius = 0.0f;
 		}
 	}
 
@@ -205,11 +207,12 @@ void Player::xin(Player* otherPlayer)
 	{
 		move(lStick.xAxis * 0.55f, lStick.yAxis * 0.55f);
 		otherPlayer->addSpeedUp(-1);
-
+		hasSpedUp = true;
 	}
 
 	else
 	{
+		hasSpedUp = false;
 		if ((location.x <= 27) && (lStick.xAxis >= 0))
 			move(lStick.xAxis * 0.35f, 0.0f);
 
@@ -279,7 +282,7 @@ void Player::xin(Player* otherPlayer)
 		std::cout << playerNum << ", " << progress << std::endl;
 	}
 
-	if (controller.GetButton(playerNum, XBox::LB) && (progress == transformMax))
+	if (controller.GetButton(playerNum, XBox::A) && (progress == transformMax))
 	{
 		isTransformed = true;
 		std::cout << isTransformed << std::endl;
@@ -367,7 +370,7 @@ void Player::shootShotgun()
 		temp->location = glm::vec2(0.0f, 0.0f);
 		temp->move(location.x, location.y);
 
-		glm::vec2 dir = glm::vec2(cos(increment * i - 5.0), sin(increment * i - 5.0));
+		glm::vec2 dir = glm::vec2(cos(increment * i - 4.9), sin(increment * i - 4.9));
 		float length = sqrt((dir.x * dir.x) + (dir.y * dir.y));
 		dir.x /= length;
 		dir.y /= length;

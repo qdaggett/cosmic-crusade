@@ -12,7 +12,7 @@ Ammo::~Ammo()
 
 void Ammo::initializePowerUp(std::vector<ParticleEmitterSoA*>* emitter)
 {
-	//emitters = emitter;
+	emitters = emitter;
 
 	// Creating collider for ammo powerup
 	collider = new Collider(Collider::SPHERE, 0.8f);
@@ -24,6 +24,7 @@ void Ammo::initializePowerUp(std::vector<ParticleEmitterSoA*>* emitter)
 		system("pause");
 		exit(0);
 	}
+	mat.loadTexture(Diffuse, "Textures/green.png");
 }
 
 void Ammo::updatePowerUp(std::vector<Player*> players, float time)
@@ -32,16 +33,22 @@ void Ammo::updatePowerUp(std::vector<Player*> players, float time)
 	this->collider->ColliderUpdate(glm::vec3(location, 0));
 	localTime += time;
 	rotationTick += time;
-	//ParticleEmitterSoA* ammoParticles = new ParticleEmitterSoA();
-	//ammoParticles->explosionInit(glm::vec3(-location.x, location.y, 1.0f));
-	//mat.loadTexture(Diffuse, "Textures/green.png");
-	//ammoParticles->texture = mat.diffuse;
-	//emitters->push_back(ammoParticles);
 
 	if (powerupIsActive == true)
 	{
 		setLocation(spawnPosition.x, spawnPosition.y);
+		if (particleHasPlayed == false)
+		{
+			ammoParticles->sparkleInit(glm::vec3(-spawnPosition.x, spawnPosition.y + 1.2, 1.0f));
+			ammoParticles->texture = mat.diffuse;
+			emitters->push_back(ammoParticles);
+			particleHasPlayed = true;
+		}
 		
+		else
+		{
+			ammoParticles->initialPosition = glm::vec3(-spawnPosition.x, spawnPosition.y + 1.2, 1.0f);
+		}
 	}
 
 	if (this->collider->Collide(*players[0]->collider))
@@ -49,6 +56,7 @@ void Ammo::updatePowerUp(std::vector<Player*> players, float time)
 		collected = true;
 		players[1]->addAmmo(3);
 		setLocation(999, 999);
+		ammoParticles->initialPosition = glm::vec3(999, 999, 1.0f);
 		localTime = 0.0f;
 		powerupIsActive = false;
 	}
@@ -58,6 +66,7 @@ void Ammo::updatePowerUp(std::vector<Player*> players, float time)
 		collected = true;
 		players[0]->addAmmo(3);
 		setLocation(999, 999);
+		ammoParticles->initialPosition = glm::vec3(999, 999, 1.0f);
 		localTime = 0.0f;
 		powerupIsActive = false;
 	}

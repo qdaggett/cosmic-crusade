@@ -17,11 +17,13 @@ public:
 	void setPitchShift();
 
 	bool hasPlayed;
-	bool introHasPlayed;
+	bool introHasPlayed = false;
+	bool winHasPlayed = false;
+	bool loseHasPlayed = false;
 	bool enemyHasShot;
 
 	SoundEngine se;
-	FMOD::Sound *failsound;
+	FMOD::Sound *failSound;
 	FMOD::Sound *music;
 	FMOD::Sound *shoot;
 	FMOD::Sound *shoot2;
@@ -34,7 +36,8 @@ public:
 	FMOD::Sound *ammoUp;
 	FMOD::Sound *timeUp;
 	FMOD::Sound *fuelUp;
-	FMOD::Channel *channel1, *channel2, *channel3, *channel4, *channel5, *channel6, *channel7, *channel8, *channel9, *speedUpChannel, *speedDownChannel, *ammoUpChannel, *timeUpChannel, *fuelUpChannel = 0;
+	FMOD::Sound *winSound;
+	FMOD::Channel *speedUpChannel, *speedDownChannel, *ammoUpChannel, *timeUpChannel, *fuelUpChannel, *winChannel, *failChannel, *monologueChannel, *musicChannel, *playerShootChannel, *shotgunShootChannel, *enemyHitChannel, *playerHitChannel = 0;
 	FMOD_VECTOR soundPos = { 0.0f, 0.0f, 0.0f };
 	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
 	FMOD_RESULT result;
