@@ -44,8 +44,8 @@ void Background::Initialize()
 	back2.setLocation(0, 68, -3);
 	back2.ogLoc = back2.location;
 
-	back1.mat = title;
-	back2.mat = title;
+	back1.mat = loading;
+	back2.mat = loading;
 
 	//std::cout << "Back moved up: " << back1.location.y << ", " << back2.location.y << std::endl;
 }

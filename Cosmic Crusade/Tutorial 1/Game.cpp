@@ -147,6 +147,15 @@ void Game::initializeGame()
 //		exit(0);
 //	}
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	FrameBufferObject::clearFrameBuffer(glm::vec4(0));
+	FrameBufferObject::unbindFrameBuffer((float)GetSystemMetrics(SM_CXSCREEN), (float)GetSystemMetrics(SM_CYSCREEN));
+
+	phong.bind();
+	background.Initialize();
+	background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
+	phong.unbind();
+	glutSwapBuffers();
 
 	if (!basicPlayer.mesh.loadFromFile("meshes/Player_Ship.obj"))
 	{
@@ -260,12 +269,7 @@ void Game::initializeGame()
 	quit.loadTexture(Diffuse, "Textures/Quit.png");
 	quit_un.loadTexture(Diffuse, "Textures/Quit_Un.png");
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	phong.bind();
-	background.Initialize();
-	background.draw(phong, cameraTransform, cameraProjection, pointLights[0]);
-	phong.unbind();
-	glutSwapBuffers();
+
 
 	playButton.mat = play;
 	quitButton.mat = quit_un;
@@ -316,8 +320,6 @@ void Game::initializeGame()
 
 	playButton.move(0, 0);
 	quitButton.move(0, 0);
-
-	std::cout << player.radius << std::endl;
 
 	text.Intialize("Square.ttf");
 
@@ -696,6 +698,16 @@ void Game::draw()
 	}
 	//textShader.bind();
 
+	if (state == monologue)
+	{
+		text_fbo.bindFrameBufferForDrawing();
+		text.RenderText(textShader, cameraOrtho, "LeftStick - Move", -2, 0.5f, 0.01f, glm::vec3(1));
+		text.RenderText(textShader, cameraOrtho, "RightStick - Aim/Shoot", -2.5f, -.5f, 0.01f, glm::vec3(1));
+		text.RenderText(textShader, cameraOrtho, "LB - Shotgun", -1.5f, -1.5f, 0.01f, glm::vec3(1));
+		text.RenderText(textShader, cameraOrtho, "RB - Speed Boost", -2.0f, -2.5f, 0.01f, glm::vec3(1));
+		text_fbo.unbindFrameBuffer(text_fbo.getWidth(), text_fbo.getHeight());
+	}
+
 	if (state == main)
 	{
 		text_fbo.bindFrameBufferForDrawing();
@@ -712,6 +724,9 @@ void Game::draw()
 		{
 			text.RenderText(textShader, cameraOrtho, "LeftStick - Move", -2, 0.5f, 0.01f, glm::vec3(1));
 			text.RenderText(textShader, cameraOrtho, "RightStick - Aim/Shoot", -2.5f, -.5f, 0.01f, glm::vec3(1));
+			text.RenderText(textShader, cameraOrtho, "LB - Shotgun", -1.5f, -1.5f, 0.01f, glm::vec3(1));
+			text.RenderText(textShader, cameraOrtho, "RB - Speed Boost", -2.0f, -2.5f, 0.01f, glm::vec3(1));
+
 		}
 
 		if (Player::progress == Player::transformMax)
@@ -880,11 +895,6 @@ void Game::draw()
 						players[i]->reticle.draw(phong, cameraTransform, cameraProjection, pointLights);
 
 					def.unbindFrameBuffer(def.getWidth(), def.getHeight());
-
-					//toBloom.bindFrameBufferForDrawing();
-					//players[i]->draw(phong, cameraTransform, cameraProjection, pointLights);
-					//players[i]->turret.draw(phong, cameraTransform, cameraProjection, pointLights);
-					//toBloom.unbindFrameBuffer(toBloom.getWidth(), toBloom.getHeight());
 					
 				}
 			}
