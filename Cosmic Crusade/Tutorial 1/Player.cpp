@@ -47,7 +47,7 @@ void Player::update(Player* otherPlayer)
 	if ((isTransformed && otherPlayer->isTransformed) && progress >= 0.0f)
 	{
 		Player::progress -= updateTimer->getElapsedTimeS() * 0.2f;
-		//progress -= updateTimer->getElapsedTimeS() * 0.5f;
+		progress -= updateTimer->getElapsedTimeS() * 0.5f;
 		Player::progress -= updateTimer->getElapsedTimeS();
 		blackBar.scale = glm::scale(blackBar.ogScale, glm::vec3((transformMax - progress) / transformMax, .3f, .3f));
 		blackBar.move(0.0f, 0.0f);
