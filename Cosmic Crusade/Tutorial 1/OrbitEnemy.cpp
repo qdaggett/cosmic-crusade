@@ -101,7 +101,7 @@ void OrbitEnemy::update(std::vector<Player*> players, std::vector<Projectile*>* 
 	//	
 	//}
 
-	move(velocity.x * .4f, velocity.y * .4f);
+	move(velocity.x * .3f, velocity.y * .3f);
 }
 
 void OrbitEnemy::shoot(std::vector<Player*> players, std::vector<Projectile*> *gameProjectiles)

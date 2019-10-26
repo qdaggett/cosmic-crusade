@@ -299,7 +299,11 @@ void EnemyManager::LoadLevel()
 	spawnList.push_back(new EnemyNode(40.0f, glm::vec2(0, 25), Basic));
 	spawnList.push_back(new EnemyNode(40.1f, glm::vec2(-30, 0), BasicMove));
 	spawnList.push_back(new EnemyNode(40.2f, glm::vec2(30, 0), BasicMove));
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> EnemyList
 	spawnList.push_back(new EnemyNode(55, glm::vec2(0, 30), Circle));
 	spawnList.push_back(new EnemyNode(55.1, glm::vec2(0, 30), Circle));
 
@@ -335,7 +339,11 @@ void EnemyManager::LoadLevel()
 	spawnList.push_back(new EnemyNode(170.1f, glm::vec2(30, -20), Circle));
 	spawnList.push_back(new EnemyNode(170.2f, glm::vec2(30, 20), Circle));
 	spawnList.push_back(new EnemyNode(170.3f, glm::vec2(-30, 20), Circle));
+<<<<<<< HEAD
+
+=======
 	
+>>>>>>> EnemyList
 	spawnList.push_back(new EnemyNode(185.0f, glm::vec2(0, -20), Orbit));
 	spawnList.push_back(new EnemyNode(185.1f, glm::vec2(30, 0), Orbit));
 	spawnList.push_back(new EnemyNode(185.2f, glm::vec2(0, 20), Orbit));
