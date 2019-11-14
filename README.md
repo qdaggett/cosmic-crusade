@@ -10,3 +10,5 @@ Credits:
 - Regan Tran: 3D modelling
 - Aaron Macaulay: gameplay programming, enemy AI programming
 - Sawyer Shipp-Wiedersprecher: Texture creation
+
+[![Gameplay footage here](https://user-images.githubusercontent.com/16639056/68903339-d7ceab80-0708-11ea-8260-73eb8eb29ee7.png)](https://www.youtube.com/watch?v=sZ2gvdRBuDk)
